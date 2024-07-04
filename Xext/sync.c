@@ -59,6 +59,7 @@ PERFORMANCE OF THIS SOFTWARE.
 #include <X11/extensions/syncproto.h>
 
 #include "dix/dix_priv.h"
+#include "dix/request_priv.h"
 #include "os/bug_priv.h"
 #include "os/osdep.h"
 
@@ -1267,6 +1268,8 @@ FreeAlarmClient(void *value, XID id)
 static int
 ProcSyncInitialize(ClientPtr client)
 {
+    REQUEST_HEAD_STRUCT(xSyncInitializeReq);
+
     xSyncInitializeReply rep = {
         .type = X_Reply,
         .sequenceNumber = client->sequence,
@@ -1274,8 +1277,6 @@ ProcSyncInitialize(ClientPtr client)
         .majorVersion = SERVER_SYNC_MAJOR_VERSION,
         .minorVersion = SERVER_SYNC_MINOR_VERSION,
     };
-
-    REQUEST_SIZE_MATCH(xSyncInitializeReq);
 
     if (client->swapped) {
         swaps(&rep.sequenceNumber);
@@ -1290,6 +1291,8 @@ ProcSyncInitialize(ClientPtr client)
 static int
 ProcSyncListSystemCounters(ClientPtr client)
 {
+    REQUEST_HEAD_STRUCT(xSyncListSystemCountersReq);
+
     xSyncListSystemCountersReply rep = {
         .type = X_Reply,
         .sequenceNumber = client->sequence,
@@ -1298,8 +1301,6 @@ ProcSyncListSystemCounters(ClientPtr client)
     SysCounterInfo *psci;
     int len = 0;
     xSyncSystemCounter *list = NULL, *walklist = NULL;
-
-    REQUEST_SIZE_MATCH(xSyncListSystemCountersReq);
 
     xorg_list_for_each_entry(psci, &SysCounterList, entry) {
         /* pad to 4 byte boundary */
@@ -1361,11 +1362,12 @@ ProcSyncListSystemCounters(ClientPtr client)
 static int
 ProcSyncSetPriority(ClientPtr client)
 {
-    REQUEST(xSyncSetPriorityReq);
+    REQUEST_HEAD_STRUCT(xSyncSetPriorityReq);
+    REQUEST_FIELD_CARD32(id);
+    REQUEST_FIELD_CARD32(priority);
+
     ClientPtr priorityclient;
     int rc;
-
-    REQUEST_SIZE_MATCH(xSyncSetPriorityReq);
 
     if (stuff->id == None)
         priorityclient = client;
@@ -1396,12 +1398,12 @@ ProcSyncSetPriority(ClientPtr client)
 static int
 ProcSyncGetPriority(ClientPtr client)
 {
-    REQUEST(xSyncGetPriorityReq);
+    REQUEST_HEAD_STRUCT(xSyncGetPriorityReq);
+    REQUEST_FIELD_CARD32(id);
+
     xSyncGetPriorityReply rep;
     ClientPtr priorityclient;
     int rc;
-
-    REQUEST_SIZE_MATCH(xSyncGetPriorityReq);
 
     if (stuff->id == None)
         priorityclient = client;
@@ -1435,10 +1437,12 @@ ProcSyncGetPriority(ClientPtr client)
 static int
 ProcSyncCreateCounter(ClientPtr client)
 {
-    REQUEST(xSyncCreateCounterReq);
-    int64_t initial;
+    REQUEST_HEAD_STRUCT(xSyncCreateCounterReq);
+    REQUEST_FIELD_CARD32(cid);
+    REQUEST_FIELD_CARD32(initial_value_lo);
+    REQUEST_FIELD_CARD32(initial_value_hi);
 
-    REQUEST_SIZE_MATCH(xSyncCreateCounterReq);
+    int64_t initial;
 
     LEGAL_NEW_RESOURCE(stuff->cid, client);
 
@@ -1456,12 +1460,14 @@ ProcSyncCreateCounter(ClientPtr client)
 static int
 ProcSyncSetCounter(ClientPtr client)
 {
-    REQUEST(xSyncSetCounterReq);
+    REQUEST_HEAD_STRUCT(xSyncSetCounterReq);
+    REQUEST_FIELD_CARD32(cid);
+    REQUEST_FIELD_CARD32(value_lo);
+    REQUEST_FIELD_CARD32(value_hi);
+
     SyncCounter *pCounter;
     int64_t newvalue;
     int rc;
-
-    REQUEST_SIZE_MATCH(xSyncSetCounterReq);
 
     rc = dixLookupResourceByType((void **) &pCounter, stuff->cid, RTCounter,
                                  client, DixWriteAccess);
@@ -1484,13 +1490,15 @@ ProcSyncSetCounter(ClientPtr client)
 static int
 ProcSyncChangeCounter(ClientPtr client)
 {
-    REQUEST(xSyncChangeCounterReq);
+    REQUEST_HEAD_STRUCT(xSyncChangeCounterReq);
+    REQUEST_FIELD_CARD32(cid);
+    REQUEST_FIELD_CARD32(value_lo);
+    REQUEST_FIELD_CARD32(value_hi);
+
     SyncCounter *pCounter;
     int64_t newvalue;
     Bool overflow;
     int rc;
-
-    REQUEST_SIZE_MATCH(xSyncChangeCounterReq);
 
     rc = dixLookupResourceByType((void **) &pCounter, stuff->cid, RTCounter,
                                  client, DixWriteAccess);
@@ -1519,11 +1527,11 @@ ProcSyncChangeCounter(ClientPtr client)
 static int
 ProcSyncDestroyCounter(ClientPtr client)
 {
-    REQUEST(xSyncDestroyCounterReq);
+    REQUEST_HEAD_STRUCT(xSyncDestroyCounterReq);
+    REQUEST_FIELD_CARD32(counter);
+
     SyncCounter *pCounter;
     int rc;
-
-    REQUEST_SIZE_MATCH(xSyncDestroyCounterReq);
 
     rc = dixLookupResourceByType((void **) &pCounter, stuff->counter,
                                  RTCounter, client, DixDestroyAccess);
@@ -1600,15 +1608,15 @@ SyncAwaitEpilogue(ClientPtr client, int items, SyncAwaitUnion * pAwaitUnion)
 static int
 ProcSyncAwait(ClientPtr client)
 {
-    REQUEST(xSyncAwaitReq);
+    REQUEST_HEAD_AT_LEAST(xSyncAwaitReq);
+    REQUEST_REST_CARD32();
+
     int len, items;
     int i;
     xSyncWaitCondition *pProtocolWaitConds;
     SyncAwaitUnion *pAwaitUnion;
     SyncAwait *pAwait;
     int status;
-
-    REQUEST_AT_LEAST_SIZE(xSyncAwaitReq);
 
     len = client->req_len << 2;
     len -= sz_xSyncAwaitReq;
@@ -1680,12 +1688,12 @@ ProcSyncAwait(ClientPtr client)
 static int
 ProcSyncQueryCounter(ClientPtr client)
 {
-    REQUEST(xSyncQueryCounterReq);
+    REQUEST_HEAD_STRUCT(xSyncQueryCounterReq);
+    REQUEST_FIELD_CARD32(counter);
+
     xSyncQueryCounterReply rep;
     SyncCounter *pCounter;
     int rc;
-
-    REQUEST_SIZE_MATCH(xSyncQueryCounterReq);
 
     rc = dixLookupResourceByType((void **) &pCounter, stuff->counter,
                                  RTCounter, client, DixReadAccess);
@@ -1722,13 +1730,15 @@ ProcSyncQueryCounter(ClientPtr client)
 static int
 ProcSyncCreateAlarm(ClientPtr client)
 {
-    REQUEST(xSyncCreateAlarmReq);
+    REQUEST_HEAD_AT_LEAST(xSyncCreateAlarmReq);
+    REQUEST_FIELD_CARD32(id);
+    REQUEST_FIELD_CARD32(valueMask);
+    REQUEST_REST_CARD32();
+
     SyncAlarm *pAlarm;
     int status;
     unsigned long len, vmask;
     SyncTrigger *pTrigger;
-
-    REQUEST_AT_LEAST_SIZE(xSyncCreateAlarmReq);
 
     LEGAL_NEW_RESOURCE(stuff->id, client);
 
@@ -1805,13 +1815,15 @@ ProcSyncCreateAlarm(ClientPtr client)
 static int
 ProcSyncChangeAlarm(ClientPtr client)
 {
-    REQUEST(xSyncChangeAlarmReq);
+    REQUEST_HEAD_AT_LEAST(xSyncChangeAlarmReq);
+    REQUEST_FIELD_CARD32(alarm);
+    REQUEST_FIELD_CARD32(valueMask);
+    REQUEST_REST_CARD32();
+
     SyncAlarm *pAlarm;
     SyncCounter *pCounter = NULL;
     long vmask;
     int len, status;
-
-    REQUEST_AT_LEAST_SIZE(xSyncChangeAlarmReq);
 
     status = dixLookupResourceByType((void **) &pAlarm, stuff->alarm, RTAlarm,
                                      client, DixWriteAccess);
@@ -1846,13 +1858,13 @@ ProcSyncChangeAlarm(ClientPtr client)
 static int
 ProcSyncQueryAlarm(ClientPtr client)
 {
-    REQUEST(xSyncQueryAlarmReq);
+    REQUEST_HEAD_STRUCT(xSyncQueryAlarmReq);
+    REQUEST_FIELD_CARD32(alarm);
+
     SyncAlarm *pAlarm;
     xSyncQueryAlarmReply rep;
     SyncTrigger *pTrigger;
     int rc;
-
-    REQUEST_SIZE_MATCH(xSyncQueryAlarmReq);
 
     rc = dixLookupResourceByType((void **) &pAlarm, stuff->alarm, RTAlarm,
                                  client, DixReadAccess);
@@ -1905,12 +1917,11 @@ ProcSyncQueryAlarm(ClientPtr client)
 static int
 ProcSyncDestroyAlarm(ClientPtr client)
 {
+    REQUEST_HEAD_STRUCT(xSyncDestroyAlarmReq);
+    REQUEST_FIELD_CARD32(alarm);
+
     SyncAlarm *pAlarm;
     int rc;
-
-    REQUEST(xSyncDestroyAlarmReq);
-
-    REQUEST_SIZE_MATCH(xSyncDestroyAlarmReq);
 
     rc = dixLookupResourceByType((void **) &pAlarm, stuff->alarm, RTAlarm,
                                  client, DixDestroyAccess);
@@ -1924,12 +1935,13 @@ ProcSyncDestroyAlarm(ClientPtr client)
 static int
 ProcSyncCreateFence(ClientPtr client)
 {
-    REQUEST(xSyncCreateFenceReq);
+    REQUEST_HEAD_STRUCT(xSyncCreateFenceReq);
+    REQUEST_FIELD_CARD32(d);
+    REQUEST_FIELD_CARD32(fid);
+
     DrawablePtr pDraw;
     SyncFence *pFence;
     int rc;
-
-    REQUEST_SIZE_MATCH(xSyncCreateFenceReq);
 
     rc = dixLookupDrawable(&pDraw, stuff->d, client, M_ANY, DixGetAttrAccess);
     if (rc != Success)
@@ -1970,11 +1982,11 @@ SyncVerifyFence(SyncFence ** ppSyncFence, XID fid, ClientPtr client, Mask mode)
 static int
 ProcSyncTriggerFence(ClientPtr client)
 {
-    REQUEST(xSyncTriggerFenceReq);
+    REQUEST_HEAD_STRUCT(xSyncTriggerFenceReq);
+    REQUEST_FIELD_CARD32(fid);
+
     SyncFence *pFence;
     int rc;
-
-    REQUEST_SIZE_MATCH(xSyncTriggerFenceReq);
 
     rc = dixLookupResourceByType((void **) &pFence, stuff->fid, RTFence,
                                  client, DixWriteAccess);
@@ -1989,11 +2001,11 @@ ProcSyncTriggerFence(ClientPtr client)
 static int
 ProcSyncResetFence(ClientPtr client)
 {
-    REQUEST(xSyncResetFenceReq);
+    REQUEST_HEAD_STRUCT(xSyncResetFenceReq);
+    REQUEST_FIELD_CARD32(fid);
+
     SyncFence *pFence;
     int rc;
-
-    REQUEST_SIZE_MATCH(xSyncResetFenceReq);
 
     rc = dixLookupResourceByType((void **) &pFence, stuff->fid, RTFence,
                                  client, DixWriteAccess);
@@ -2011,11 +2023,11 @@ ProcSyncResetFence(ClientPtr client)
 static int
 ProcSyncDestroyFence(ClientPtr client)
 {
-    REQUEST(xSyncDestroyFenceReq);
+    REQUEST_HEAD_STRUCT(xSyncDestroyFenceReq);
+    REQUEST_FIELD_CARD32(fid);
+
     SyncFence *pFence;
     int rc;
-
-    REQUEST_SIZE_MATCH(xSyncDestroyFenceReq);
 
     rc = dixLookupResourceByType((void **) &pFence, stuff->fid, RTFence,
                                  client, DixDestroyAccess);
@@ -2029,12 +2041,12 @@ ProcSyncDestroyFence(ClientPtr client)
 static int
 ProcSyncQueryFence(ClientPtr client)
 {
-    REQUEST(xSyncQueryFenceReq);
+    REQUEST_HEAD_STRUCT(xSyncQueryFenceReq);
+    REQUEST_FIELD_CARD32(fid);
+
     xSyncQueryFenceReply rep;
     SyncFence *pFence;
     int rc;
-
-    REQUEST_SIZE_MATCH(xSyncQueryFenceReq);
 
     rc = dixLookupResourceByType((void **) &pFence, stuff->fid,
                                  RTFence, client, DixReadAccess);
@@ -2061,7 +2073,9 @@ ProcSyncQueryFence(ClientPtr client)
 static int
 ProcSyncAwaitFence(ClientPtr client)
 {
-    REQUEST(xSyncAwaitFenceReq);
+    REQUEST_HEAD_AT_LEAST(xSyncAwaitFenceReq);
+    REQUEST_REST_CARD32();
+
     SyncAwaitUnion *pAwaitUnion;
     SyncAwait *pAwait;
 
@@ -2072,8 +2086,6 @@ ProcSyncAwaitFence(ClientPtr client)
     int len;
     int items;
     int i;
-
-    REQUEST_AT_LEAST_SIZE(xSyncAwaitFenceReq);
 
     len = client->req_len << 2;
     len -= sz_xSyncAwaitFenceReq;
@@ -2191,252 +2203,6 @@ ProcSyncDispatch(ClientPtr client)
 }
 
 /*
- * Boring Swapping stuff ...
- */
-
-static int _X_COLD
-SProcSyncCreateCounter(ClientPtr client)
-{
-    REQUEST(xSyncCreateCounterReq);
-    REQUEST_SIZE_MATCH(xSyncCreateCounterReq);
-    swapl(&stuff->cid);
-    swapl(&stuff->initial_value_lo);
-    swapl(&stuff->initial_value_hi);
-
-    return ProcSyncCreateCounter(client);
-}
-
-static int _X_COLD
-SProcSyncSetCounter(ClientPtr client)
-{
-    REQUEST(xSyncSetCounterReq);
-    REQUEST_SIZE_MATCH(xSyncSetCounterReq);
-    swapl(&stuff->cid);
-    swapl(&stuff->value_lo);
-    swapl(&stuff->value_hi);
-
-    return ProcSyncSetCounter(client);
-}
-
-static int _X_COLD
-SProcSyncChangeCounter(ClientPtr client)
-{
-    REQUEST(xSyncChangeCounterReq);
-    REQUEST_SIZE_MATCH(xSyncChangeCounterReq);
-    swapl(&stuff->cid);
-    swapl(&stuff->value_lo);
-    swapl(&stuff->value_hi);
-
-    return ProcSyncChangeCounter(client);
-}
-
-static int _X_COLD
-SProcSyncQueryCounter(ClientPtr client)
-{
-    REQUEST(xSyncQueryCounterReq);
-    REQUEST_SIZE_MATCH(xSyncQueryCounterReq);
-    swapl(&stuff->counter);
-
-    return ProcSyncQueryCounter(client);
-}
-
-static int _X_COLD
-SProcSyncDestroyCounter(ClientPtr client)
-{
-    REQUEST(xSyncDestroyCounterReq);
-    REQUEST_SIZE_MATCH(xSyncDestroyCounterReq);
-    swapl(&stuff->counter);
-
-    return ProcSyncDestroyCounter(client);
-}
-
-static int _X_COLD
-SProcSyncAwait(ClientPtr client)
-{
-    REQUEST(xSyncAwaitReq);
-    REQUEST_AT_LEAST_SIZE(xSyncAwaitReq);
-    SwapRestL(stuff);
-
-    return ProcSyncAwait(client);
-}
-
-static int _X_COLD
-SProcSyncCreateAlarm(ClientPtr client)
-{
-    REQUEST(xSyncCreateAlarmReq);
-    REQUEST_AT_LEAST_SIZE(xSyncCreateAlarmReq);
-    swapl(&stuff->id);
-    swapl(&stuff->valueMask);
-    SwapRestL(stuff);
-
-    return ProcSyncCreateAlarm(client);
-}
-
-static int _X_COLD
-SProcSyncChangeAlarm(ClientPtr client)
-{
-    REQUEST(xSyncChangeAlarmReq);
-    REQUEST_AT_LEAST_SIZE(xSyncChangeAlarmReq);
-    swapl(&stuff->alarm);
-    swapl(&stuff->valueMask);
-    SwapRestL(stuff);
-    return ProcSyncChangeAlarm(client);
-}
-
-static int _X_COLD
-SProcSyncQueryAlarm(ClientPtr client)
-{
-    REQUEST(xSyncQueryAlarmReq);
-    REQUEST_SIZE_MATCH(xSyncQueryAlarmReq);
-    swapl(&stuff->alarm);
-
-    return ProcSyncQueryAlarm(client);
-}
-
-static int _X_COLD
-SProcSyncDestroyAlarm(ClientPtr client)
-{
-    REQUEST(xSyncDestroyAlarmReq);
-    REQUEST_SIZE_MATCH(xSyncDestroyAlarmReq);
-    swapl(&stuff->alarm);
-
-    return ProcSyncDestroyAlarm(client);
-}
-
-static int _X_COLD
-SProcSyncSetPriority(ClientPtr client)
-{
-    REQUEST(xSyncSetPriorityReq);
-    REQUEST_SIZE_MATCH(xSyncSetPriorityReq);
-    swapl(&stuff->id);
-    swapl(&stuff->priority);
-
-    return ProcSyncSetPriority(client);
-}
-
-static int _X_COLD
-SProcSyncGetPriority(ClientPtr client)
-{
-    REQUEST(xSyncGetPriorityReq);
-    REQUEST_SIZE_MATCH(xSyncGetPriorityReq);
-    swapl(&stuff->id);
-
-    return ProcSyncGetPriority(client);
-}
-
-static int _X_COLD
-SProcSyncCreateFence(ClientPtr client)
-{
-    REQUEST(xSyncCreateFenceReq);
-    REQUEST_SIZE_MATCH(xSyncCreateFenceReq);
-    swapl(&stuff->d);
-    swapl(&stuff->fid);
-
-    return ProcSyncCreateFence(client);
-}
-
-static int _X_COLD
-SProcSyncTriggerFence(ClientPtr client)
-{
-    REQUEST(xSyncTriggerFenceReq);
-    REQUEST_SIZE_MATCH(xSyncTriggerFenceReq);
-    swapl(&stuff->fid);
-
-    return ProcSyncTriggerFence(client);
-}
-
-static int _X_COLD
-SProcSyncResetFence(ClientPtr client)
-{
-    REQUEST(xSyncResetFenceReq);
-    REQUEST_SIZE_MATCH(xSyncResetFenceReq);
-    swapl(&stuff->fid);
-
-    return ProcSyncResetFence(client);
-}
-
-static int _X_COLD
-SProcSyncDestroyFence(ClientPtr client)
-{
-    REQUEST(xSyncDestroyFenceReq);
-    REQUEST_SIZE_MATCH(xSyncDestroyFenceReq);
-    swapl(&stuff->fid);
-
-    return ProcSyncDestroyFence(client);
-}
-
-static int _X_COLD
-SProcSyncQueryFence(ClientPtr client)
-{
-    REQUEST(xSyncQueryFenceReq);
-    REQUEST_SIZE_MATCH(xSyncQueryFenceReq);
-    swapl(&stuff->fid);
-
-    return ProcSyncQueryFence(client);
-}
-
-static int _X_COLD
-SProcSyncAwaitFence(ClientPtr client)
-{
-    REQUEST(xSyncAwaitFenceReq);
-    REQUEST_AT_LEAST_SIZE(xSyncAwaitFenceReq);
-    SwapRestL(stuff);
-
-    return ProcSyncAwaitFence(client);
-}
-
-static int _X_COLD
-SProcSyncDispatch(ClientPtr client)
-{
-    REQUEST(xReq);
-
-    switch (stuff->data) {
-    case X_SyncInitialize:
-        return ProcSyncInitialize(client);
-    case X_SyncListSystemCounters:
-        return ProcSyncListSystemCounters(client);
-    case X_SyncCreateCounter:
-        return SProcSyncCreateCounter(client);
-    case X_SyncSetCounter:
-        return SProcSyncSetCounter(client);
-    case X_SyncChangeCounter:
-        return SProcSyncChangeCounter(client);
-    case X_SyncQueryCounter:
-        return SProcSyncQueryCounter(client);
-    case X_SyncDestroyCounter:
-        return SProcSyncDestroyCounter(client);
-    case X_SyncAwait:
-        return SProcSyncAwait(client);
-    case X_SyncCreateAlarm:
-        return SProcSyncCreateAlarm(client);
-    case X_SyncChangeAlarm:
-        return SProcSyncChangeAlarm(client);
-    case X_SyncQueryAlarm:
-        return SProcSyncQueryAlarm(client);
-    case X_SyncDestroyAlarm:
-        return SProcSyncDestroyAlarm(client);
-    case X_SyncSetPriority:
-        return SProcSyncSetPriority(client);
-    case X_SyncGetPriority:
-        return SProcSyncGetPriority(client);
-    case X_SyncCreateFence:
-        return SProcSyncCreateFence(client);
-    case X_SyncTriggerFence:
-        return SProcSyncTriggerFence(client);
-    case X_SyncResetFence:
-        return SProcSyncResetFence(client);
-    case X_SyncDestroyFence:
-        return SProcSyncDestroyFence(client);
-    case X_SyncQueryFence:
-        return SProcSyncQueryFence(client);
-    case X_SyncAwaitFence:
-        return SProcSyncAwaitFence(client);
-    default:
-        return BadRequest;
-    }
-}
-
-/*
  * Event Swapping
  */
 
@@ -2509,7 +2275,7 @@ SyncExtensionInit(void)
         RTAlarmClient == 0 ||
         (extEntry = AddExtension(SYNC_NAME,
                                  XSyncNumberEvents, XSyncNumberErrors,
-                                 ProcSyncDispatch, SProcSyncDispatch,
+                                 ProcSyncDispatch, ProcSyncDispatch,
                                  SyncResetProc, StandardMinorOpcode)) == NULL) {
         ErrorF("Sync Extension %d.%d failed to Initialise\n",
                SYNC_MAJOR_VERSION, SYNC_MINOR_VERSION);
