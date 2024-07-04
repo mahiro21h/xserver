@@ -677,19 +677,15 @@ ProcShapeQueryExtents(ClientPtr client)
         .heightClipShape = shapeBox.y2 - shapeBox.y1,
     };
 
-    if (client->swapped) {
-        swaps(&rep.sequenceNumber);
-        swapl(&rep.length);
-        swaps(&rep.xBoundingShape);
-        swaps(&rep.yBoundingShape);
-        swaps(&rep.widthBoundingShape);
-        swaps(&rep.heightBoundingShape);
-        swaps(&rep.xClipShape);
-        swaps(&rep.yClipShape);
-        swaps(&rep.widthClipShape);
-        swaps(&rep.heightClipShape);
-    }
-    WriteToClient(client, sizeof(xShapeQueryExtentsReply), &rep);
+    REPLY_FIELD_CARD16(xBoundingShape);
+    REPLY_FIELD_CARD16(yBoundingShape);
+    REPLY_FIELD_CARD16(widthBoundingShape);
+    REPLY_FIELD_CARD16(heightBoundingShape);
+    REPLY_FIELD_CARD16(xClipShape);
+    REPLY_FIELD_CARD16(yClipShape);
+    REPLY_FIELD_CARD16(widthClipShape);
+    REPLY_FIELD_CARD16(heightClipShape);
+    REPLY_SEND();
     return Success;
 }
 
@@ -935,16 +931,10 @@ ProcShapeInputSelected(ClientPtr client)
     }
 
     xShapeInputSelectedReply rep = {
-        .type = X_Reply,
         .enabled = enabled,
-        .sequenceNumber = client->sequence,
     };
 
-    if (client->swapped) {
-        swaps(&rep.sequenceNumber);
-        swapl(&rep.length);
-    }
-    WriteToClient(client, sizeof(xShapeInputSelectedReply), &rep);
+    REPLY_SEND();
     return Success;
 }
 
@@ -1021,20 +1011,14 @@ ProcShapeGetRectangles(ClientPtr client)
         return BadAlloc;
 
     xShapeGetRectanglesReply rep = {
-        .type = X_Reply,
         .ordering = YXBanded,
-        .sequenceNumber = client->sequence,
-        .length = x_rpcbuf_wsize_units(&rpcbuf),
         .nrects = nrects
     };
 
-    if (client->swapped) {
-        swaps(&rep.sequenceNumber);
-        swapl(&rep.length);
-        swapl(&rep.nrects);
-    }
-    WriteToClient(client, sizeof(rep), &rep);
-    WriteRpcbufToClient(client, &rpcbuf);
+    REPLY_BUF_CARD16(rects, (unsigned long) nrects * 4);
+    REPLY_FIELD_CARD32(nrects);
+    REPLY_SEND_EXTRA(rects, nrects * sizeof(xRectangle));
+    free(rects);
     return Success;
 }
 
