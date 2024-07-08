@@ -196,15 +196,14 @@ DestroyConstructResourceBytesCtx(ConstructResourceBytesCtx *ctx)
 static int
 ProcXResQueryVersion(ClientPtr client)
 {
+    REQUEST_SIZE_MATCH(xXResQueryVersionReq);
+
     xXResQueryVersionReply rep = {
         .type = X_Reply,
         .sequenceNumber = client->sequence,
-        .length = 0,
         .server_major = SERVER_XRES_MAJOR_VERSION,
         .server_minor = SERVER_XRES_MINOR_VERSION
     };
-
-    REQUEST_SIZE_MATCH(xXResQueryVersionReq);
 
     if (client->swapped) {
         swaps(&rep.sequenceNumber);
@@ -219,17 +218,14 @@ ProcXResQueryVersion(ClientPtr client)
 static int
 ProcXResQueryClients(ClientPtr client)
 {
-    /* REQUEST(xXResQueryClientsReq); */
-    xXResQueryClientsReply rep;
-    int i, num_clients;
-
     REQUEST_SIZE_MATCH(xXResQueryClientsReq);
+
+    int i, num_clients = 0;
 
     int *current_clients = calloc(currentMaxClients, sizeof(int));
     if (!current_clients)
         return BadAlloc;
 
-    num_clients = 0;
     for (i = 0; i < currentMaxClients; i++) {
         if (clients[i]) {
             if (XaceHookClientAccess(client, clients[i], DixReadAccess) == Success) {
@@ -239,7 +235,7 @@ ProcXResQueryClients(ClientPtr client)
         }
     }
 
-    rep = (xXResQueryClientsReply) {
+    xXResQueryClientsReply rep = {
         .type = X_Reply,
         .sequenceNumber = client->sequence,
         .length = bytes_to_int32(num_clients * sz_xXResClient),
@@ -302,9 +298,6 @@ static int
 ProcXResQueryClientResources(ClientPtr client)
 {
     REQUEST(xXResQueryClientResourcesReq);
-    xXResQueryClientResourcesReply rep;
-    int i, num_types;
-
     REQUEST_SIZE_MATCH(xXResQueryClientResourcesReq);
 
     ClientPtr resClient = dixClientForXID(stuff->xid);
@@ -322,14 +315,13 @@ ProcXResQueryClientResources(ClientPtr client)
 
     FindAllClientResources(resClient, ResFindAllRes, counts);
 
-    num_types = 0;
-
-    for (i = 0; i <= lastResourceType; i++) {
+    int num_types = 0;
+    for (int i = 0; i <= lastResourceType; i++) {
         if (counts[i])
             num_types++;
     }
 
-    rep = (xXResQueryClientResourcesReply) {
+    xXResQueryClientResourcesReply rep = {
         .type = X_Reply,
         .sequenceNumber = client->sequence,
         .length = bytes_to_int32(num_types * sz_xXResType),
@@ -346,7 +338,7 @@ ProcXResQueryClientResources(ClientPtr client)
     if (num_types) {
         xXResType scratch;
 
-        for (i = 0; i < lastResourceType; i++) {
+        for (int i = 0; i < lastResourceType; i++) {
             if (!counts[i])
                 continue;
 
@@ -381,8 +373,6 @@ static int
 ProcXResQueryClientPixmapBytes(ClientPtr client)
 {
     REQUEST(xXResQueryClientPixmapBytesReq);
-    xXResQueryClientPixmapBytesReply rep;
-
     REQUEST_SIZE_MATCH(xXResQueryClientPixmapBytesReq);
 
     ClientPtr owner = dixClientForXID(stuff->xid);
@@ -397,15 +387,12 @@ ProcXResQueryClientPixmapBytes(ClientPtr client)
     FindAllClientResources(owner, ResFindResourcePixmaps,
                            (void *) (&bytes));
 
-    rep = (xXResQueryClientPixmapBytesReply) {
+    xXResQueryClientPixmapBytesReply rep = {
         .type = X_Reply,
         .sequenceNumber = client->sequence,
-        .length = 0,
         .bytes = bytes,
 #ifdef _XSERVER64
         .bytes_overflow = bytes >> 32
-#else
-        .bytes_overflow = 0
 #endif
     };
     if (client->swapped) {
@@ -464,9 +451,10 @@ static Bool
 ConstructClientIdValue(ClientPtr sendClient, ClientPtr client, CARD32 mask,
                        ConstructClientIdCtx *ctx)
 {
-    xXResClientIdValue rep;
+    xXResClientIdValue rep = {
+        .spec.client = client->clientAsMask,
+    };
 
-    rep.spec.client = client->clientAsMask;
     if (client->swapped) {
         swapl (&rep.spec.client);
     }
@@ -478,7 +466,6 @@ ConstructClientIdValue(ClientPtr sendClient, ClientPtr client, CARD32 mask,
         }
 
         rep.spec.mask = X_XResClientXIDMask;
-        rep.length = 0;
         if (sendClient->swapped) {
             swapl (&rep.spec.mask);
             /* swapl (&rep.length, n); - not required for rep.length = 0 */
@@ -507,9 +494,6 @@ ConstructClientIdValue(ClientPtr sendClient, ClientPtr client, CARD32 mask,
             if (sendClient->swapped) {
                 swapl (&rep.spec.mask);
                 swapl (&rep.length);
-            }
-
-            if (sendClient->swapped) {
                 swapl (value);
             }
             memcpy(ptr, &rep, sizeof(rep));
@@ -595,14 +579,14 @@ ProcXResQueryClientIds (ClientPtr client)
     rc = ConstructClientIds(client, stuff->numSpecs, specs, &ctx);
 
     if (rc == Success) {
-        xXResQueryClientIdsReply  rep = {
+        assert((ctx.resultBytes & 3) == 0);
+
+        xXResQueryClientIdsReply rep = {
             .type = X_Reply,
             .sequenceNumber = client->sequence,
             .length = bytes_to_int32(ctx.resultBytes),
             .numIds = ctx.numIds
         };
-
-        assert((ctx.resultBytes & 3) == 0);
 
         if (client->swapped) {
             swaps (&rep.sequenceNumber);
@@ -952,11 +936,11 @@ static int
 ProcXResQueryResourceBytes (ClientPtr client)
 {
     REQUEST(xXResQueryResourceBytesReq);
+    REQUEST_AT_LEAST_SIZE(xXResQueryResourceBytesReq);
 
     int                          rc;
     ConstructResourceBytesCtx    ctx;
 
-    REQUEST_AT_LEAST_SIZE(xXResQueryResourceBytesReq);
     if (stuff->numSpecs > UINT32_MAX / sizeof(ctx.specs[0]))
         return BadLength;
     REQUEST_FIXED_SIZE(xXResQueryResourceBytesReq,
