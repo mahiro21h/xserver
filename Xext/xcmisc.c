@@ -54,19 +54,13 @@ ProcXCMiscGetVersion(ClientPtr client)
     REQUEST_FIELD_CARD16(minorVersion);
 
     xXCMiscGetVersionReply rep = {
-        .type = X_Reply,
-        .sequenceNumber = client->sequence,
-        .length = 0,
         .majorVersion = XCMiscMajorVersion,
         .minorVersion = XCMiscMinorVersion
     };
 
-    if (client->swapped) {
-        swaps(&rep.sequenceNumber);
-        swaps(&rep.majorVersion);
-        swaps(&rep.minorVersion);
-    }
-    WriteToClient(client, sizeof(xXCMiscGetVersionReply), &rep);
+    REPLY_FIELD_CARD16(majorVersion);
+    REPLY_FIELD_CARD16(minorVersion);
+    REPLY_SEND();
     return Success;
 }
 
@@ -79,18 +73,13 @@ ProcXCMiscGetXIDRange(ClientPtr client)
     GetXIDRange(client->index, FALSE, &min_id, &max_id);
 
     xXCMiscGetXIDRangeReply rep = {
-        .type = X_Reply,
-        .sequenceNumber = client->sequence,
-        .length = 0,
         .start_id = min_id,
         .count = max_id - min_id + 1
     };
-    if (client->swapped) {
-        swaps(&rep.sequenceNumber);
-        swapl(&rep.start_id);
-        swapl(&rep.count);
-    }
-    WriteToClient(client, sizeof(xXCMiscGetXIDRangeReply), &rep);
+
+    REPLY_FIELD_CARD32(start_id);
+    REPLY_FIELD_CARD32(count);
+    REPLY_SEND();
     return Success;
 }
 
@@ -123,19 +112,12 @@ ProcXCMiscGetXIDList(ClientPtr client)
         return BadAlloc;
 
     xXCMiscGetXIDListReply rep = {
-        .type = X_Reply,
-        .sequenceNumber = client->sequence,
         .length = count,
         .count = count
     };
-    if (client->swapped) {
-        swaps(&rep.sequenceNumber);
-        swapl(&rep.length);
-        swapl(&rep.count);
-    }
-
-    WriteToClient(client, sizeof(xXCMiscGetXIDListReply), &rep);
-    WriteRpcbufToClient(client, &rpcbuf);
+    REPLY_FIELD_CARD32(length);
+    REPLY_FIELD_CARD32(count);
+    REPLY_SEND_EXTRA(rpcbuf.buffer, rpcbuf.wpos);
     return Success;
 }
 
