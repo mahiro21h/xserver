@@ -135,8 +135,7 @@ ProcXISelectEvents(ClientPtr client)
             if (len < bytes_to_int32(sizeof(xXIEventMask)))
                 return BadLength;
             len -= bytes_to_int32(sizeof(xXIEventMask));
-            swaps(&evmask->deviceid);
-            swaps(&evmask->mask_len);
+            CLIENT_STRUCT_CARD16_2(evmask, deviceid, mask_len);
             if (len < evmask->mask_len)
                 return BadLength;
             len -= evmask->mask_len;
@@ -338,9 +337,7 @@ ProcXIGetSelectedEvents(ClientPtr client)
         return rc;
 
     xXIGetSelectedEventsReply rep = {
-        .repType = X_Reply,
         .RepType = X_XIGetSelectedEvents,
-        .sequenceNumber = client->sequence,
     };
 
     masks = wOtherInputMasks(win);
@@ -377,12 +374,9 @@ ProcXIGetSelectedEvents(ClientPtr client)
                 evmask->deviceid = i;
                 evmask->mask_len = mask_len;
                 rep.num_masks++;
-                rep.length += sizeof(xXIEventMask) / 4 + evmask->mask_len;
+                length += sizeof(xXIEventMask) + mask_len * 4;
 
-                if (client->swapped) {
-                    swaps(&evmask->deviceid);
-                    swaps(&evmask->mask_len);
-                }
+                CLIENT_STRUCT_CARD16_2(evmask, deviceid, mask_len);
 
                 memcpy(&evmask[1], devmask, j + 1);
                 evmask = (xXIEventMask *) ((char *) evmask +
@@ -395,13 +389,7 @@ ProcXIGetSelectedEvents(ClientPtr client)
 finish: ;
     uint32_t length = rep.length; /* save before swapping it */
 
-    if (client->swapped) {
-        swaps(&rep.sequenceNumber);
-        swapl(&rep.length);
-        swaps(&rep.num_masks);
-    }
-    WriteToClient(client, sizeof(xXIGetSelectedEventsReply), &rep);
-    WriteToClient(client, length * 4, buffer);
-
+    REPLY_FIELD_CARD16(num_masks);
+    REPLY_SEND_EXTRA(buffer, length);
     return Success;
 }

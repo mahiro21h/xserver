@@ -87,9 +87,7 @@ ProcXGetDeviceFocus(ClientPtr client)
     focus = dev->focus;
 
     xGetDeviceFocusReply rep = {
-        .repType = X_Reply,
         .RepType = X_GetDeviceFocus,
-        .sequenceNumber = client->sequence,
         .time = focus->time.milliseconds,
         .revertTo = focus->revert,
     };
@@ -103,15 +101,8 @@ ProcXGetDeviceFocus(ClientPtr client)
     else
         rep.focus = focus->win->drawable.id;
 
-    rep.time = focus->time.milliseconds;
-    rep.revertTo = focus->revert;
-
-    if (client->swapped) {
-        swaps(&rep.sequenceNumber);
-        swapl(&rep.length);
-        swapl(&rep.focus);
-        swapl(&rep.time);
-    }
-    WriteToClient(client, sizeof(xGetDeviceFocusReply), &rep);
+    REPLY_FIELD_CARD32(focus);
+    REPLY_FIELD_CARD32(time);
+    REPLY_SEND();
     return Success;
 }
