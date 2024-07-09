@@ -79,7 +79,7 @@ request_XISetClientPointer(xXISetClientPointerReq * req, int error)
 
     swapl(&req->win);
     swaps(&req->deviceid);
-    rc = SProcXISetClientPointer(&client_request);
+    rc = ProcXISetClientPointer(&client_request);
     assert(rc == error);
 
     if (rc == BadDevice)

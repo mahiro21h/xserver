@@ -33,7 +33,6 @@
 #ifndef QUERYVERSION_H
 #define QUERYVERSION_H 1
 
-int SProcXIQueryVersion(ClientPtr client);
 int ProcXIQueryVersion(ClientPtr client);
 
 #endif                          /* QUERYVERSION_H */

@@ -31,9 +31,7 @@
 #define XIGRABDEV_H 1
 
 int ProcXIGrabDevice(ClientPtr client);
-int SProcXIGrabDevice(ClientPtr client);
 
 int ProcXIUngrabDevice(ClientPtr client);
-int SProcXIUngrabDevice(ClientPtr client);
 
 #endif                          /* XIGRABDEV_H */
