@@ -82,14 +82,15 @@ ProcXGetDeviceFocus(ClientPtr client)
     if (!dev->focus)
         return BadDevice;
 
+    focus = dev->focus;
+
     xGetDeviceFocusReply rep = {
         .repType = X_Reply,
         .RepType = X_GetDeviceFocus,
         .sequenceNumber = client->sequence,
-        .length = 0
+        .time = focus->time.milliseconds,
+        .revertTo = focus->revert,
     };
-
-    focus = dev->focus;
 
     if (focus->win == NoneWin)
         rep.focus = None;
