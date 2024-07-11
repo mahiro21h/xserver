@@ -244,7 +244,6 @@ int
 ProcXGetFeedbackControl(ClientPtr client)
 {
     int rc, total_length = 0;
-    char *savbuf;
     DeviceIntPtr dev;
     KbdFeedbackPtr k;
     PtrFeedbackPtr p;
@@ -298,7 +297,7 @@ ProcXGetFeedbackControl(ClientPtr client)
     char *buf = (char *) calloc(1, total_length);
     if (!buf)
         return BadAlloc;
-    savbuf = buf;
+    char *savbuf = buf;
 
     for (k = dev->kbdfeed; k; k = k->next)
         CopySwapKbdFeedback(client, k, &buf);
@@ -322,6 +321,5 @@ ProcXGetFeedbackControl(ClientPtr client)
     }
     WriteToClient(client, sizeof(xGetFeedbackControlReply), &rep);
     WriteToClient(client, total_length, savbuf);
-    free(savbuf);
     return Success;
 }

@@ -342,7 +342,6 @@ ProcXIGetSelectedEvents(ClientPtr client)
 {
     int rc, i;
     WindowPtr win;
-    char *buffer = NULL;
     OtherInputMasks *masks;
     InputClientsPtr others = NULL;
     xXIEventMask *evmask = NULL;
@@ -374,10 +373,8 @@ ProcXIGetSelectedEvents(ClientPtr client)
     if (!others)
         goto finish;
 
-    buffer =
-        calloc(MAXDEVICES, sizeof(xXIEventMask) + pad_to_int32(XI2MASKSIZE));
-    if (!buffer)
-        return BadAlloc;
+    char buffer[MAXDEVICES * (sizeof(xXIEventMask) + pad_to_int32(XI2MASKSIZE))];
+    memset(buffer, 0, sizeof(buffer));
 
     evmask = (xXIEventMask *) buffer;
     for (i = 0; i < MAXDEVICES; i++) {
@@ -423,6 +420,5 @@ finish: ;
     WriteToClient(client, sizeof(xXIGetSelectedEventsReply), &rep);
     WriteToClient(client, length * 4, buffer);
 
-    free(buffer);
     return Success;
 }

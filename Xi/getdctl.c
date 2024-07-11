@@ -153,7 +153,6 @@ int
 ProcXGetDeviceControl(ClientPtr client)
 {
     int rc, total_length = 0;
-    char *savbuf;
     DeviceIntPtr dev;
 
     REQUEST(xGetDeviceControlReq);
@@ -186,7 +185,7 @@ ProcXGetDeviceControl(ClientPtr client)
     char *buf = calloc(1, total_length);
     if (!buf)
         return BadAlloc;
-    savbuf = buf;
+    char *savbuf = buf;
 
     switch (stuff->control) {
     case DEVICE_RESOLUTION:
