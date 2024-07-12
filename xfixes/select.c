@@ -23,6 +23,7 @@
 #include <dix-config.h>
 
 #include "dix/dix_priv.h"
+#include "dix/request_priv.h"
 
 #include "xfixesint.h"
 #include "xace.h"
@@ -189,15 +190,26 @@ ProcXFixesSelectSelectionInput(ClientPtr client)
     return Success;
 }
 
-int _X_COLD
-SProcXFixesSelectSelectionInput(ClientPtr client)
+int
+ProcXFixesSelectSelectionInput(ClientPtr client)
 {
-    REQUEST(xXFixesSelectSelectionInputReq);
-    REQUEST_SIZE_MATCH(xXFixesSelectSelectionInputReq);
-    swapl(&stuff->window);
-    swapl(&stuff->selection);
-    swapl(&stuff->eventMask);
-    return ProcXFixesSelectSelectionInput(client);
+    REQUEST_HEAD_STRUCT(xXFixesSelectSelectionInputReq);
+    REQUEST_FIELD_CARD32(window);
+    REQUEST_FIELD_CARD32(selection);
+    REQUEST_FIELD_CARD32(eventMask);
+
+    WindowPtr pWin;
+    int rc;
+
+    rc = dixLookupWindow(&pWin, stuff->window, client, DixGetAttrAccess);
+    if (rc != Success)
+        return rc;
+    if (stuff->eventMask & ~SelectionAllEvents) {
+        client->errorValue = stuff->eventMask;
+        return BadValue;
+    }
+    return XFixesSelectSelectionInput(client, stuff->selection,
+                                      pWin, stuff->eventMask);
 }
 
 void _X_COLD
