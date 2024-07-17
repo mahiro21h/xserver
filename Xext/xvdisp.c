@@ -446,8 +446,7 @@ ProcXvGrabPort(ClientPtr client)
         swapl(&rep.length);
     }
 
-    WriteToClient(client, sz_xvGrabPortReply, &rep);
-
+    WriteToClient(client, sizeof(rep), &rep);
     return Success;
 }
 
@@ -569,7 +568,7 @@ ProcXvGetPortAttribute(ClientPtr client)
         swapl(&rep.value);
     }
 
-    WriteToClient(client, sz_xvGetPortAttributeReply, &rep);
+    WriteToClient(client, sizeof(rep), &rep);
     return Success;
 }
 
@@ -603,7 +602,7 @@ ProcXvQueryBestSize(ClientPtr client)
         swaps(&rep.actual_height);
     }
 
-    WriteToClient(client, sz_xvQueryBestSizeReply, &rep);
+    WriteToClient(client, sizeof(rep), &rep);
     return Success;
 }
 
@@ -641,7 +640,7 @@ ProcXvQueryPortAttributes(ClientPtr client)
         swapl(&rep.text_size);
     }
 
-    WriteToClient(client, sz_xvQueryPortAttributesReply, &rep);
+    WriteToClient(client, sizeof(rep), &rep);
 
     for (i = 0, pAtt = pPort->pAdaptor->pAttributes;
          i < pPort->pAdaptor->nAttributes; i++, pAtt++) {
@@ -660,7 +659,7 @@ ProcXvQueryPortAttributes(ClientPtr client)
             swapl(&Info.max);
         }
 
-        WriteToClient(client, sz_xvAttributeInfo, &Info);
+        WriteToClient(client, sizeof(Info), &Info);
         WriteToClient(client, size, pAtt->name);
     }
 
@@ -903,7 +902,7 @@ ProcXvQueryImageAttributes(ClientPtr client)
         SwapLongs((CARD32 *) offsets, rep.length);
     }
 
-    WriteToClient(client, sz_xvQueryImageAttributesReply, &rep);
+    WriteToClient(client, sizeof(rep), &rep);
     WriteToClient(client, rep.length * sizeof(CARD32), offsets);
     free(offsets);
     return Success;
@@ -936,7 +935,7 @@ ProcXvListImageFormats(ClientPtr client)
         swapl(&rep.num_formats);
     }
 
-    WriteToClient(client, sz_xvListImageFormatsReply, &rep);
+    WriteToClient(client, sizeof(rep), &rep);
 
     pImage = pPort->pAdaptor->pImages;
 
@@ -981,7 +980,7 @@ ProcXvListImageFormats(ClientPtr client)
             swapl(&info.vert_v_period);
         }
 
-        WriteToClient(client, sz_xvImageFormatInfo, &info);
+        WriteToClient(client, sizeof(info), &info);
     }
 
     return Success;
