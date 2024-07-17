@@ -1245,16 +1245,11 @@ ProcVidModeGetMonitor(ClientPtr client)
                                  pad_to_int32(modelLength)),
     };
 
-    hsyncdata = calloc(nHsync, sizeof(CARD32));
+    CARD32 *hsyncdata = calloc(nHsync + nVrefresh, sizeof(CARD32));
     if (!hsyncdata) {
         return BadAlloc;
     }
-    vsyncdata = calloc(nVrefresh, sizeof(CARD32));
-
-    if (!vsyncdata) {
-        free(hsyncdata);
-        return BadAlloc;
-    }
+    vsyncdata = &hsyncdata[nHsync];
 
     for (i = 0; i < nHsync; i++) {
         hsyncdata[i] = (unsigned short) (pVidMode->GetMonitorValue(pScreen,
@@ -1276,22 +1271,12 @@ ProcVidModeGetMonitor(ClientPtr client)
     if (client->swapped) {
         swaps(&rep.sequenceNumber);
         swapl(&rep.length);
-        SwapLongs(hsyncdata, sizeof(hsyncdata));
-        SwapLongs(vsyncdata, sizeof(vsyncdata));
+        SwapLongs(hsyncdata, nHsync + nVrefresh);
     }
+
     WriteToClient(client, SIZEOF(xXF86VidModeGetMonitorReply), &rep);
-    WriteToClient(client, sizeof(hsyncdata), hsyncdata);
-    WriteToClient(client, sizeof(vsyncdata), vsyncdata);
-    if (rep.vendorLength)
-        WriteToClient(client, rep.vendorLength,
-                 (pVidMode->GetMonitorValue(pScreen, VIDMODE_MON_VENDOR, 0)).ptr);
-    if (rep.modelLength)
-        WriteToClient(client, rep.modelLength,
-                 (pVidMode->GetMonitorValue(pScreen, VIDMODE_MON_MODEL, 0)).ptr);
-
+    WriteToClient(client, (nHsync + nVrefresh) * sizeof(CARD32), hsyncdata);
     free(hsyncdata);
-    free(vsyncdata);
-
     return Success;
 }
 
