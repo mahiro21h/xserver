@@ -348,10 +348,7 @@ SELinuxSendItemsToClient(ClientPtr client, SELinuxListItemRec * items,
                          int size, int count)
 {
     int rc = BadAlloc, k, pos = 0;
-    CARD32 *buf = calloc(size, sizeof(CARD32));
-    if (size && !buf) {
-        goto out;
-    }
+    CARD32 buf[size];
 
     if (!buf) // silence analyzer warning
         goto sendreply;
@@ -398,11 +395,8 @@ sendreply: ;
     WriteToClient(client, size * 4, buf);
 
     /* Free stuff and return */
-    rc = Success;
-    free(buf);
- out:
     SELinuxFreeItems(items, count);
-    return rc;
+    return Success;
 }
 
 static int
