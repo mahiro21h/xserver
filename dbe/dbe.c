@@ -117,23 +117,14 @@ ProcDbeGetVersion(ClientPtr client)
     REQUEST_HEAD_STRUCT(xDbeGetVersionReq);
 
     xDbeGetVersionReply rep = {
-        .type = X_Reply,
-        .sequenceNumber = client->sequence,
-        .length = 0,
         .majorVersion = DBE_MAJOR_VERSION,
         .minorVersion = DBE_MINOR_VERSION
     };
 
-    if (client->swapped) {
-        swaps(&rep.sequenceNumber);
-    }
-
-    WriteToClient(client, sizeof(xDbeGetVersionReply), &rep);
-
+    REPLY_SEND();
     return Success;
+}
 
-}                               /* ProcDbeGetVersion() */
-
 /******************************************************************************
  *
  * DBE DIX Procedure: ProcDbeAllocateBackBufferName
@@ -654,7 +645,13 @@ ProcDbeGetVisualInfo(ClientPtr client)
 
         free(visualInfo.visinfo);
     }
-    WriteToClient(client, length, buf);
+
+    xDbeGetVisualInfoReply rep = {
+        .m = count
+    };
+
+    REPLY_FIELD_CARD32(m);
+    REPLY_SEND_EXTRA(buf, length);
 
     if (rpcbuf.error) {
         rc = BadAlloc;
@@ -708,35 +705,22 @@ ProcDbeGetBackBufferAttributes(ClientPtr client)
     REQUEST_HEAD_STRUCT(xDbeGetBackBufferAttributesReq);
     REQUEST_FIELD_CARD32(buffer);
 
-    xDbeGetBackBufferAttributesReply rep = {
-        .type = X_Reply,
-        .sequenceNumber = client->sequence,
-        .length = 0
-    };
     DbeWindowPrivPtr pDbeWindowPriv;
     int rc;
 
     rc = dixLookupResourceByType((void **) &pDbeWindowPriv, stuff->buffer,
                                  dbeWindowPrivResType, client,
                                  DixGetAttrAccess);
-    if (rc == Success) {
-        rep.attributes = pDbeWindowPriv->pWindow->drawable.id;
-    }
-    else {
-        rep.attributes = None;
-    }
 
-    if (client->swapped) {
-        swaps(&rep.sequenceNumber);
-        swapl(&rep.length);
-        swapl(&rep.attributes);
-    }
+    xDbeGetBackBufferAttributesReply rep = {
+        .attributes = (rc == Success) ? pDbeWindowPriv->pWindow->drawable.id : None,
+    };
 
-    WriteToClient(client, sizeof(xDbeGetBackBufferAttributesReply), &rep);
+    REPLY_FIELD_CARD32(attributes);
+    REPLY_SEND();
     return Success;
+}
 
-}                               /* ProcDbeGetbackBufferAttributes() */
-
 /******************************************************************************
  *
  * DBE DIX Procedure: ProcDbeDispatch
