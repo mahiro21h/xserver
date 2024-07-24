@@ -127,6 +127,11 @@ ProcXvQueryAdaptors(ClientPtr client)
         pa++;
     }
 
+    char *payload = calloc(1, totalSize);
+    if (!payload)
+        return BadAlloc;
+    char *walk = payload;
+
     rep.length = bytes_to_int32(totalSize);
 
     if (client->swapped) {
@@ -148,10 +153,10 @@ ProcXvQueryAdaptors(ClientPtr client)
         };
 
         if (client->swapped) {
-            swapl(&ainfo.base_id);
-            swaps(&ainfo.name_size);
-            swaps(&ainfo.num_ports);
-            swaps(&ainfo.num_formats);
+            swapl(&ainfo->base_id);
+            swaps(&ainfo->name_size);
+            swaps(&ainfo->num_ports);
+            swaps(&ainfo->num_formats);
         }
 
         WriteToClient(client, sz_xvAdaptorInfo, &ainfo);
@@ -176,6 +181,9 @@ ProcXvQueryAdaptors(ClientPtr client)
         pa++;
     }
 
+    WriteToClient(client, sizeof(rep), &rep);
+    WriteToClient(client, totalSize, payload);
+    free(payload);
     return Success;
 }
 
