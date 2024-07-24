@@ -943,12 +943,13 @@ ProcXvListImageFormats(ClientPtr client)
 
     VALIDATE_XV_PORT(stuff->port, pPort, DixReadAccess);
 
+    int payload_size = pPort->pAdaptor->nImages * sz_xvImageFormatInfo;
+
     xvListImageFormatsReply rep = {
         .type = X_Reply,
         .sequenceNumber = client->sequence,
         .num_formats = pPort->pAdaptor->nImages,
-        .length =
-            bytes_to_int32(pPort->pAdaptor->nImages * sz_xvImageFormatInfo)
+        .length = bytes_to_int32(payload_size)
     };
 
     if (client->swapped) {
@@ -957,9 +958,11 @@ ProcXvListImageFormats(ClientPtr client)
         swapl(&rep.num_formats);
     }
 
-    WriteToClient(client, sizeof(rep), &rep);
-
     pImage = pPort->pAdaptor->pImages;
+
+    xvImageFormatInfo *info = calloc(1, payload_size);
+    if (!info)
+        return BadAlloc;
 
     for (i = 0; i < pPort->pAdaptor->nImages; i++, pImage++) {
         xvImageFormatInfo info;
@@ -987,24 +990,25 @@ ProcXvListImageFormats(ClientPtr client)
         info.scanline_order = pImage->scanline_order;
 
         if (client->swapped) {
-            swapl(&info.id);
-            swapl(&info.red_mask);
-            swapl(&info.green_mask);
-            swapl(&info.blue_mask);
-            swapl(&info.y_sample_bits);
-            swapl(&info.u_sample_bits);
-            swapl(&info.v_sample_bits);
-            swapl(&info.horz_y_period);
-            swapl(&info.horz_u_period);
-            swapl(&info.horz_v_period);
-            swapl(&info.vert_y_period);
-            swapl(&info.vert_u_period);
-            swapl(&info.vert_v_period);
+            swapl(&info[i].id);
+            swapl(&info[i].red_mask);
+            swapl(&info[i].green_mask);
+            swapl(&info[i].blue_mask);
+            swapl(&info[i].y_sample_bits);
+            swapl(&info[i].u_sample_bits);
+            swapl(&info[i].v_sample_bits);
+            swapl(&info[i].horz_y_period);
+            swapl(&info[i].horz_u_period);
+            swapl(&info[i].horz_v_period);
+            swapl(&info[i].vert_y_period);
+            swapl(&info[i].vert_u_period);
+            swapl(&info[i].vert_v_period);
         }
-
-        WriteToClient(client, sizeof(info), &info);
     }
 
+    WriteToClient(client, sizeof(rep), &rep);
+    WriteToClient(client, payload_size, info);
+    free(info);
     return Success;
 }
 
