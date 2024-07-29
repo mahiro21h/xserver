@@ -211,6 +211,8 @@ ProcRRSelectInput(ClientPtr client)
     return Success;
 }
 
+#define HANDLER(name) case X_##name: return Proc##name(client)
+
 int
 ProcRRDispatch(ClientPtr client)
 {
@@ -218,61 +220,61 @@ ProcRRDispatch(ClientPtr client)
     UpdateCurrentTimeIf();
 
     switch (stuff->data) {
-        case X_RRQueryVersion:              return ProcRRQueryVersion(client);
-        case X_RRSetScreenConfig:           return ProcRRSetScreenConfig(client);
-        case X_RRSelectInput:               return ProcRRSelectInput(client);
-        case X_RRGetScreenInfo:             return ProcRRGetScreenInfo(client);
+        HANDLER(RRQueryVersion);
+        HANDLER(RRSetScreenConfig);
+        HANDLER(RRSelectInput);
+        HANDLER(RRGetScreenInfo);
 
         /* V1.2 additions */
-        case X_RRGetScreenSizeRange:        return ProcRRGetScreenSizeRange(client);
-        case X_RRSetScreenSize:             return ProcRRSetScreenSize(client);
-        case X_RRGetScreenResources:        return ProcRRGetScreenResources(client);
-        case X_RRGetOutputInfo:             return ProcRRGetOutputInfo(client);
-        case X_RRListOutputProperties:      return ProcRRListOutputProperties(client);
-        case X_RRQueryOutputProperty:       return ProcRRQueryOutputProperty(client);
-        case X_RRConfigureOutputProperty:   return ProcRRConfigureOutputProperty(client);
-        case X_RRChangeOutputProperty:      return ProcRRChangeOutputProperty(client);
-        case X_RRDeleteOutputProperty:      return ProcRRDeleteOutputProperty(client);
-        case X_RRGetOutputProperty:         return ProcRRGetOutputProperty(client);
-        case X_RRCreateMode:                return ProcRRCreateMode(client);
-        case X_RRDestroyMode:               return ProcRRDestroyMode(client);
-        case X_RRAddOutputMode:             return ProcRRAddOutputMode(client);
-        case X_RRDeleteOutputMode:          return ProcRRDeleteOutputMode(client);
-        case X_RRGetCrtcInfo:               return ProcRRGetCrtcInfo(client);
-        case X_RRSetCrtcConfig:             return ProcRRSetCrtcConfig(client);
-        case X_RRGetCrtcGammaSize:          return ProcRRGetCrtcGammaSize(client);
-        case X_RRGetCrtcGamma:              return ProcRRGetCrtcGamma(client);
-        case X_RRSetCrtcGamma:              return ProcRRSetCrtcGamma(client);
+        HANDLER(RRGetScreenSizeRange);
+        HANDLER(RRSetScreenSize);
+        HANDLER(RRGetScreenResources);
+        HANDLER(RRGetOutputInfo);
+        HANDLER(RRListOutputProperties);
+        HANDLER(RRQueryOutputProperty);
+        HANDLER(RRConfigureOutputProperty);
+        HANDLER(RRChangeOutputProperty);
+        HANDLER(RRDeleteOutputProperty);
+        HANDLER(RRGetOutputProperty);
+        HANDLER(RRCreateMode);
+        HANDLER(RRDestroyMode);
+        HANDLER(RRAddOutputMode);
+        HANDLER(RRDeleteOutputMode);
+        HANDLER(RRGetCrtcInfo);
+        HANDLER(RRSetCrtcConfig);
+        HANDLER(RRGetCrtcGammaSize);
+        HANDLER(RRGetCrtcGamma);
+        HANDLER(RRSetCrtcGamma);
 
         /* V1.3 additions */
-        case X_RRGetScreenResourcesCurrent: return ProcRRGetScreenResourcesCurrent(client);
-        case X_RRSetCrtcTransform:          return ProcRRSetCrtcTransform(client);
-        case X_RRGetCrtcTransform:          return ProcRRGetCrtcTransform(client);
-        case X_RRGetPanning:                return ProcRRGetPanning(client);
-        case X_RRSetPanning:                return ProcRRSetPanning(client);
-        case X_RRSetOutputPrimary:          return ProcRRSetOutputPrimary(client);
-        case X_RRGetOutputPrimary:          return ProcRRGetOutputPrimary(client);
+        HANDLER(RRGetScreenResourcesCurrent);
+        HANDLER(RRSetCrtcTransform);
+        HANDLER(RRGetCrtcTransform);
+        HANDLER(RRGetPanning);
+        HANDLER(RRSetPanning);
+        HANDLER(RRSetOutputPrimary);
+        HANDLER(RRGetOutputPrimary);
 
         /* V1.4 additions */
-        case X_RRGetProviders:              return ProcRRGetProviders(client);
-        case X_RRGetProviderInfo:           return ProcRRGetProviderInfo(client);
-        case X_RRSetProviderOffloadSink:    return ProcRRSetProviderOffloadSink(client);
-        case X_RRSetProviderOutputSource:   return ProcRRSetProviderOutputSource(client);
-        case X_RRListProviderProperties:    return ProcRRListProviderProperties(client);
-        case X_RRQueryProviderProperty:     return ProcRRQueryProviderProperty(client);
-        case X_RRConfigureProviderProperty: return ProcRRConfigureProviderProperty(client);
-        case X_RRChangeProviderProperty:    return ProcRRChangeProviderProperty(client);
-        case X_RRDeleteProviderProperty:    return ProcRRDeleteProviderProperty(client);
-        case X_RRGetProviderProperty:       return ProcRRGetProviderProperty(client);
+        HANDLER(RRGetProviders);
+        HANDLER(RRGetProviderInfo);
+        HANDLER(RRSetProviderOffloadSink);
+        HANDLER(RRSetProviderOutputSource);
+        HANDLER(RRListProviderProperties);
+        HANDLER(RRQueryProviderProperty);
+        HANDLER(RRConfigureProviderProperty);
+        HANDLER(RRChangeProviderProperty);
+        HANDLER(RRDeleteProviderProperty);
+        HANDLER(RRGetProviderProperty);
 
         /* V1.5 additions */
-        case X_RRGetMonitors:               return ProcRRGetMonitors(client);
-        case X_RRSetMonitor:                return ProcRRSetMonitor(client);
-        case X_RRDeleteMonitor:             return ProcRRDeleteMonitor(client);
+        HANDLER(RRGetMonitors);
+        HANDLER(RRSetMonitor);
+        HANDLER(RRDeleteMonitor);
 
         /* V1.6 additions */
-        case X_RRCreateLease:               return ProcRRCreateLease(client);
-        case X_RRFreeLease:                 return ProcRRFreeLease(client);
+        HANDLER(RRCreateLease);
+        HANDLER(RRFreeLease);
     }
 
     return BadRequest;
