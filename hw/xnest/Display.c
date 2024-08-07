@@ -50,7 +50,7 @@ int xnestNumPixmapFormats;
 Drawable xnestDefaultDrawables[MAXDEPTH + 1];
 Pixmap xnestIconBitmap;
 Pixmap xnestScreenSaverPixmap;
-XlibGC xnestBitmapGC;
+uint32_t xnestBitmapGC;
 unsigned long xnestEventMask;
 
 static int _X_NORETURN
@@ -154,7 +154,12 @@ xnestOpenDisplay(int argc, char *argv[])
                 xnestDefaultDrawables[xnestPixmapFormats[i].depth] = pixmap;
             }
 
-    xnestBitmapGC = XCreateGC(xnestDisplay, xnestDefaultDrawables[1], 0L, NULL);
+    xnestBitmapGC = xcb_generate_id(xnestUpstreamInfo.conn);
+    xcb_create_gc(xnestUpstreamInfo.conn,
+                  xnestBitmapGC,
+                  xnestDefaultDrawables[1],
+                  0,
+                  NULL);
 
     if (!(xnestUserGeometry & XValue))
         xnestX = 0;
