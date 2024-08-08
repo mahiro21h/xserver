@@ -47,8 +47,6 @@ int *xnestDepths;
 int xnestNumDepths;
 XPixmapFormatValues *xnestPixmapFormats;
 int xnestNumPixmapFormats;
-Pixel xnestBlackPixel;
-Pixel xnestWhitePixel;
 Drawable xnestDefaultDrawables[MAXDEPTH + 1];
 Pixmap xnestIconBitmap;
 Pixmap xnestScreenSaverPixmap;
@@ -133,9 +131,6 @@ xnestOpenDisplay(int argc, char *argv[])
     xnestPixmapFormats = XListPixmapFormats(xnestDisplay,
                                             &xnestNumPixmapFormats);
 
-    xnestBlackPixel = BlackPixel(xnestDisplay, xnestUpstreamInfo.screenId);
-    xnestWhitePixel = WhitePixel(xnestDisplay, xnestUpstreamInfo.screenId);
-
     if (xnestParentWindow != (Window) 0)
         xnestEventMask = XCB_EVENT_MASK_STRUCTURE_NOTIFY;
     else
@@ -183,8 +178,8 @@ xnestOpenDisplay(int argc, char *argv[])
                                     (char *) screensaver_bits,
                                     screensaver_width,
                                     screensaver_height,
-                                    xnestWhitePixel,
-                                    xnestBlackPixel,
+                                    xnestUpstreamInfo.screenInfo->white_pixel,
+                                    xnestUpstreamInfo.screenInfo->black_pixel,
                                     DefaultDepth(xnestDisplay, xnestUpstreamInfo.screenId));
 }
 
