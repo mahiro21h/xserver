@@ -27,7 +27,6 @@ is" without express or implied warranty.
 #include "scrnintstr.h"
 #include "servermd.h"
 
-#include "Xnest.h"
 #include "xnest-xcb.h"
 
 #include "Display.h"
@@ -38,10 +37,7 @@ is" without express or implied warranty.
 #include "screensaver"
 
 Display *xnestDisplay = NULL;
-XVisualInfo *xnestVisuals;
-int xnestNumVisuals;
 Colormap *xnestDefaultColormaps;
-static uint16_t xnestNumDefaultColormaps;
 int xnestNumPixmapFormats;
 Drawable xnestDefaultDrawables[MAXDEPTH + 1];
 Pixmap xnestIconBitmap;
@@ -61,8 +57,6 @@ x_io_error_handler(Display * dpy)
 void
 xnestOpenDisplay(int argc, char *argv[])
 {
-    XVisualInfo vi;
-    long mask;
     int i;
 
     if (!xnestDoFullGeneration)
@@ -81,24 +75,6 @@ xnestOpenDisplay(int argc, char *argv[])
         XSynchronize(xnestDisplay, TRUE);
 
     xnest_upstream_setup();
-
-    mask = VisualScreenMask;
-    vi.screen = xnestUpstreamInfo.screenId;
-    xnestVisuals = XGetVisualInfo(xnestDisplay, mask, &vi, &xnestNumVisuals);
-    if (xnestNumVisuals == 0 || xnestVisuals == NULL)
-        FatalError("Unable to find any visuals.\n");
-
-    xnestNumDefaultColormaps = xnestNumVisuals;
-    xnestDefaultColormaps = xallocarray(xnestNumDefaultColormaps,
-                                        sizeof(Colormap));
-    for (i = 0; i < xnestNumDefaultColormaps; i++) {
-        xnestDefaultColormaps[i] = xcb_generate_id(xnestUpstreamInfo.conn);
-        xcb_create_colormap(xnestUpstreamInfo.conn,
-                            XCB_COLORMAP_ALLOC_NONE,
-                            xnestDefaultColormaps[i],
-                            xnestUpstreamInfo.screenInfo->root,
-                            xnestVisuals[i].visual->visualid);
-    }
 
     if (xnestParentWindow != (Window) 0)
         xnestEventMask = XCB_EVENT_MASK_STRUCTURE_NOTIFY;
@@ -183,7 +159,5 @@ xnestCloseDisplay(void)
     xnestVisualMap = NULL;
     xnestNumVisualMap = 0;
 
-    free(xnestDefaultColormaps);
-    XFree(xnestVisuals);
     XCloseDisplay(xnestDisplay);
 }
