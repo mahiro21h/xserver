@@ -36,7 +36,6 @@ is" without express or implied warranty.
 #include "icon"
 #include "screensaver"
 
-Display *xnestDisplay = NULL;
 Colormap *xnestDefaultColormaps;
 int xnestNumPixmapFormats;
 Drawable xnestDefaultDrawables[MAXDEPTH + 1];
@@ -44,15 +43,6 @@ Pixmap xnestIconBitmap;
 Pixmap xnestScreenSaverPixmap;
 uint32_t xnestBitmapGC;
 uint32_t xnestEventMask;
-
-static int _X_NORETURN
-x_io_error_handler(Display * dpy)
-{
-    ErrorF("Lost connection to X server: %s\n", strerror(errno));
-    CloseWellKnownConnections();
-    OsCleanup(1);
-    exit(1);
-}
 
 void
 xnestOpenDisplay(int argc, char *argv[])
@@ -62,16 +52,10 @@ xnestOpenDisplay(int argc, char *argv[])
     if (!xnestDoFullGeneration)
         return;
 
-    XSetIOErrorHandler(x_io_error_handler);
-
     xnestCloseDisplay();
 
-    xnestDisplay = XOpenDisplay(xnestDisplayName);
-    if (xnestDisplay == NULL)
-        FatalError("Unable to open display \"%s\".\n",
-                   XDisplayName(xnestDisplayName));
-
-    xnest_upstream_setup();
+    if (!xnest_upstream_setup(xnestDisplayName))
+        FatalError("Unable to open display \"%s\".\n", xnestDisplayName);
 
     if (xnestParentWindow != (Window) 0)
         xnestEventMask = XCB_EVENT_MASK_STRUCTURE_NOTIFY;
@@ -145,7 +129,7 @@ xnestOpenDisplay(int argc, char *argv[])
 void
 xnestCloseDisplay(void)
 {
-    if (!xnestDoFullGeneration || !xnestDisplay)
+    if (!xnestDoFullGeneration || !xnestUpstreamInfo.conn)
         return;
 
     /*
@@ -156,5 +140,8 @@ xnestCloseDisplay(void)
     xnestVisualMap = NULL;
     xnestNumVisualMap = 0;
 
-    XCloseDisplay(xnestDisplay);
+    xcb_disconnect(xnestUpstreamInfo.conn);
+    xnestUpstreamInfo.conn = NULL;
+    xnestUpstreamInfo.screenInfo = NULL;
+    xnestUpstreamInfo.setup = NULL;
 }
