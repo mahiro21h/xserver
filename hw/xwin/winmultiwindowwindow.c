@@ -160,12 +160,9 @@ winDestroyWindowMultiWindow(WindowPtr pWin)
 Bool
 winPositionWindowMultiWindow(WindowPtr pWin, int x, int y)
 {
-    Bool fResult = TRUE;
     int iX, iY, iWidth, iHeight;
-    ScreenPtr pScreen = pWin->drawable.pScreen;
 
     winWindowPriv(pWin);
-    winScreenPriv(pScreen);
 
     HWND hWnd = pWinPriv->hWnd;
     RECT rcNew;
@@ -182,9 +179,7 @@ winPositionWindowMultiWindow(WindowPtr pWin, int x, int y)
     winTrace("winPositionWindowMultiWindow - pWin: %p\n", pWin);
 #endif
 
-    WIN_UNWRAP(PositionWindow);
-    fResult = (*pScreen->PositionWindow) (pWin, x, y);
-    WIN_WRAP(PositionWindow, winPositionWindowMultiWindow);
+    Bool fResult = fbPositionWindow(pWin, x, y);
 
 #if ENABLE_DEBUG
     ErrorF("winPositionWindowMultiWindow: (x, y) = (%d, %d)\n", x, y);
