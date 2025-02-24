@@ -37,7 +37,6 @@
 #include "os/bug_priv.h"
 
 #include "scrnintstr.h"
-#include "colormapst.h"
 #include "resource.h"
 #include "globals.h"
 #include "micmap.h"
