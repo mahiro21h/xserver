@@ -127,6 +127,8 @@ Equipment Corporation.
 #include "dix/registry_priv.h"
 #include "dix/resource_priv.h"
 #include "os/osdep.h"
+#include "Xext/panoramiX.h"
+#include "Xext/panoramiXsrv.h"
 
 #include "misc.h"
 #include "os.h"
@@ -138,10 +140,6 @@ Equipment Corporation.
 #include "colormap.h"
 #include "inputstr.h"
 #include "cursor.h"
-#ifdef XINERAMA
-#include "panoramiX.h"
-#include "panoramiXsrv.h"
-#endif /* XINERAMA */
 #include "xace.h"
 #include <assert.h>
 #include "gcstruct.h"
