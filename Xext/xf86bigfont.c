@@ -57,6 +57,10 @@
 #include <X11/X.h>
 #include <X11/Xproto.h>
 #include <X11/extensions/xf86bigfproto.h>
+#include <X11/fonts/fontstruct.h> // libxfont2.h missed to include that
+#include <X11/fonts/libxfont2.h>
+
+#include "include/extinit_priv.h"
 
 #include "misc.h"
 #include "os.h"
@@ -538,8 +542,8 @@ ProcXF86BigfontQueryFont(ClientPtr client)
                : 0);
 
         xXF86BigfontQueryFontReply rep = {
-            .type = X_Reply;
-            .length = bytes_to_int32(buflength),
+            .type = X_Reply,
+            .length = bytes_to_int32(rlength + sizeof(xXF86BigfontQueryFontReply) - sizeof(xGenericReply)),
             .sequenceNumber = client->sequence,
             .minBounds = pFont->info.ink_minbounds,
             .maxBounds = pFont->info.ink_maxbounds,
@@ -650,13 +654,6 @@ ProcXF86BigfontDispatch(ClientPtr client)
 }
 
 static int _X_COLD
-SProcXF86BigfontQueryVersion(ClientPtr client)
-{
-    REQUEST(xXF86BigfontQueryVersionReq);
-    return ProcXF86BigfontQueryVersion(client);
-}
-
-static int _X_COLD
 SProcXF86BigfontQueryFont(ClientPtr client)
 {
     REQUEST(xXF86BigfontQueryFontReq);
@@ -672,7 +669,7 @@ SProcXF86BigfontDispatch(ClientPtr client)
 
     switch (stuff->data) {
     case X_XF86BigfontQueryVersion:
-        return SProcXF86BigfontQueryVersion(client);
+        return ProcXF86BigfontQueryVersion(client);
     case X_XF86BigfontQueryFont:
         return SProcXF86BigfontQueryFont(client);
     default:
