@@ -23,6 +23,7 @@
 #include "include/events.h"
 #include "include/gc.h"
 #include "include/input.h"
+#include "include/resource.h"
 #include "include/window.h"
 
 /* server setting: maximum size for big requests */
