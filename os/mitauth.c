@@ -51,6 +51,13 @@ MitAddCookie(unsigned short data_length, const char *data)
 {
     struct auth *new;
 
+    // check for possible duplicate and return it instead
+    for (struct auth *walk=mit_auth; walk; walk=walk->next) {
+        if ((walk->len == data_length) &&
+            (memcmp(walk->data, data, data_length) == 0))
+            return walk->id;
+    }
+
     new = malloc(sizeof(struct auth));
     if (!new)
         return 0;

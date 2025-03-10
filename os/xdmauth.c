@@ -354,6 +354,14 @@ XdmAddCookie(unsigned short data_length, const char *data)
     /* the first octet of the key must be zero */
     if (key_bits[0] != '\0')
         return 0;
+
+    /* check for possible duplicate and return it */
+    for (XdmAuthorizationRec *walk = xdmAuth; walk; walk=walk->next) {
+        if ((memcmp(walk->key.data, key_bits, 8)==0) &&
+            (memcmp(walk->rho.data, rho_bits, 8)==0))
+            return walk->id;
+    }
+
     new = malloc(sizeof(XdmAuthorizationRec));
     if (!new)
         return 0;
