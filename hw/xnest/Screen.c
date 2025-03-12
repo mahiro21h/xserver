@@ -204,7 +204,7 @@ xnestOpenScreen(ScreenPtr pScreen, int argc, char *argv[])
         if (j < numVisuals)
             break;
 
-        visuals[numVisuals].vid = FakeClientID(0);
+        visuals[numVisuals].vid = dixAllocServerXID();
 
         depthIndex = UNDEFINED;
         for (j = 0; j < numDepths; j++)
@@ -247,7 +247,7 @@ xnestOpenScreen(ScreenPtr pScreen, int argc, char *argv[])
                       numVisuals, visuals))
         return FALSE;
 
-    pScreen->defColormap = (Colormap) FakeClientID(0);
+    pScreen->defColormap = (Colormap) dixAllocServerXID();
     pScreen->minInstalledCmaps = MINCMAPS;
     pScreen->maxInstalledCmaps = MAXCMAPS;
     pScreen->backingStoreSupport = NotUseful;

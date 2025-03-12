@@ -1027,7 +1027,7 @@ SyncCreateSystemCounter(const char *name,
                         SyncSystemCounterBracketValues BracketValues
     )
 {
-    SyncCounter *pCounter = SyncCreateCounter(NULL, FakeClientID(0), initial);
+    SyncCounter *pCounter = SyncCreateCounter(NULL, dixAllocServerXID(), initial);
 
     if (pCounter) {
         SysCounterInfo *psci;

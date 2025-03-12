@@ -2854,7 +2854,7 @@ InputClientGone(WindowPtr pWin, XID id)
                     FreeInputClient(&other);
                 }
                 else {
-                    other->resource = FakeClientID(0);
+                    other->resource = dixAllocServerXID();
                     if (!AddResource(other->resource, RT_INPUTCLIENT,
                                      (void *) pWin))
                         return BadAlloc;

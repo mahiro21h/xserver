@@ -401,7 +401,7 @@ RRProviderCreate(ScreenPtr pScreen, const char *name,
     if (!provider)
         return NULL;
 
-    provider->id = FakeClientID(0);
+    provider->id = dixAllocServerXID();
     provider->pScreen = pScreen;
     provider->name = (char *) (provider + 1);
     provider->nameLength = nameLength;
