@@ -261,10 +261,9 @@ ProcSELinuxGetPropertyContext(ClientPtr client, void *privKey)
     if (rc != Success)
         return rc;
 
-    rc = dixLookupProperty(&pProp, pWin, stuff->property, client,
-                           DixGetAttrAccess);
-    if (rc != Success)
-        return rc;
+    pProp = dixLookupProperty(pWin, stuff->property, client, DixGetAttrAccess);
+    if (!pProp)
+        return BadMatch;
 
     obj = dixLookupPrivate(&pProp->devPrivates, privKey);
     return SELinuxSendContextReply(client, obj->sid);

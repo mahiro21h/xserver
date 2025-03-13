@@ -92,23 +92,22 @@ PrintPropertys(WindowPtr pWin)
 }
 #endif
 
-int
-dixLookupProperty(PropertyPtr *result, WindowPtr pWin, Atom propertyName,
-                  ClientPtr client, Mask access_mode)
+PropertyPtr dixLookupProperty(WindowPtr pWin, Atom propertyName,
+                              ClientPtr client, Mask access_mode)
 {
     PropertyPtr pProp;
     int rc = BadMatch;
 
     client->errorValue = propertyName;
 
-    for (pProp = pWin->properties; pProp; pProp = pProp->next)
-        if (pProp->propertyName == propertyName)
-            break;
+    for (pProp = wUserProps(pWin); pProp; pProp = pProp->next)
+        if (pProp->propertyName == propertyName) {
+            if (XaceHookPropertyAccess(client, pWin, &pProp, access_mode) != Success)
+                return NULL;
+            return pProp;
+        }
 
-    if (pProp)
-        rc = XaceHookPropertyAccess(client, pWin, &pProp, access_mode);
-    *result = pProp;
-    return rc;
+    return NULL;
 }
 
 static void
@@ -223,6 +222,7 @@ ProcRotateProperties(ClientPtr client)
 
         if (rc != Success)
             goto out;
+        }
 
         props[i] = pProp;
         saved[i] = *pProp;
@@ -333,7 +333,7 @@ dixChangeWindowProperty(ClientPtr pClient, WindowPtr pWin, Atom property,
     access_mode = (mode == PropModeReplace) ? DixWriteAccess : DixBlendAccess;
 
     /* first see if property already exists */
-    rc = dixLookupProperty(&pProp, pWin, property, pClient, access_mode);
+    pProp = dixLookupProperty(pWin, property, pClient, access_mode);
 
     if (rc == BadMatch) {       /* just add to list */
         if (!MakeWindowOptional(pWin))
@@ -365,7 +365,7 @@ dixChangeWindowProperty(ClientPtr pClient, WindowPtr pWin, Atom property,
         pProp->next = pWin->properties;
         pWin->properties = pProp;
     }
-    else if (rc == Success) {
+    else {
         /* To append or prepend to a property the request format and type
            must match those of the already defined property.  The
            existing format and type are irrelevant when using the mode
@@ -427,8 +427,6 @@ dixChangeWindowProperty(ClientPtr pClient, WindowPtr pWin, Atom property,
             return rc;
         }
     }
-    else
-        return rc;
 
     if (sendevent) {
         deliverPropertyNotifyEvent(pWin, PropertyNewValue, pProp);
@@ -444,8 +442,8 @@ DeleteProperty(ClientPtr client, WindowPtr pWin, Atom propName)
     PropertyPtr pProp, prevProp;
     int rc;
 
-    rc = dixLookupProperty(&pProp, pWin, propName, client, DixDestroyAccess);
-    if (rc == BadMatch)
+    pProp = dixLookupProperty(pWin, propName, client, DixDestroyAccess);
+    if (!pProp)
         return Success;         /* Succeed if property does not exist */
 
     if (rc == Success) {
@@ -467,7 +465,19 @@ DeleteProperty(ClientPtr client, WindowPtr pWin, Atom propName)
         free(pProp->data);
         dixFreeObjectWithPrivates(pProp, PRIVATE_PROPERTY);
     }
-    return rc;
+    else {
+        /* Need to traverse to find the previous element */
+        prevProp = pWin->optional->userProps;
+        while (prevProp->next != pProp)
+            prevProp = prevProp->next;
+        prevProp->next = pProp->next;
+    }
+
+    deliverPropertyNotifyEvent(pWin, PropertyDelete, pProp);
+    free(pProp->data);
+    dixFreeObjectWithPrivates(pProp, PRIVATE_PROPERTY);
+
+    return Success;
 }
 
 void
