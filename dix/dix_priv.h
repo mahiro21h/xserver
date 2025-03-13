@@ -255,4 +255,6 @@ extern Bool enableBackingStore;
 /* in generated BuiltInAtoms.c */
 void MakePredeclaredAtoms(void);
 
+void dixFreeScreen(ScreenPtr pScreen);
+
 #endif /* _XSERVER_DIX_PRIV_H */
