@@ -261,4 +261,6 @@ void MakePredeclaredAtoms(void);
  */
 void SetCriticalEvent(int event);
 
+void dixFreeScreen(ScreenPtr pScreen);
+
 #endif /* _XSERVER_DIX_PRIV_H */
