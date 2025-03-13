@@ -9,7 +9,7 @@
 #include "include/screenint.h"
 #include "include/scrnintstr.h"
 
-void dixFreeScreen(ScreenPtr pScreen)
+static void dixFreeScreen(ScreenPtr pScreen)
 {
     if (!pScreen)
         return;
@@ -20,4 +20,19 @@ void dixFreeScreen(ScreenPtr pScreen)
     pScreen->CloseScreen(pScreen);
     dixFreePrivates(pScreen->devPrivates, PRIVATE_SCREEN);
     free(pScreen);
+}
+
+void dixFreeAllScreens(void)
+{
+    for (int i = screenInfo.numGPUScreens - 1; i >= 0; i--) {
+        dixFreeScreen(screenInfo.gpuscreens[i]);
+        screenInfo.numGPUScreens = i;
+    }
+    memset(&screenInfo.numGPUScreens, 0, sizeof(screenInfo.numGPUScreens));
+
+    for (int i = screenInfo.numScreens - 1; i >= 0; i--) {
+        dixFreeScreen(screenInfo.screens[i]);
+        screenInfo.numScreens = i;
+    }
+    memset(&screenInfo.screens, 0, sizeof(screenInfo.numGPUScreens));
 }

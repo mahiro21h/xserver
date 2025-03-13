@@ -314,20 +314,8 @@ dix_main(int argc, char *argv[], char *envp[])
             screenInfo.screens[i]->root = NullWindow;
 
         CloseDownDevices();
-
         CloseDownEvents();
-
-        for (i = screenInfo.numGPUScreens - 1; i >= 0; i--) {
-            dixFreeScreen(screenInfo.gpuscreens[i]);
-            screenInfo.numGPUScreens = i;
-        }
-        memset(&screenInfo.numGPUScreens, 0, sizeof(screenInfo.numGPUScreens));
-
-        for (i = screenInfo.numScreens - 1; i >= 0; i--) {
-            dixFreeScreen(screenInfo.screens[i]);
-            screenInfo.numScreens = i;
-        }
-        memset(&screenInfo.screens, 0, sizeof(screenInfo.numGPUScreens));
+        dixFreeAllScreens();
 
         ReleaseClientIds(serverClient);
         dixFreePrivates(serverClient->devPrivates, PRIVATE_CLIENT);
