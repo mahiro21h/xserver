@@ -689,4 +689,6 @@ static inline ClientPtr dixLookupXIDOwner(XID xid)
     return NullClient;
 }
 
+void dixFreeAllScreens(void);
+
 #endif /* _XSERVER_DIX_PRIV_H */
