@@ -593,7 +593,7 @@ CreateRootWindow(ScreenPtr pScreen)
     pWin->parent = NullWindow;
     SetWindowToDefaults(pWin);
 
-    pWin->optional = malloc(sizeof(WindowOptRec));
+    pWin->optional = calloc(1, sizeof(WindowOptRec));
     if (!pWin->optional)
         return FALSE;
 
@@ -3250,8 +3250,8 @@ TileScreenSaver(ScreenPtr pScreen, int kind)
     cm.height = 16;
     cm.xhot = 8;
     cm.yhot = 8;
-    srcbits = malloc(BitmapBytePad(32) * 16);
-    mskbits = malloc(BitmapBytePad(32) * 16);
+    srcbits = calloc(BitmapBytePad(32), 16);
+    mskbits = calloc(BitmapBytePad(32), 16);
     if (!srcbits || !mskbits) {
         free(srcbits);
         free(mskbits);
@@ -3396,7 +3396,7 @@ MakeWindowOptional(WindowPtr pWin)
 
     if (pWin->optional)
         return TRUE;
-    optional = malloc(sizeof(WindowOptRec));
+    optional = calloc(1, sizeof(WindowOptRec));
     if (!optional)
         return FALSE;
     optional->dontPropagateMask = DontPropagateMasks[pWin->dontPropagate];
@@ -3492,7 +3492,7 @@ ChangeWindowDeviceCursor(WindowPtr pWin, DeviceIntPtr pDev, CursorPtr pCursor)
         if (!pCursor)
             return Success;
 
-        pNewNode = malloc(sizeof(DevCursNodeRec));
+        pNewNode = calloc(1, sizeof(DevCursNodeRec));
         pNewNode->dev = pDev;
         pNewNode->next = pWin->optional->deviceCursors;
         pWin->optional->deviceCursors = pNewNode;
