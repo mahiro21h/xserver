@@ -51,6 +51,7 @@ SOFTWARE.
 
 #include "dix/dix_priv.h"
 #include "dix/property_priv.h"
+#include "dix/window_priv.h"
 
 #include "windowstr.h"
 #include "propertyst.h"
@@ -272,7 +273,7 @@ dixChangeWindowProperty(ClientPtr pClient, WindowPtr pWin, Atom property,
     rc = dixLookupProperty(&pProp, pWin, property, pClient, access_mode);
 
     if (rc == BadMatch) {       /* just add to list */
-        if (!pWin->optional && !MakeWindowOptional(pWin))
+        if (!MakeWindowOptional(pWin))
             return BadAlloc;
         pProp = dixAllocateObjectWithPrivates(PropertyRec, PRIVATE_PROPERTY);
         if (!pProp)

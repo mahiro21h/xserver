@@ -55,6 +55,7 @@ SOFTWARE.
 #include "dix/dix_priv.h"
 #include "dix/dixgrabs_priv.h"
 #include "dix/exevents_priv.h"
+#include "dix/window_priv.h"
 #include "os/auth.h"
 #include "os/client_priv.h"
 
@@ -561,7 +562,7 @@ AddPassiveGrabToList(ClientPtr client, GrabPtr pGrab)
         }
     }
 
-    if (!pGrab->window->optional && !MakeWindowOptional(pGrab->window)) {
+    if (!MakeWindowOptional(pGrab->window)) {
         FreeGrab(pGrab);
         return BadAlloc;
     }
@@ -660,8 +661,7 @@ DeletePassiveGrabFromList(GrabPtr pMinuendGrab)
                        DeleteDetailFromMask(grab->modifiersDetail.pMask,
                                             pMinuendGrab->modifiersDetail.
                                             exact))
-                     || (!pNewGrab->window->optional &&
-                         !MakeWindowOptional(pNewGrab->window))) {
+                     || (!MakeWindowOptional(pNewGrab->window))) {
                 FreeGrab(pNewGrab);
                 ok = FALSE;
             }

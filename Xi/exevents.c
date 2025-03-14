@@ -96,6 +96,7 @@ SOFTWARE.
 #include "dix/eventconvert.h"
 #include "dix/exevents_priv.h"
 #include "dix/input_priv.h"
+#include "dix/window_priv.h"
 #include "mi/mi_priv.h"
 
 #include "inputstr.h"
@@ -2733,7 +2734,7 @@ AddExtensionClient(WindowPtr pWin, ClientPtr client, Mask mask, int mskidx)
 {
     InputClientsPtr others;
 
-    if (!pWin->optional && !MakeWindowOptional(pWin))
+    if (!MakeWindowOptional(pWin))
         return BadAlloc;
     others = AllocInputClient();
     if (!others)
