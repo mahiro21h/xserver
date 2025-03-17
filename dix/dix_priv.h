@@ -278,4 +278,17 @@ void dixFreeScreen(ScreenPtr pScreen);
 
 void dixFreeAllScreens(void);
 
+/*
+ * @brief retrieve owning client for given XID
+ *
+ * just lookup by ID space, the resource doens't need to actually exist
+ */
+static inline ClientPtr dixLookupXIDOwner(XID xid)
+{
+    int clientId = CLIENT_ID(xid);
+    if (clientId < currentMaxClients)
+        return clients[clientId];
+    return NullClient;
+}
+
 #endif /* _XSERVER_DIX_PRIV_H */
