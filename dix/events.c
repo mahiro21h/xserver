@@ -2812,7 +2812,7 @@ DeliverEvent(DeviceIntPtr dev, xEvent *xE, int count,
     Mask filter;
     int deliveries = 0;
 
-    if (XaceHookSendAccess(NULL, dev, win, xE, count) == Success) {
+    if (XaceHookSendAccess(NullClient, dev, win, xE, count) == Success) {
         filter = GetEventFilter(dev, xE);
         FixUpEventFromWindow(pSprite, xE, win, child, FALSE);
         deliveries = DeliverEventsToWindow(dev, win, xE, count, filter, grab);
@@ -4236,7 +4236,7 @@ DeliverFocusedEvent(DeviceIntPtr keybd, InternalEvent *event, WindowPtr window)
 
     rc = EventToXI(event, &xE, &count);
     if (rc == Success &&
-        XaceHookSendAccess(NULL, keybd, focus, xE, count) == Success) {
+        XaceHookSendAccess(NullClient, keybd, focus, xE, count) == Success) {
         FixUpEventFromWindow(ptr->spriteInfo->sprite, xE, focus, None, FALSE);
         deliveries = DeliverEventsToWindow(keybd, focus, xE, count,
                                            GetEventFilter(keybd, xE), NullGrab);
@@ -4252,7 +4252,7 @@ DeliverFocusedEvent(DeviceIntPtr keybd, InternalEvent *event, WindowPtr window)
     if (sendCore) {
         rc = EventToCore(event, &core, &count);
         if (rc == Success) {
-            if (XaceHookSendAccess(NULL, keybd, focus, core, count) ==
+            if (XaceHookSendAccess(NullClient, keybd, focus, core, count) ==
                 Success) {
                 FixUpEventFromWindow(keybd->spriteInfo->sprite, core, focus,
                                      None, FALSE);
@@ -4325,7 +4325,7 @@ DeliverOneGrabbedEvent(InternalEvent *event, DeviceIntPtr dev,
 
     if (rc == Success) {
         FixUpEventFromWindow(pSprite, xE, grab->window, None, TRUE);
-        if (XaceHookSendAccess(0, dev, grab->window, xE, count) ||
+        if (XaceHookSendAccess(NullClient, dev, grab->window, xE, count) ||
             XaceHookReceiveAccess(rClient(grab), grab->window, xE, count))
             deliveries = 1;     /* don't send, but pretend we did */
         else if (level != CORE || !IsInterferingGrab(rClient(grab), dev, xE)) {
