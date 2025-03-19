@@ -37,16 +37,40 @@ void hookWindowProperty(CallbackListPtr *pcbl, void *unused, void *calldata)
 
     // whitelist anything that goes to caller's own namespace
     struct XnamespaceClientPriv *obj = XnsClientPriv(owner);
-    if (XnsClientSameNS(subj, obj))
+    if (XnsClientSameNS(subj, obj)) {
+        XNS_HOOK_LOG("same NS window property %s (atom 0x%x) window 0x%0x of client %d\n",
+            NameForAtom(param->property),
+            param->property,
+            param->window,
+            owner->index);
         return;
+    }
 
     // allow access to namespace virtual root
-    if (param->window == subj->ns->rootWindow->drawable.id)
+    if (param->window == subj->ns->rootWindow->drawable.id) {
+        XNS_HOOK_LOG("NS virtual root window property %s (atom 0x%x) window 0x%0x of client %d\n",
+            NameForAtom(param->property),
+            param->property,
+            param->window,
+            owner->index);
         return;
+    }
 
     // redirect root window access to namespace's virtual root
     if (dixWindowIsRoot(param->window)) {
+        XNS_HOOK_LOG("redirect root window property %s (atom 0x%x) window 0x%0x of client %d to 0x%x\n",
+            NameForAtom(param->property),
+            param->property,
+            param->window,
+            owner->index,
+            subj->ns->rootWindow->drawable.id);
         param->window = subj->ns->rootWindow->drawable.id;
         return;
     }
+
+    XNS_HOOK_LOG("foreign NS window property %s (atom 0x%x) window 0x%0x of client %d\n",
+        NameForAtom(param->property),
+        param->property,
+        param->window,
+        owner->index);
 }

@@ -162,8 +162,10 @@ ProcXISelectEvents(ClientPtr client)
     rc = dixLookupWindow(&win, stuff->win, client, DixReceiveAccess);
 
     // when access to the window is denied, just pretend everything's okay
-    if (rc == BadAccess)
+    if (rc == BadAccess) {
+        printf(" ==> ProcXISelectEvents() resource hook denied access to window 0x%0x\n", stuff->win);
         return Success;
+    }
 
     if (rc != Success)
         return rc;
@@ -296,6 +298,21 @@ ProcXISelectEvents(ClientPtr client)
                                    evmask->mask_len * 4) != Success)
             return BadValue;
 
+        {
+            CARD32 *bits = (CARD32*)&evmask[1];
+            printf("mask before: 0x%0x\n", *bits);
+            printf("subtracting: 0x%0x\n", (XI_RawKeyPressMask | XI_RawKeyReleaseMask |
+                      XI_RawButtonPress | XI_RawButtonRelease |
+                      XI_RawMotion | XI_RawTouchBegin | XI_RawTouchUpdate |
+                      XI_RawTouchEnd));
+//            (*bits) &= ~(XI_RawKeyPressMask | XI_RawKeyReleaseMask |
+//                      XI_RawButtonPress | XI_RawButtonRelease |
+//                      XI_RawMotion | XI_RawTouchBegin | XI_RawTouchUpdate |
+//                      XI_RawTouchEnd);
+            printf("mask after:  0x%0x\n", *bits);
+        }
+
+        // FIXME: possible buffer overflow ?
         evmask =
             (xXIEventMask *) (((unsigned char *) evmask) +
                               evmask->mask_len * 4);

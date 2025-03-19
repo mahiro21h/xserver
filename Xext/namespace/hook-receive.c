@@ -34,6 +34,9 @@ hookReceive(CallbackListPtr *pcbl, void *unused, void *calldata)
                 if (gev->extension == EXTENSION_MAJOR_XINPUT) {
                     switch (gev->evtype) {
                         case XI_RawMotion:
+                            XNS_HOOK_LOG("RawMotion winid=0x%0x%s\n",
+                                param->pWin->drawable.id,
+                                isRootWin(param->pWin) ? " (root window)" : "");
                             if ((!subj->ns->allowMouseMotion) || !isRootWin(param->pWin))
                                 goto reject;
                             continue;

@@ -36,6 +36,25 @@ void hookSelectionFilter(CallbackListPtr *pcbl, void *unused, void *calldata)
     if (subj->ns->superPower)
         return;
 
+    const char *op = "<>";
+    switch (param->op) {
+        case SELECTION_FILTER_GETOWNER:
+            op = "SELECTION_FILTER_GETOWNER";
+        break;
+        case SELECTION_FILTER_SETOWNER:
+            op = "SELECTION_FILTER_SETOWNER";
+        break;
+        case SELECTION_FILTER_CONVERT:
+            op = "SELECTION_FILTER_CONVERT";
+        break;
+        case SELECTION_FILTER_EV_REQUEST:
+            op = "SELECTION_FILTER_EV_REQUEST";
+        break;
+        case SELECTION_FILTER_EV_CLEAR:
+            op = "SELECTION_FILTER_EV_CLEAR";
+        break;
+    }
+
     const char *origSelectionName = NameForAtom(param->selection);
 
     char selname[PATH_MAX] = { 0 };
@@ -47,6 +66,11 @@ void hookSelectionFilter(CallbackListPtr *pcbl, void *unused, void *calldata)
         case SELECTION_FILTER_SETOWNER:
         case SELECTION_FILTER_CONVERT:
         case SELECTION_FILTER_LISTEN:
+            XNS_HOOK_LOG("%s origsel=%s (%d) newsel=%s (%d) -- using newsel\n", op,
+                origSelectionName,
+                param->selection,
+                selname,
+                realSelection);
             // TODO: check whether window really belongs to the client
             param->selection = realSelection;
         break;
@@ -55,13 +79,30 @@ void hookSelectionFilter(CallbackListPtr *pcbl, void *unused, void *calldata)
         {
             // need to translate back, since we're having the ns-prefixed name here
             const char *stripped = stripNS(origSelectionName);
-            param->selection = MakeAtom(stripped, strlen(stripped), TRUE);
+            ATOM strippedAtom = MakeAtom(stripped, strlen(stripped), TRUE);
+            XNS_HOOK_LOG("NOTIFY stripped=\"%s\" atom=%d name=\"%s\n", stripped, strippedAtom, NameForAtom(strippedAtom));
+            XNS_HOOK_LOG("NOTIFY origID %d origName %s transID %d transName %s strippedName %s atom %d\n",
+                param->selection,
+                origSelectionName,
+                realSelection,
+                selname,
+                stripped,
+                strippedAtom);
+            param->selection = strippedAtom;
             break;
         }
 
         // nothing to do here: already having the client visible name
         case SELECTION_FILTER_EV_REQUEST:
         case SELECTION_FILTER_EV_CLEAR:
+            XNS_HOOK_LOG("%s origsel=%s (%d) newsel=%s (%d) -- using origsel\n", op,
+                NameForAtom(param->selection),
+                param->selection,
+                selname,
+                realSelection);
+        break;
+        default:
+            XNS_HOOK_LOG("unknown op: %d selection=%d\n", param->op, param->selection);
         break;
     }
 }

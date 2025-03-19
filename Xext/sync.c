@@ -1609,6 +1609,7 @@ ProcSyncAwait(ClientPtr client)
     SyncAwait *pAwait;
     int status;
 
+// not sure whether we need to filter here
     REQUEST_AT_LEAST_SIZE(xSyncAwaitReq);
 
     len = client->req_len << 2;
@@ -2059,6 +2060,7 @@ ProcSyncQueryFence(ClientPtr client)
     return Success;
 }
 
+// not sure whether it needs to be filtered
 static int
 ProcSyncAwaitFence(ClientPtr client)
 {
