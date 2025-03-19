@@ -6,6 +6,7 @@
 
 #include "dix/dix_priv.h"
 #include "dix/extension_priv.h"
+#include "dix/registry_priv.h"
 #include "dix/window_priv.h"
 #include "Xext/xacestr.h"
 
@@ -103,6 +104,23 @@ void hookResourceAccess(CallbackListPtr *pcbl, void *unused, void *calldata)
         }
     }
 
+    /* server resources */
+    if (obj->isServer) {
+        if (param->rtype == X11_RESTYPE_COLORMAP) {
+            if (checkAllowed(param->access_mode, DixReadAccess | DixGetPropAccess | DixUseAccess | DixGetAttrAccess | DixAddAccess))
+                goto pass;
+        }
+
+        if (param->rtype == X11_RESTYPE_WINDOW) {
+            /* allowed ones should already been catched above */
+            XNS_HOOK_LOG("REJECT server owned window 0x%0x!\n", ((WindowPtr)param->res)->drawable.id);
+            goto reject;
+        }
+
+        if (checkAllowed(param->access_mode, DixReadAccess))
+            goto pass;
+    }
+
     char accModeStr[128];
     LookupDixAccessName(param->access_mode, (char*)&accModeStr, sizeof(accModeStr));
 
@@ -114,6 +132,7 @@ void hookResourceAccess(CallbackListPtr *pcbl, void *unused, void *calldata)
         owner->index, // resource owner
         obj->ns->name);
 
+reject:
     param->status = BadAccess;
     return;
 
