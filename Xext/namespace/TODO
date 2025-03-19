@@ -1,0 +1,15 @@
+* multiple screens support
+* set window properties per NS
+* isolate root window
+* ProcRotateProperties
+* ProcDeleteProperty
+* block grabs
+
+* send_hook: filter sending events to foreign clients
+* property_hook: filter accessing foreign window properties
+
+* windowproperty
+    --> call the hook also on read access
+    --> rotate property call
+    --> rename to propertyfilter (instead of propertywritefilter)
+    --> add field for access mode
