@@ -730,7 +730,7 @@ ReplySwapPtr ReplySwapVector[256] = {
     ReplyNotSwappd,
     ReplyNotSwappd,                             /* 15 */
     ReplyNotSwappd,
-    (ReplySwapPtr) SGetAtomNameReply,
+    ReplyNotSwappd,
     ReplyNotSwappd,
     ReplyNotSwappd,
     (ReplySwapPtr) SGetPropertyReply,           /* 20 */
