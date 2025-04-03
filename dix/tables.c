@@ -762,7 +762,7 @@ ReplySwapPtr ReplySwapVector[256] = {
     ReplyNotSwappd,
     ReplyNotSwappd,
     (ReplySwapPtr) SQueryTextExtentsReply,
-    (ReplySwapPtr) SListFontsReply,
+    ReplyNotSwappd,
     (ReplySwapPtr) SListFontsWithInfoReply,     /* 50 */
     ReplyNotSwappd,
     (ReplySwapPtr) SGetFontPathReply,
