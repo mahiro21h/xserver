@@ -816,7 +816,7 @@ ReplySwapPtr ReplySwapVector[256] = {
     ReplyNotSwappd,                             /* 100 */
     ReplyNotSwappd,
     ReplyNotSwappd,
-    (ReplySwapPtr) SGetKeyboardControlReply,
+    ReplyNotSwappd,
     ReplyNotSwappd,
     ReplyNotSwappd,                             /* 105 */
     (ReplySwapPtr) SGetPointerControlReply,
