@@ -804,7 +804,7 @@ ReplySwapPtr ReplySwapVector[256] = {
     ReplyNotSwappd,
     ReplyNotSwappd,
     ReplyNotSwappd,                             /* 90 */
-    (ReplySwapPtr) SQueryColorsReply,
+    ReplyNotSwappd,
     (ReplySwapPtr) SLookupColorReply,
     ReplyNotSwappd,
     ReplyNotSwappd,
