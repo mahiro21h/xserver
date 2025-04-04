@@ -5280,7 +5280,6 @@ GrabDevice(ClientPtr client, DeviceIntPtr dev,
 int
 ProcGrabKeyboard(ClientPtr client)
 {
-    xGrabKeyboardReply rep;
     BYTE status;
 
     REQUEST(xGrabKeyboardReq);
@@ -5301,13 +5300,18 @@ ProcGrabKeyboard(ClientPtr client)
     if (result != Success)
         return result;
 
-    rep = (xGrabKeyboardReply) {
+    xGrabKeyboardReply rep = {
         .type = X_Reply,
         .status = status,
         .sequenceNumber = client->sequence,
         .length = 0
     };
-    WriteReplyToClient(client, sizeof(xGrabKeyboardReply), &rep);
+
+    if (client->swapped) {
+        swaps(&rep.sequenceNumber);
+    }
+
+    WriteToClient(client, sizeof(rep), &rep);
     return Success;
 }
 
