@@ -756,7 +756,7 @@ ReplySwapPtr ReplySwapVector[256] = {
     ReplyNotSwappd,                             /* 40 */
     ReplyNotSwappd,
     ReplyNotSwappd,
-    (ReplySwapPtr) SGetInputFocusReply,
+    ReplyNotSwappd,
     ReplyNotSwappd,
     ReplyNotSwappd,                             /* 45 */
     ReplyNotSwappd,
