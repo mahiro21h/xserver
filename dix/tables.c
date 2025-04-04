@@ -823,7 +823,7 @@ ReplySwapPtr ReplySwapVector[256] = {
     ReplyNotSwappd,
     ReplyNotSwappd,
     ReplyNotSwappd,
-    (ReplySwapPtr) SListHostsReply,             /* 110 */
+    ReplyNotSwappd,                             /* 110 */
     ReplyNotSwappd,
     ReplyNotSwappd,
     ReplyNotSwappd,
