@@ -51,7 +51,8 @@ SOFTWARE.
 #ifndef _XSERVER_INPUT_PRIV_H
 #define _XSERVER_INPUT_PRIV_H
 
-#include "input.h"
+#include "include/input.h"
+#include "include/inputstr.h"
 
 void InitCoreDevices(void);
 void InitXTestDevices(void);
@@ -368,6 +369,13 @@ int InputThreadUnregisterDev(int fd);
  * @param len size of bitmask in bits (may span multiple bytes)
  * @return number of bits set in the given bitmask
  */
-int CountBits(const uint8_t * mask, int len);
+static inline int CountBits(const uint8_t * mask, int len)
+{
+    int ret = 0;
+    for (int i = 0; i < len; i++)
+        if (BitIsOn(mask, i))
+            ret++;
+    return ret;
+}
 
 #endif /* _XSERVER_INPUT_PRIV_H */
