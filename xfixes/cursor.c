@@ -223,7 +223,7 @@ XFixesSelectCursorInput(ClientPtr pClient, WindowPtr pWindow, CARD32 eventMask)
         return Success;
     }
     if (!e) {
-        e = (CursorEventPtr) malloc(sizeof(CursorEventRec));
+        e = calloc(1, sizeof(CursorEventRec));
         if (!e)
             return BadAlloc;
 
@@ -355,7 +355,6 @@ int
 ProcXFixesGetCursorImage(ClientPtr client)
 {
 /*    REQUEST(xXFixesGetCursorImageReq); */
-    xXFixesGetCursorImageReply *rep;
     CursorPtr pCursor;
     CARD32 *image;
     int npixels, width, height, rc, x, y;
@@ -372,7 +371,8 @@ ProcXFixesGetCursorImage(ClientPtr client)
     width = pCursor->bits->width;
     height = pCursor->bits->height;
     npixels = width * height;
-    rep = calloc(1,
+
+    xXFixesGetCursorImageReply *rep = calloc(1,
                  sizeof(xXFixesGetCursorImageReply) + npixels * sizeof(CARD32));
     if (!rep)
         return BadAlloc;
@@ -495,7 +495,6 @@ int
 ProcXFixesGetCursorImageAndName(ClientPtr client)
 {
 /*    REQUEST(xXFixesGetCursorImageAndNameReq); */
-    xXFixesGetCursorImageAndNameReply *rep;
     CursorPtr pCursor;
     CARD32 *image;
     int npixels;
@@ -519,7 +518,9 @@ ProcXFixesGetCursorImageAndName(ClientPtr client)
     name = pCursor->name ? NameForAtom(pCursor->name) : "";
     nbytes = strlen(name);
     nbytesRound = pad_to_int32(nbytes);
-    rep = calloc(1, sizeof(xXFixesGetCursorImageAndNameReply) +
+
+    xXFixesGetCursorImageAndNameReply *rep = calloc(1,
+                 sizeof(xXFixesGetCursorImageAndNameReply) +
                  npixels * sizeof(CARD32) + nbytesRound);
     if (!rep)
         return BadAlloc;
@@ -759,9 +760,7 @@ static int
 createCursorHideCount(ClientPtr pClient, ScreenPtr pScreen)
 {
     CursorScreenPtr cs = GetCursorScreen(pScreen);
-    CursorHideCountPtr pChc;
-
-    pChc = (CursorHideCountPtr) malloc(sizeof(CursorHideCountRec));
+    CursorHideCountPtr pChc = calloc(1, sizeof(CursorHideCountRec));
     if (pChc == NULL) {
         return BadAlloc;
     }
