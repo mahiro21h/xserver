@@ -329,10 +329,10 @@ miSetVisualTypesAndMasks(int depth, int visuals, int bitsPerRGB,
                          int preferredCVC,
                          Pixel redMask, Pixel greenMask, Pixel blueMask)
 {
-    miVisualsPtr new, *prev, v;
+    miVisualsPtr *prev, v;
     int count;
 
-    new = malloc(sizeof *new);
+    miVisualsPtr new = calloc(1, sizeof *new);
     if (!new)
         return FALSE;
     if (!redMask || !greenMask || !blueMask) {
