@@ -90,7 +90,7 @@ X_PFX(list_prepend) (x_list * lst, void *data) {
         x_list_block *b;
         int i;
 
-        b = malloc(sizeof(x_list_block));
+        b = calloc(1, sizeof(x_list_block));
         assert(b != NULL);
 
         for (i = 0; i < NODES_PER_BLOCK - 1; i++)

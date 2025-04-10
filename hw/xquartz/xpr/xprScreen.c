@@ -198,7 +198,7 @@ static void
 xprAddPseudoramiXScreens(int *x, int *y, int *width, int *height,
                          ScreenPtr pScreen)
 {
-    CGDisplayCount i, displayCount;
+    CGDisplayCount i;
     CGDirectDisplayID *displayList = NULL;
     CGRect unionRect = CGRectNull, frame;
 
@@ -224,7 +224,7 @@ xprAddPseudoramiXScreens(int *x, int *y, int *width, int *height,
     if (CGDisplayIsCaptured(kCGDirectMainDisplay))
         displayCount = 1;
 
-    displayList = malloc(displayCount * sizeof(CGDirectDisplayID));
+    CGDisplayCount displayList = calloc(displayCount, sizeof(CGDirectDisplayID));
     if (!displayList)
         FatalError("Unable to allocate memory for list of displays.\n");
     CGGetActiveDisplayList(displayCount, displayList, &displayCount);

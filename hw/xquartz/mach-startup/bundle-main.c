@@ -321,11 +321,9 @@ static int launchd_socket_handed_off = 0;
 kern_return_t
 do_request_fd_handoff_socket(mach_port_t port, string_t filename)
 {
-    socket_handoff_t *handoff_data;
-
     launchd_socket_handed_off = 1;
 
-    handoff_data = (socket_handoff_t *)calloc(1, sizeof(socket_handoff_t));
+    socket_handoff_t *handoff_data = calloc(1, sizeof(socket_handoff_t));
     if (!handoff_data) {
         ErrorF("X11.app: Error allocating memory for handoff_data\n");
         return KERN_FAILURE;
@@ -528,7 +526,6 @@ setup_console_redirect(const char *bundle_id)
 static void
 setup_env(void)
 {
-    char *temp;
     const char *pds = NULL;
     const char *disp = getenv("DISPLAY");
     size_t len;
@@ -559,7 +556,7 @@ setup_env(void)
     setenv("X11_PREFS_DOMAIN", server_bootstrap_name, 1);
 
     len = strlen(server_bootstrap_name);
-    bundle_id_prefix = malloc(sizeof(char) * (len - 3));
+    bundle_id_prefix = calloc(len-3, sizeof(char));
     if (!bundle_id_prefix) {
         ErrorF("X11.app: Memory allocation error.\n");
         exit(1);
@@ -582,7 +579,7 @@ setup_env(void)
                     "X11.app: Detected old style launchd DISPLAY, please update xinit.\n");
             }
             else {
-                temp = (char *)malloc(sizeof(char) * len);
+                char *temp = calloc(len, sizeof(char));
                 if (!temp) {
                     ErrorF(
                         "X11.app: Memory allocation error creating space for socket name test.\n");
@@ -613,7 +610,7 @@ setup_env(void)
     ensure_path(X11BINDIR);
 
     /* cd $HOME */
-    temp = getenv("HOME");
+    char *temp = getenv("HOME");
     if (temp != NULL && temp[0] != '\0')
         chdir(temp);
 }
@@ -781,14 +778,14 @@ command_from_prefs(const char *key, const char *default_value)
         CFPreferencesAppSynchronize(kCFPreferencesCurrentApplication);
         CFRelease(cfDefaultValue);
 
-        command = (char *)malloc(len * sizeof(char));
+        command = calloc(len, sizeof(char));
         if (!command)
             goto command_from_prefs_out;
         strcpy(command, default_value);
     }
     else {
         int len = CFStringGetLength((CFStringRef)PlistRef) + 1;
-        command = (char *)malloc(len * sizeof(char));
+        command = calloc(len, sizeof(char));
         if (!command)
             goto command_from_prefs_out;
         CFStringGetCString((CFStringRef)PlistRef, command, len,
