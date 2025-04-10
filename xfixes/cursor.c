@@ -1040,6 +1040,8 @@ XFixesCursorInit(void)
     for (i = 0; i < screenInfo.numScreens; i++) {
         ScreenPtr pScreen = screenInfo.screens[i];
         CursorScreenPtr cs = GetCursorScreen(pScreen);
+        if (!cs)
+            return FALSE;
         dixScreenHookClose(pScreen, CursorScreenClose);
         Wrap(cs, pScreen, DisplayCursor, CursorDisplayCursor);
         cs->pCursorHideCounts = NULL;
