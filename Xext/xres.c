@@ -546,7 +546,9 @@ ConstructClientIds(ClientPtr client,
         if (specs[specIdx].client == 0) {
             int c;
             for (c = 0; c < currentMaxClients; ++c) {
-                if (clients[c]) {
+                if (clients[c] &&
+                    (XaceHookClientAccess(client, clients[c], DixReadAccess)
+                                          != Success)) {
                     if (!ConstructClientIdValue(client, clients[c],
                                                 specs[specIdx].mask, ctx)) {
                         return BadAlloc;
@@ -556,7 +558,9 @@ ConstructClientIds(ClientPtr client,
         } else {
             int clientID = CLIENT_ID(specs[specIdx].client);
 
-            if ((clientID < currentMaxClients) && clients[clientID]) {
+            if ((clientID < currentMaxClients) && clients[clientID] &&
+                (XaceHookClientAccess(client, clients[clientID], DixReadAccess)
+                                      != Success)) {
                 if (!ConstructClientIdValue(client, clients[clientID],
                                             specs[specIdx].mask, ctx)) {
                     return BadAlloc;
