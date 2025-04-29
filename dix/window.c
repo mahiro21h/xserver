@@ -130,9 +130,7 @@ Equipment Corporation.
 #endif /* XINERAMA */
 #include "dixevents.h"
 #include "globals.h"
-#ifdef COMPOSITE
 #include "compint.h"
-#endif
 #include "selection.h"
 #include "inpututils.h"
 #include "privates.h"
@@ -187,9 +185,7 @@ static Bool TileScreenSaver(ScreenPtr pScreen, int kind);
 
 #define SubStrSend(pWin,pParent) (StrSend(pWin) || SubSend(pParent))
 
-#ifdef COMPOSITE
 static const char *overlay_win_name = "<composite overlay>";
-#endif
 
 static const char *
 get_window_name(WindowPtr pWin)
@@ -199,12 +195,10 @@ get_window_name(WindowPtr pWin)
     static char buf[WINDOW_NAME_BUF_LEN];
     int len;
 
-#ifdef COMPOSITE
     CompScreenPtr comp_screen = GetCompScreen(pWin->drawable.pScreen);
 
     if (comp_screen && pWin == comp_screen->pOverlayWin)
         return overlay_win_name;
-#endif
 
     for (prop = pWin->properties; prop; prop = prop->next) {
         if (prop->propertyName == XA_WM_NAME && prop->type == XA_STRING &&
@@ -240,13 +234,11 @@ log_window_info(WindowPtr pWin, int depth)
 
     if (pWin->overrideRedirect)
         ErrorF(" (override redirect)");
-#ifdef COMPOSITE
     if (pWin->redirectDraw)
         ErrorF(" (%s compositing: pixmap %x)",
                (pWin->redirectDraw == RedirectDrawAutomatic) ?
                "automatic" : "manual",
                (unsigned) pWin->drawable.pScreen->GetWindowPixmap(pWin)->drawable.id);
-#endif
 
     switch (pWin->visibility) {
     case VisibilityUnobscured:
@@ -507,9 +499,7 @@ SetWindowToDefaults(WindowPtr pWin)
     pWin->forcedBG = FALSE;
     pWin->unhittable = FALSE;
 
-#ifdef COMPOSITE
     pWin->damagedDescendants = FALSE;
-#endif
 }
 
 static void
@@ -651,10 +641,8 @@ CreateRootWindow(ScreenPtr pScreen)
         pScreen->backingStoreSupport = NotUseful;
     if (enableBackingStore)
         pScreen->backingStoreSupport = WhenMapped;
-#ifdef COMPOSITE
     if (noCompositeExtension)
         pScreen->backingStoreSupport = NotUseful;
-#endif
 
     pScreen->saveUnderSupport = NotUseful;
 
@@ -1716,7 +1704,6 @@ MoveWindowInStack(WindowPtr pWin, WindowPtr pNextSib)
 void
 SetWinSize(WindowPtr pWin)
 {
-#ifdef COMPOSITE
     if (pWin->redirectDraw != RedirectDrawNone) {
         BoxRec box;
 
@@ -1731,7 +1718,6 @@ SetWinSize(WindowPtr pWin)
         RegionReset(&pWin->winSize, &box);
     }
     else
-#endif
         ClippedRegionFromBox(pWin->parent, &pWin->winSize,
                              pWin->drawable.x, pWin->drawable.y,
                              (int) pWin->drawable.width,
@@ -1754,7 +1740,6 @@ SetBorderSize(WindowPtr pWin)
 
     if (HasBorder(pWin)) {
         bw = wBorderWidth(pWin);
-#ifdef COMPOSITE
         if (pWin->redirectDraw != RedirectDrawNone) {
             BoxRec box;
 
@@ -1769,7 +1754,6 @@ SetBorderSize(WindowPtr pWin)
             RegionReset(&pWin->borderSize, &box);
         }
         else
-#endif
             ClippedRegionFromBox(pWin->parent, &pWin->borderSize,
                                  pWin->drawable.x - bw, pWin->drawable.y - bw,
                                  (int) (pWin->drawable.width + (bw << 1)),
