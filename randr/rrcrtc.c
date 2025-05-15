@@ -459,7 +459,7 @@ rrGetPixmapSharingSyncProp(int numOutputs, RROutputPtr * outputs)
 
     /* If one output doesn't want sync, no sync */
     for (o = 0; o < numOutputs; o++) {
-        RRPropertyValuePtr val;
+        PropertyValuePtr val;
 
         if ((val = RRGetOutputProperty(outputs[o], syncProp, TRUE)) &&
             val->data) {
@@ -715,7 +715,7 @@ rrCheckEmulated(RROutputPtr output)
 {
     const char *emulStr = XRANDR_EMULATION_PROP;
     Atom emulProp;
-    RRPropertyValuePtr val;
+    PropertyValuePtr val;
 
     emulProp = MakeAtom(emulStr, strlen(emulStr), FALSE);
     if (emulProp == None)

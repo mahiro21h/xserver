@@ -42,6 +42,7 @@
 #include "scrnintstr.h"
 #include "windowstr.h"
 #include "pixmapstr.h"
+#include "property_value.h"
 #include "extnsionst.h"
 #include "servermd.h"
 #include "rrtransform.h"
@@ -71,7 +72,8 @@ typedef XID RRLease;
 
 #define RRModeName(pMode) ((char *) (pMode + 1))
 typedef struct _rrMode RRModeRec, *RRModePtr;
-typedef struct _rrPropertyValue RRPropertyValueRec, *RRPropertyValuePtr;
+typedef PropertyValueRec RRPropertyValueRec;  // deprecated
+typedef PropertyValuePtr RRPropertyValuePtr;  // deprecated
 typedef struct _rrProperty RRPropertyRec, *RRPropertyPtr;
 typedef struct _rrCrtc RRCrtcRec, *RRCrtcPtr;
 typedef struct _rrOutput RROutputRec, *RROutputPtr;
@@ -86,13 +88,6 @@ struct _rrMode {
     ScreenPtr userScreen;
 };
 
-struct _rrPropertyValue {
-    Atom type;                  /* ignored by server */
-    short format;               /* format of data for swapping - 8,16,32 */
-    long size;                  /* size of data in (format/8) bytes */
-    void *data;                 /* private to client */
-};
-
 struct _rrProperty {
     RRPropertyPtr next;
     ATOM propertyName;
@@ -101,7 +96,8 @@ struct _rrProperty {
     Bool immutable;
     int num_valid;
     INT32 *valid_values;
-    RRPropertyValueRec current, pending;
+    PropertyValueRec current;
+    PropertyValueRec pending;
 };
 
 struct _rrCrtc {
@@ -224,7 +220,7 @@ typedef Bool (*RRCrtcGetGammaProcPtr) (ScreenPtr pScreen, RRCrtcPtr crtc);
 typedef Bool (*RROutputSetPropertyProcPtr) (ScreenPtr pScreen,
                                             RROutputPtr output,
                                             Atom property,
-                                            RRPropertyValuePtr value);
+                                            PropertyValuePtr value);
 
 typedef Bool (*RROutputValidateModeProcPtr) (ScreenPtr pScreen,
                                              RROutputPtr output,
@@ -253,7 +249,7 @@ typedef Bool (*RRProviderGetPropertyProcPtr) (ScreenPtr pScreen,
 typedef Bool (*RRProviderSetPropertyProcPtr) (ScreenPtr pScreen,
                                               RRProviderPtr provider,
                                               Atom property,
-                                              RRPropertyValuePtr value);
+                                              PropertyValuePtr value);
 
 typedef Bool (*RRGetInfoProcPtr) (ScreenPtr pScreen, Rotation * rotations);
 typedef Bool (*RRCloseScreenProcPtr) (ScreenPtr pscreen);

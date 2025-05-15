@@ -84,7 +84,7 @@ RRDeleteProperty(RRProviderRec * provider, RRPropertyRec * prop)
 }
 
 static void
-RRInitProviderPropertyValue(RRPropertyValuePtr property_value)
+RRInitProviderPropertyValue(PropertyValuePtr property_value)
 {
     property_value->type = None;
     property_value->format = 0;
@@ -135,8 +135,8 @@ RRChangeProviderProperty(RRProviderPtr provider, Atom property, Atom type,
     int size_in_bytes;
     int total_size;
     unsigned long total_len;
-    RRPropertyValuePtr prop_value;
-    RRPropertyValueRec new_value;
+    PropertyValuePtr prop_value;
+    PropertyValueRec new_value;
     Bool add = FALSE;
 
     size_in_bytes = format >> 3;
@@ -256,7 +256,7 @@ RRQueryProviderProperty(RRProviderPtr provider, Atom property)
     return NULL;
 }
 
-RRPropertyValuePtr
+PropertyValuePtr
 RRGetProviderProperty(RRProviderPtr provider, Atom property, Bool pending)
 {
     RRPropertyPtr prop = RRQueryProviderProperty(provider, property);
@@ -528,7 +528,7 @@ ProcRRGetProviderProperty(ClientPtr client)
 {
     REQUEST(xRRGetProviderPropertyReq);
     RRPropertyPtr prop, *prev;
-    RRPropertyValuePtr prop_value;
+    PropertyValuePtr prop_value;
     unsigned long n, len, ind;
     RRProviderPtr provider;
     xRRGetProviderPropertyReply reply = {

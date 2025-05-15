@@ -97,7 +97,7 @@ RRDeleteAllOutputProperties(RROutputPtr output)
 }
 
 static void
-RRInitOutputPropertyValue(RRPropertyValuePtr property_value)
+RRInitOutputPropertyValue(PropertyValuePtr property_value)
 {
     property_value->type = None;
     property_value->format = 0;
@@ -137,7 +137,7 @@ RRDeleteOutputProperty(RROutputPtr output, Atom property)
 }
 
 static void
-RRNoticePropertyChange(RROutputPtr output, Atom property, RRPropertyValuePtr value)
+RRNoticePropertyChange(RROutputPtr output, Atom property, PropertyValuePtr value)
 {
     const char *non_desktop_str = RR_PROPERTY_NON_DESKTOP;
     Atom non_desktop_prop = MakeAtom(non_desktop_str, strlen(non_desktop_str), FALSE);
@@ -168,8 +168,8 @@ RRChangeOutputProperty(RROutputPtr output, Atom property, Atom type,
     rrScrPrivPtr pScrPriv = rrGetScrPriv(output->pScreen);
     int size_in_bytes;
     unsigned long total_len;
-    RRPropertyValuePtr prop_value;
-    RRPropertyValueRec new_value;
+    PropertyValuePtr prop_value;
+    PropertyValueRec new_value;
     Bool add = FALSE;
 
     size_in_bytes = format >> 3;
@@ -282,8 +282,8 @@ RRChangeOutputProperty(RROutputPtr output, Atom property, Atom type,
 Bool
 RRPostPendingProperties(RROutputPtr output)
 {
-    RRPropertyValuePtr pending_value;
-    RRPropertyValuePtr current_value;
+    PropertyValuePtr pending_value;
+    PropertyValuePtr current_value;
     RRPropertyPtr property;
     Bool ret = TRUE;
 
@@ -330,7 +330,7 @@ RRQueryOutputProperty(RROutputPtr output, Atom property)
     return NULL;
 }
 
-RRPropertyValuePtr
+PropertyValuePtr
 RRGetOutputProperty(RROutputPtr output, Atom property, Bool pending)
 {
     RRPropertyPtr prop = RRQueryOutputProperty(output, property);
@@ -621,7 +621,7 @@ ProcRRGetOutputProperty(ClientPtr client)
 {
     REQUEST(xRRGetOutputPropertyReq);
     RRPropertyPtr prop, *prev;
-    RRPropertyValuePtr prop_value;
+    PropertyValuePtr prop_value;
     unsigned long n, len, ind;
     RROutputPtr output;
     char *extra = NULL;
