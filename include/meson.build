@@ -458,6 +458,7 @@ if build_xorg
             'pixmapstr.h',
             'privates.h',
             'property.h',
+            'property_value.h',
             'ptrveloc.h',
             'region.h',
             'regionstr.h',

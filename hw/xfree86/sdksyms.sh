@@ -265,6 +265,9 @@ cat > sdksyms.c << EOF
 #include "xkbrules.h"
 #include "xserver-properties.h"
 
+// new SDK files
+#include "property_value.h"
+
 EOF
 
 topdir=$(readlink -f $1)
