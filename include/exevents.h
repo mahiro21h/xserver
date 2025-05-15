@@ -92,7 +92,7 @@ extern _X_EXPORT int XIChangeDeviceProperty(DeviceIntPtr /* dev */ ,
 
 extern _X_EXPORT int XIGetDeviceProperty(DeviceIntPtr /* dev */ ,
                                          Atom /* property */ ,
-                                         XIPropertyValuePtr *   /* value */
+                                         PropertyValuePtr *   /* value */
     );
 
 extern _X_EXPORT int XISetDevicePropertyDeletable(DeviceIntPtr /* dev */ ,
@@ -105,7 +105,7 @@ extern _X_EXPORT long XIRegisterPropertyHandler(DeviceIntPtr dev,
                                                                     dev,
                                                                     Atom
                                                                     property,
-                                                                    XIPropertyValuePtr
+                                                                    PropertyValuePtr
                                                                     prop,
                                                                     BOOL
                                                                     checkonly),
