@@ -1,5 +1,6 @@
 srcs_xorg_compat = [
     'clientexception.c',
+    'deliverevents.c',
     'log.c',
     'ones.c',
     'xf86Helper.c',
