@@ -931,7 +931,7 @@ dixCreateWindow(Window wid, WindowPtr pParent, int x, int y, unsigned w,
             .u.createNotify.override = pWin->overrideRedirect
         };
         event.u.u.type = CreateNotify;
-        DeliverEvents(pParent, &event, 1, NullWindow);
+        dixDeliverEvents(pParent, &event, 1, NullWindow);
     }
     return pWin;
 }
@@ -1018,7 +1018,7 @@ CrushTree(WindowPtr pWin)
             if (SubStrSend(pChild, pParent)) {
                 xEvent event = { .u.u.type = DestroyNotify };
                 event.u.destroyNotify.window = pChild->drawable.id;
-                DeliverEvents(pChild, &event, 1, NullWindow);
+                dixDeliverEvents(pChild, &event, 1, NullWindow);
             }
             FreeResource(pChild->drawable.id, X11_RESTYPE_WINDOW);
             pSib = pChild->nextSib;
@@ -1060,7 +1060,7 @@ DeleteWindow(void *value, XID wid)
     if (wid && pParent && SubStrSend(pWin, pParent)) {
         xEvent event = { .u.u.type = DestroyNotify };
         event.u.destroyNotify.window = pWin->drawable.id;
-        DeliverEvents(pWin, &event, 1, NullWindow);
+        dixDeliverEvents(pWin, &event, 1, NullWindow);
     }
 
     FreeWindowResources(pWin);
@@ -1455,7 +1455,7 @@ ChangeWindowAttributes(WindowPtr pWin, Mask vmask, XID *vlist, ClientPtr client)
                     .u.colormap.state = IsMapInstalled(cmap, pWin)
                 };
                 xE.u.u.type = ColormapNotify;
-                DeliverEvents(pWin, &xE, 1, NullWindow);
+                dixDeliverEvents(pWin, &xE, 1, NullWindow);
             }
             break;
         case CWCursor:
@@ -1851,7 +1851,7 @@ ResizeChildrenWinSize(WindowPtr pWin, int dx, int dy, int dw, int dh)
                     .u.gravity.y = cwsy - wBorderWidth(pSib)
                 };
                 event.u.u.type = GravityNotify;
-                DeliverEvents(pSib, &event, 1, NullWindow);
+                dixDeliverEvents(pSib, &event, 1, NullWindow);
                 pSib->origin.x = cwsx;
                 pSib->origin.y = cwsy;
             }
@@ -2374,7 +2374,7 @@ ConfigureWindow(WindowPtr pWin, Mask mask, XID *vlist, ClientPtr client)
             event.u.configureNotify.y += screenInfo.screens[0]->y;
         }
 #endif /* XINERAMA */
-        DeliverEvents(pWin, &event, 1, NullWindow);
+        dixDeliverEvents(pWin, &event, 1, NullWindow);
     }
     if (mask & CWBorderWidth) {
         if (action == RESTACK_WIN) {
@@ -2462,7 +2462,7 @@ CirculateWindow(WindowPtr pParent, int direction, ClientPtr client)
     }
 
     event.u.u.type = CirculateNotify;
-    DeliverEvents(pWin, &event, 1, NullWindow);
+    dixDeliverEvents(pWin, &event, 1, NullWindow);
     ReflectStackChange(pWin,
                        (direction == RaiseLowest) ? pFirst : NullWindow,
                        VTStack);
@@ -2519,7 +2519,7 @@ ReparentWindow(WindowPtr pWin, WindowPtr pParent,
         event.u.reparent.y += screenInfo.screens[0]->y;
     }
 #endif /* XINERAMA */
-    DeliverEvents(pWin, &event, 1, pParent);
+    dixDeliverEvents(pWin, &event, 1, pParent);
 
     /* take out of sibling chain */
 
@@ -2627,7 +2627,7 @@ DeliverMapNotify(WindowPtr pWin)
         .u.mapNotify.override = pWin->overrideRedirect,
     };
     event.u.u.type = MapNotify;
-    DeliverEvents(pWin, &event, 1, NullWindow);
+    dixDeliverEvents(pWin, &event, 1, NullWindow);
 }
 
 /*****
@@ -2818,7 +2818,7 @@ DeliverUnmapNotify(WindowPtr pWin, Bool fromConfigure)
         .u.unmapNotify.fromConfigure = fromConfigure
     };
     event.u.u.type = UnmapNotify;
-    DeliverEvents(pWin, &event, 1, NullWindow);
+    dixDeliverEvents(pWin, &event, 1, NullWindow);
 }
 
 /*****
@@ -3074,7 +3074,7 @@ SendVisibilityNotify(WindowPtr pWin)
         .u.visibility.state = visibility
     };
     event.u.u.type = VisibilityNotify;
-    DeliverEvents(pWin, &event, 1, NullWindow);
+    dixDeliverEvents(pWin, &event, 1, NullWindow);
 }
 
 #define RANDOM_WIDTH 32

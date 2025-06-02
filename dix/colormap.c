@@ -474,7 +474,7 @@ TellNoMap(WindowPtr pwin, Colormap * pmid)
 #ifdef XINERAMA
         if (noPanoramiXExtension || !pwin->drawable.pScreen->myNum)
 #endif /* XINERAMA */
-            DeliverEvents(pwin, &xE, 1, (WindowPtr) NULL);
+            dixDeliverEvents(pwin, &xE, 1, (WindowPtr) NULL);
         if (pwin->optional) {
             pwin->optional->colormap = None;
             CheckWindowOptionalNeed(pwin);
@@ -503,7 +503,7 @@ TellLostMap(WindowPtr pwin, void *value)
             .u.colormap.state = ColormapUninstalled
         };
         xE.u.u.type = ColormapNotify;
-        DeliverEvents(pwin, &xE, 1, (WindowPtr) NULL);
+        dixDeliverEvents(pwin, &xE, 1, (WindowPtr) NULL);
     }
 
     return WT_WALKCHILDREN;
@@ -528,7 +528,7 @@ TellGainedMap(WindowPtr pwin, void *value)
             .u.colormap.state = ColormapInstalled
         };
         xE.u.u.type = ColormapNotify;
-        DeliverEvents(pwin, &xE, 1, (WindowPtr) NULL);
+        dixDeliverEvents(pwin, &xE, 1, (WindowPtr) NULL);
     }
 
     return WT_WALKCHILDREN;

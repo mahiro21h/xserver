@@ -86,7 +86,7 @@ RRSendConfigNotify(ScreenPtr pScreen)
         .u.configureNotify.override = pWin->overrideRedirect
     };
     event.u.u.type = ConfigureNotify;
-    DeliverEvents(pWin, &event, 1, NullWindow);
+    dixDeliverEvents(pWin, &event, 1, NullWindow);
 }
 
 void
