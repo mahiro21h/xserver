@@ -56,6 +56,7 @@ int
 ProcRRGetProviders (ClientPtr client)
 {
     REQUEST(xRRGetProvidersReq);
+    xRRGetProvidersReply rep;
     WindowPtr pWin;
     ScreenPtr pScreen;
     rrScrPrivPtr pScrPriv;
@@ -86,36 +87,36 @@ ProcRRGetProviders (ClientPtr client)
 
     if (!pScrPriv)
     {
-        xRRGetProvidersReply rep = {
+        rep = (xRRGetProvidersReply) {
             .type = X_Reply,
             .sequenceNumber = client->sequence,
+            .length = 0,
             .timestamp = currentTime.milliseconds,
+            .nProviders = 0
         };
-        WriteToClient(client, sizeof(rep), &rep);
-        return Success;
-    }
-
-    extraLen = total_providers * sizeof(CARD32);
-
-    xRRGetProvidersReply rep = {
-        .type = X_Reply,
-        .sequenceNumber = client->sequence,
-        .timestamp = pScrPriv->lastSetTime.milliseconds,
-        .nProviders = total_providers,
-        .length = bytes_to_int32(extraLen),
-    };
-
-    if (extraLen) {
-        extra = malloc(extraLen);
-        if (!extra)
-            return BadAlloc;
-    } else
         extra = NULL;
+        extraLen = 0;
+    } else {
+        rep = (xRRGetProvidersReply) {
+            .type = X_Reply,
+            .sequenceNumber = client->sequence,
+            .timestamp = pScrPriv->lastSetTime.milliseconds,
+            .nProviders = total_providers,
+            .length = total_providers
+        };
+        extraLen = rep.length << 2;
+        if (extraLen) {
+            extra = malloc(extraLen);
+            if (!extra)
+                return BadAlloc;
+        } else
+            extra = NULL;
 
-    providers = (RRProvider *)extra;
-    ADD_PROVIDER(pScreen);
-    xorg_list_for_each_entry(iter, &pScreen->secondary_list, secondary_head) {
-        ADD_PROVIDER(iter);
+        providers = (RRProvider *)extra;
+        ADD_PROVIDER(pScreen);
+        xorg_list_for_each_entry(iter, &pScreen->secondary_list, secondary_head) {
+            ADD_PROVIDER(iter);
+        }
     }
 
     if (client->swapped) {
@@ -137,6 +138,7 @@ int
 ProcRRGetProviderInfo (ClientPtr client)
 {
     REQUEST(xRRGetProviderInfoReq);
+    xRRGetProviderInfoReply rep;
     rrScrPrivPtr pScrPriv, pScrProvPriv;
     RRProviderPtr provider;
     ScreenPtr pScreen;
@@ -156,15 +158,17 @@ ProcRRGetProviderInfo (ClientPtr client)
     pScreen = provider->pScreen;
     pScrPriv = rrGetScrPriv(pScreen);
 
-    xRRGetProviderInfoReply rep = {
+    rep = (xRRGetProviderInfoReply) {
         .type = X_Reply,
         .status = RRSetConfigSuccess,
         .sequenceNumber = client->sequence,
+        .length = 0,
         .capabilities = provider->capabilities,
         .nameLength = provider->nameLength,
         .timestamp = pScrPriv->lastSetTime.milliseconds,
         .nCrtcs = pScrPriv->numCrtcs,
         .nOutputs = pScrPriv->numOutputs,
+        .nAssociatedProviders = 0
     };
 
     /* count associated providers */

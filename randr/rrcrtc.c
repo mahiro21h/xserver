@@ -1022,16 +1022,18 @@ static void
 RRModeGetScanoutSize(RRModePtr mode, PictTransformPtr transform,
                      int *width, int *height)
 {
+    BoxRec box;
+
     if (mode == NULL) {
         *width = 0;
         *height = 0;
         return;
     }
 
-    BoxRec box = {
-        .x2 = mode->mode.width,
-        .y2 = mode->mode.height,
-    };
+    box.x1 = 0;
+    box.y1 = 0;
+    box.x2 = mode->mode.width;
+    box.y2 = mode->mode.height;
 
     pixman_transform_bounds(transform, &box);
     *width = box.x2 - box.x1;
@@ -1145,9 +1147,10 @@ int
 ProcRRGetCrtcInfo(ClientPtr client)
 {
     REQUEST(xRRGetCrtcInfoReq);
+    xRRGetCrtcInfoReply rep;
     RRCrtcPtr crtc;
     CARD8 *extra = NULL;
-    unsigned long extraLen = 0;
+    unsigned long extraLen;
     ScreenPtr pScreen;
     rrScrPrivPtr pScrPriv;
     RRModePtr mode;
@@ -1171,17 +1174,22 @@ ProcRRGetCrtcInfo(ClientPtr client)
 
     mode = crtc->mode;
 
-    xRRGetCrtcInfoReply rep = {
+    rep = (xRRGetCrtcInfoReply) {
         .type = X_Reply,
         .status = RRSetConfigSuccess,
         .sequenceNumber = client->sequence,
-        .timestamp = pScrPriv->lastSetTime.milliseconds,
-        .rotation = crtc->rotation,
-        .rotations = crtc->rotations,
+        .length = 0,
+        .timestamp = pScrPriv->lastSetTime.milliseconds
     };
     if (leased) {
+        rep.x = rep.y = rep.width = rep.height = 0;
+        rep.mode = 0;
         rep.rotation = RR_Rotate_0;
         rep.rotations = RR_Rotate_0;
+        rep.nOutput = 0;
+        rep.nPossibleOutput = 0;
+        rep.length = 0;
+        extraLen = 0;
     } else {
         if (pScrPriv->rrGetPanning &&
             pScrPriv->rrGetPanning(pScreen, crtc, &panned_area, NULL, NULL) &&
@@ -1200,18 +1208,23 @@ ProcRRGetCrtcInfo(ClientPtr client)
             rep.height = height;
         }
         rep.mode = mode ? mode->mode.id : 0;
+        rep.rotation = crtc->rotation;
+        rep.rotations = crtc->rotations;
         rep.nOutput = crtc->numOutputs;
+        k = 0;
         for (i = 0; i < pScrPriv->numOutputs; i++) {
             if (!RROutputIsLeased(pScrPriv->outputs[i])) {
                 for (j = 0; j < pScrPriv->outputs[i]->numCrtcs; j++)
                     if (pScrPriv->outputs[i]->crtcs[j] == crtc)
-                        rep.nPossibleOutput++;
+                        k++;
             }
         }
 
-        extraLen = (rep.nOutput + rep.nPossibleOutput) * sizeof(CARD32);
-        rep.length = bytes_to_int32(extraLen);
+        rep.nPossibleOutput = k;
 
+        rep.length = rep.nOutput + rep.nPossibleOutput;
+
+        extraLen = rep.length << 2;
         if (extraLen) {
             extra = malloc(extraLen);
             if (!extra)
@@ -1270,6 +1283,7 @@ int
 ProcRRSetCrtcConfig(ClientPtr client)
 {
     REQUEST(xRRSetCrtcConfigReq);
+    xRRSetCrtcConfigReply rep;
     ScreenPtr pScreen;
     rrScrPrivPtr pScrPriv;
     RRCrtcPtr crtc;
@@ -1461,10 +1475,11 @@ ProcRRSetCrtcConfig(ClientPtr client)
  sendReply:
     free(outputs);
 
-    xRRSetCrtcConfigReply rep = {
+    rep = (xRRSetCrtcConfigReply) {
         .type = X_Reply,
         .status = status,
         .sequenceNumber = client->sequence,
+        .length = 0,
         .newTimestamp = pScrPriv->lastSetTime.milliseconds
     };
 
@@ -1482,6 +1497,7 @@ int
 ProcRRGetPanning(ClientPtr client)
 {
     REQUEST(xRRGetPanningReq);
+    xRRGetPanningReply rep;
     RRCrtcPtr crtc;
     ScreenPtr pScreen;
     rrScrPrivPtr pScrPriv;
@@ -1501,7 +1517,7 @@ ProcRRGetPanning(ClientPtr client)
     if (!pScrPriv)
         return RRErrorBase + BadRRCrtc;
 
-    xRRGetPanningReply rep = {
+    rep = (xRRGetPanningReply) {
         .type = X_Reply,
         .status = RRSetConfigSuccess,
         .sequenceNumber = client->sequence,
@@ -1625,6 +1641,7 @@ int
 ProcRRGetCrtcGammaSize(ClientPtr client)
 {
     REQUEST(xRRGetCrtcGammaSizeReq);
+    xRRGetCrtcGammaSizeReply reply;
     RRCrtcPtr crtc;
 
     REQUEST_SIZE_MATCH(xRRGetCrtcGammaSizeReq);
@@ -1634,9 +1651,10 @@ ProcRRGetCrtcGammaSize(ClientPtr client)
     if (!RRCrtcGammaGet(crtc))
         return RRErrorBase + BadRRCrtc;
 
-    xRRGetCrtcGammaSizeReply reply = {
+    reply = (xRRGetCrtcGammaSizeReply) {
         .type = X_Reply,
         .sequenceNumber = client->sequence,
+        .length = 0,
         .size = crtc->gammaSize
     };
     if (client->swapped) {
@@ -1652,6 +1670,7 @@ int
 ProcRRGetCrtcGamma(ClientPtr client)
 {
     REQUEST(xRRGetCrtcGammaReq);
+    xRRGetCrtcGammaReply reply;
     RRCrtcPtr crtc;
     unsigned long len;
     char *extra = NULL;
@@ -1671,7 +1690,7 @@ ProcRRGetCrtcGamma(ClientPtr client)
             return BadAlloc;
     }
 
-    xRRGetCrtcGammaReply reply = {
+    reply = (xRRGetCrtcGammaReply) {
         .type = X_Reply,
         .sequenceNumber = client->sequence,
         .length = bytes_to_int32(len),

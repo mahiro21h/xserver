@@ -581,6 +581,11 @@ int
 ProcRRGetMonitors(ClientPtr client)
 {
     REQUEST(xRRGetMonitorsReq);
+    xRRGetMonitorsReply rep = {
+        .type = X_Reply,
+        .sequenceNumber = client->sequence,
+        .length = 0,
+    };
     WindowPtr           window;
     ScreenPtr           screen;
     int                 r;
@@ -599,19 +604,17 @@ ProcRRGetMonitors(ClientPtr client)
     if (!RRMonitorMakeList(screen, get_active, &monitors, &nmonitors))
         return BadAlloc;
 
+    rep.timestamp = RRMonitorTimestamp(screen);
+
     noutputs = 0;
     for (m = 0; m < nmonitors; m++) {
+        rep.length += SIZEOF(xRRMonitorInfo) >> 2;
+        rep.length += monitors[m].numOutputs;
         noutputs += monitors[m].numOutputs;
     }
 
-    xRRGetMonitorsReply rep = {
-        .type = X_Reply,
-        .sequenceNumber = client->sequence,
-        .timestamp = RRMonitorTimestamp(screen),
-        .length = noutputs + nmonitors * bytes_to_int32(sizeof(xRRMonitorInfo)),
-        .nmonitors = nmonitors,
-        .noutputs = noutputs,
-    };
+    rep.nmonitors = nmonitors;
+    rep.noutputs = noutputs;
 
     if (client->swapped) {
         swaps(&rep.sequenceNumber);
