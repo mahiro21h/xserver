@@ -1148,19 +1148,28 @@ ProcRRGetCrtcInfo(ClientPtr client)
     RRCrtcPtr crtc;
     CARD8 *extra = NULL;
     unsigned long extraLen = 0;
+    ScreenPtr pScreen;
+    rrScrPrivPtr pScrPriv;
+    RRModePtr mode;
+    RROutput *outputs;
+    RROutput *possible;
+    int i, j, k;
+    int width, height;
+    BoxRec panned_area;
+    Bool leased;
 
     REQUEST_SIZE_MATCH(xRRGetCrtcInfoReq);
     VERIFY_RR_CRTC(stuff->crtc, crtc, DixReadAccess);
 
-    Bool leased = RRCrtcIsLeased(crtc);
+    leased = RRCrtcIsLeased(crtc);
 
     /* All crtcs must be associated with screens before client
      * requests are processed
      */
-    ScreenPtr pScreen = crtc->pScreen;
-    rrScrPrivPtr pScrPriv = rrGetScrPriv(pScreen);
+    pScreen = crtc->pScreen;
+    pScrPriv = rrGetScrPriv(pScreen);
 
-    RRModePtr mode = crtc->mode;
+    mode = crtc->mode;
 
     xRRGetCrtcInfoReply rep = {
         .type = X_Reply,
@@ -1174,7 +1183,6 @@ ProcRRGetCrtcInfo(ClientPtr client)
         rep.rotation = RR_Rotate_0;
         rep.rotations = RR_Rotate_0;
     } else {
-        BoxRec panned_area;
         if (pScrPriv->rrGetPanning &&
             pScrPriv->rrGetPanning(pScreen, crtc, &panned_area, NULL, NULL) &&
             (panned_area.x2 > panned_area.x1) && (panned_area.y2 > panned_area.y1))
@@ -1185,7 +1193,6 @@ ProcRRGetCrtcInfo(ClientPtr client)
             rep.height = panned_area.y2 - panned_area.y1;
         }
         else {
-            int width, height;
             RRCrtcGetScanoutSize(crtc, &width, &height);
             rep.x = crtc->x;
             rep.y = crtc->y;
@@ -1194,9 +1201,9 @@ ProcRRGetCrtcInfo(ClientPtr client)
         }
         rep.mode = mode ? mode->mode.id : 0;
         rep.nOutput = crtc->numOutputs;
-        for (int i = 0; i < pScrPriv->numOutputs; i++) {
+        for (i = 0; i < pScrPriv->numOutputs; i++) {
             if (!RROutputIsLeased(pScrPriv->outputs[i])) {
-                for (int j = 0; j < pScrPriv->outputs[i]->numCrtcs; j++)
+                for (j = 0; j < pScrPriv->outputs[i]->numCrtcs; j++)
                     if (pScrPriv->outputs[i]->crtcs[j] == crtc)
                         rep.nPossibleOutput++;
             }
@@ -1211,19 +1218,18 @@ ProcRRGetCrtcInfo(ClientPtr client)
                 return BadAlloc;
         }
 
-        RROutput *outputs = (RROutput *) extra;
-        RROutput *possible = (RROutput *) (outputs + rep.nOutput);
+        outputs = (RROutput *) extra;
+        possible = (RROutput *) (outputs + rep.nOutput);
 
-        for (int i = 0; i < crtc->numOutputs; i++) {
+        for (i = 0; i < crtc->numOutputs; i++) {
             outputs[i] = crtc->outputs[i]->id;
             if (client->swapped)
                 swapl(&outputs[i]);
         }
-
-        int k = 0;
-        for (int i = 0; i < pScrPriv->numOutputs; i++) {
+        k = 0;
+        for (i = 0; i < pScrPriv->numOutputs; i++) {
             if (!RROutputIsLeased(pScrPriv->outputs[i])) {
-                for (int j = 0; j < pScrPriv->outputs[i]->numCrtcs; j++)
+                for (j = 0; j < pScrPriv->outputs[i]->numCrtcs; j++)
                     if (pScrPriv->outputs[i]->crtcs[j] == crtc) {
                         possible[k] = pScrPriv->outputs[i]->id;
                         if (client->swapped)
