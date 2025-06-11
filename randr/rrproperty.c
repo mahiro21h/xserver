@@ -727,25 +727,23 @@ ProcRRGetOutputProperty(ClientPtr client)
         swapl(&rep.bytesAfter);
         swapl(&rep.nItems);
     }
+    WriteToClient(client, sizeof(rep), &rep);
     if (len) {
         memcpy(extra, (char *) prop_value->data + ind, len);
         switch (rep.format) {
         case 32:
-            if (client->swapped)
-                SwapLongs((CARD32*)extra, len / sizeof(CARD32));
+            client->pSwapReplyFunc = (ReplySwapPtr) CopySwap32Write;
             break;
         case 16:
-            if (client->swapped)
-                SwapShorts((short*)extra, len / sizeof(CARD16));
+            client->pSwapReplyFunc = (ReplySwapPtr) CopySwap16Write;
             break;
         default:
+            client->pSwapReplyFunc = (ReplySwapPtr) WriteToClient;
             break;
         }
+        WriteSwappedDataToClient(client, len, extra);
+        free(extra);
     }
-
-    WriteToClient(client, sizeof(rep), &rep);
-    WriteToClient(client, len, extra);
-    free(extra);
 
     if (stuff->delete && (rep.bytesAfter == 0)) {     /* delete the Property */
         *prev = prop->next;
