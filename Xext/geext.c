@@ -31,8 +31,6 @@
 #include "protocol-versions.h"
 #include "extinit_priv.h"
 
-#define MAXEXTENSIONS   128
-
 DevPrivateKeyRec GEClientPrivateKeyRec;
 
 #define GEClientPrivateKey (&GEClientPrivateKeyRec)
