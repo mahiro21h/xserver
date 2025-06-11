@@ -107,10 +107,16 @@ RRCreateProviderProperty(Atom property)
 {
     RRPropertyPtr prop;
 
-    prop = (RRPropertyPtr) calloc(1, sizeof(RRPropertyRec));
+    prop = (RRPropertyPtr) malloc(sizeof(RRPropertyRec));
     if (!prop)
         return NULL;
+    prop->next = NULL;
     prop->propertyName = property;
+    prop->is_pending = FALSE;
+    prop->range = FALSE;
+    prop->immutable = FALSE;
+    prop->num_valid = 0;
+    prop->valid_values = NULL;
     RRInitProviderPropertyValue(&prop->current);
     RRInitProviderPropertyValue(&prop->pending);
     return prop;
