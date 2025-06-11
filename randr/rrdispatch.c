@@ -36,7 +36,7 @@ RRClientKnowsRates(ClientPtr pClient)
                            1, 1) >= 0;
 }
 
-int
+static int
 ProcRRQueryVersion(ClientPtr client)
 {
     xRRQueryVersionReply rep = {
@@ -72,7 +72,7 @@ ProcRRQueryVersion(ClientPtr client)
     return Success;
 }
 
-int
+static int
 ProcRRSelectInput(ClientPtr client)
 {
     REQUEST(xRRSelectInputReq);
