@@ -103,7 +103,8 @@ shadowCloseScreen(ScreenPtr pScreen)
     unwrap(pBuf, pScreen, BlockHandler);
     shadowRemove(pScreen, pBuf->pPixmap);
     DamageDestroy(pBuf->pDamage);
-    dixDestroyPixmap(pBuf->pPixmap, 0);
+    if (pBuf->pPixmap)
+        pScreen->DestroyPixmap(pBuf->pPixmap);
     free(pBuf);
     return pScreen->CloseScreen(pScreen);
 }
