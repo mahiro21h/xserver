@@ -118,7 +118,7 @@ miPolyGlyphBlt(DrawablePtr pDrawable, GC * pGC, int x, int y, unsigned int nglyp
 
     pGCtmp = GetScratchGC(1, pDrawable->pScreen);
     if (!pGCtmp) {
-        dixDestroyPixmap(pPixmap, 0);
+        (*pDrawable->pScreen->DestroyPixmap) (pPixmap);
         return;
     }
 
@@ -132,7 +132,7 @@ miPolyGlyphBlt(DrawablePtr pDrawable, GC * pGC, int x, int y, unsigned int nglyp
     nbyLine = BitmapBytePad(width);
     pbits = xallocarray(height, nbyLine);
     if (!pbits) {
-        dixDestroyPixmap(pPixmap, 0);
+        (*pDrawable->pScreen->DestroyPixmap) (pPixmap);
         FreeScratchGC(pGCtmp);
         return;
     }
@@ -174,7 +174,7 @@ miPolyGlyphBlt(DrawablePtr pDrawable, GC * pGC, int x, int y, unsigned int nglyp
         }
         x += pci->metrics.characterWidth;
     }
-    dixDestroyPixmap(pPixmap, 0);
+    (*pDrawable->pScreen->DestroyPixmap) (pPixmap);
     free(pbits);
     FreeScratchGC(pGCtmp);
 }
