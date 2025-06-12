@@ -608,7 +608,7 @@ miGlyphs(CARD8 op,
                               maskFormat, CPComponentAlpha, &component_alpha,
                               serverClient, &error);
         if (!pMask) {
-            dixDestroyPixmap(pMaskPixmap, 0);
+            (*pScreen->DestroyPixmap) (pMaskPixmap);
             return;
         }
         pGC = GetScratchGC(pMaskPixmap->drawable.depth, pScreen);
@@ -676,7 +676,7 @@ miGlyphs(CARD8 op,
                          xSrc + x - xDst,
                          ySrc + y - yDst, 0, 0, x, y, width, height);
         FreePicture((void *) pMask, (XID) 0);
-        dixDestroyPixmap(pMaskPixmap, 0);
+        (*pScreen->DestroyPixmap) (pMaskPixmap);
     }
 }
 
