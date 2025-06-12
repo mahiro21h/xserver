@@ -227,6 +227,9 @@ extern _X_EXPORT char **xstrtokenize(const char *str, const char *separators);
 
 /* some macros to help swap requests, replies, and events */
 
+#define LengthRestB(stuff) \
+    ((client->req_len << 2) - sizeof(*stuff))
+
 #define LengthRestS(stuff) \
     ((client->req_len << 1) - (sizeof(*stuff) >> 1))
 
