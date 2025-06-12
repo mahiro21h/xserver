@@ -1525,7 +1525,7 @@ ProcCreatePixmap(ClientPtr client)
         rc = XaceHookResourceAccess(client, stuff->pid, X11_RESTYPE_PIXMAP,
                       pMap, X11_RESTYPE_NONE, NULL, DixCreateAccess);
         if (rc != Success) {
-            dixDestroyPixmap(pMap, 0);
+            (*pDraw->pScreen->DestroyPixmap) (pMap);
             return rc;
         }
         if (AddResource(stuff->pid, X11_RESTYPE_PIXMAP, (void *) pMap))

@@ -63,7 +63,7 @@ GetScratchPixmapHeader(ScreenPtr pScreen, int width, int height, int depth,
         if ((*pScreen->ModifyPixmapHeader) (pPixmap, width, height, depth,
                                             bitsPerPixel, devKind, pPixData))
             return pPixmap;
-        dixDestroyPixmap(pPixmap, 0);
+        (*pScreen->DestroyPixmap) (pPixmap);
     }
     return NullPixmap;
 }
@@ -73,8 +73,9 @@ void
 FreeScratchPixmapHeader(PixmapPtr pPixmap)
 {
     if (pPixmap) {
+        ScreenPtr pScreen = pPixmap->drawable.pScreen;
         pPixmap->devPrivate.ptr = NULL; /* help catch/avoid heap-use-after-free */
-        dixDestroyPixmap(pPixmap, 0);
+        (*pScreen->DestroyPixmap)(pPixmap);
     }
 }
 
@@ -150,7 +151,7 @@ PixmapPtr PixmapShareToSecondary(PixmapPtr pixmap, ScreenPtr secondary)
 
     ret = secondary->SetSharedPixmapBacking(spix, handle);
     if (ret == FALSE) {
-        dixDestroyPixmap(spix, 0);
+        secondary->DestroyPixmap(spix);
         return NULL;
     }
 
