@@ -154,10 +154,8 @@ extern _X_EXPORT void *LoadSubModule(void *, const char *, const char **,
 extern _X_EXPORT void *LoaderSymbol(const char *);
 extern _X_EXPORT void *LoaderSymbolFromModule(void *, const char *);
 extern _X_EXPORT void LoaderErrorMsg(const char *, const char *, int, int);
-
-/* deprecated, only kept for backwards compat w/ proprietary NVidia driver */
-extern _X_EXPORT Bool LoaderShouldIgnoreABI(void) _X_DEPRECATED;
-extern _X_EXPORT int LoaderGetABIVersion(const char *abiclass) _X_DEPRECATED;
+extern _X_EXPORT Bool LoaderShouldIgnoreABI(void);
+extern _X_EXPORT int LoaderGetABIVersion(const char *abiclass);
 
 typedef void *(*ModuleSetupProc) (void *, void *, int *, int *);
 typedef void (*ModuleTearDownProc) (void *);
