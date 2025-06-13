@@ -116,14 +116,14 @@ sunPMGetEventFromOS(int fd, pmEvent * events, int num)
 
         if (ioctl(fd, SRN_IOC_NEXTEVENT, &sunEvent) < 0) {
             if (errno != EAGAIN) {
-                LogMessageVerb(X_WARNING, 1, "sunPMGetEventFromOS: SRN_IOC_NEXTEVENT"
-                               " %s\n", strerror(errno));
+                xf86Msg(X_WARNING, "sunPMGetEventFromOS: SRN_IOC_NEXTEVENT"
+                        " %s\n", strerror(errno));
             }
             break;
         }
         events[i] = sunToXF86(sunEvent.type);
     }
-    LogMessageVerb(X_WARNING, 1, "Got some events\n");
+    xf86Msg(X_WARNING, "Got some events\n");
     return i;
 }
 
@@ -141,11 +141,11 @@ sunPMConfirmEventToOs(int fd, pmEvent event)
     case XF86_APM_SYS_SUSPEND:
     case XF86_APM_CRITICAL_SUSPEND:
     case XF86_APM_USER_SUSPEND:
-        LogMessageVerb(X_WARNING, 1, "Got SUSPENDED\n");
+        xf86Msg(X_WARNING, "Got SUSPENDED\n");
         if (ioctl(fd, SRN_IOC_SUSPEND, NULL) == 0)
             return PM_CONTINUE;
         else {
-            LogMessageVerb(X_WARNING, 1, "sunPMConfirmEventToOs: SRN_IOC_SUSPEND"
+            xf86Msg(X_WARNING, "sunPMConfirmEventToOs: SRN_IOC_SUSPEND"
                     " %s\n", strerror(errno));
             return PM_FAILED;
         }
@@ -154,11 +154,11 @@ sunPMConfirmEventToOs(int fd, pmEvent event)
     case XF86_APM_CRITICAL_RESUME:
     case XF86_APM_STANDBY_FAILED:
     case XF86_APM_SUSPEND_FAILED:
-        LogMessageVerb(X_WARNING, 1, "Got RESUME\n");
+        xf86Msg(X_WARNING, "Got RESUME\n");
         if (ioctl(fd, SRN_IOC_RESUME, NULL) == 0)
             return PM_CONTINUE;
         else {
-            LogMessageVerb(X_WARNING, 1, "sunPMConfirmEventToOs: SRN_IOC_RESUME"
+            xf86Msg(X_WARNING, "sunPMConfirmEventToOs: SRN_IOC_RESUME"
                     " %s\n", strerror(errno));
             return PM_FAILED;
         }
