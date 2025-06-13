@@ -76,6 +76,8 @@ RRSendConfigNotify(ScreenPtr pScreen)
     xEvent event = {
         .u.configureNotify.window = pWin->drawable.id,
         .u.configureNotify.aboveSibling = None,
+        .u.configureNotify.x = 0,
+        .u.configureNotify.y = 0,
 
     /* XXX xinerama stuff ? */
 
@@ -190,6 +192,7 @@ int
 ProcRRGetScreenSizeRange(ClientPtr client)
 {
     REQUEST(xRRGetScreenSizeRangeReq);
+    xRRGetScreenSizeRangeReply rep;
     WindowPtr pWin;
     ScreenPtr pScreen;
     rrScrPrivPtr pScrPriv;
@@ -203,9 +206,11 @@ ProcRRGetScreenSizeRange(ClientPtr client)
     pScreen = pWin->drawable.pScreen;
     pScrPriv = rrGetScrPriv(pScreen);
 
-    xRRGetScreenSizeRangeReply rep = {
+    rep = (xRRGetScreenSizeRangeReply) {
         .type = X_Reply,
+        .pad = 0,
         .sequenceNumber = client->sequence,
+        .length = 0
     };
 
     if (pScrPriv) {
@@ -367,6 +372,7 @@ rrGetMultiScreenResources(ClientPtr client, Bool query, ScreenPtr pScreen)
     rrScrPrivPtr pScrPriv;
     int num_modes;
     RRModePtr *modes;
+    xRRGetScreenResourcesReply rep;
     unsigned long extraLen;
     CARD8 *extra;
     RRCrtc *crtcs;
@@ -403,10 +409,10 @@ rrGetMultiScreenResources(ClientPtr client, Bool query, ScreenPtr pScreen)
     }
 
     pScrPriv = rrGetScrPriv(pScreen);
-
-    xRRGetScreenResourcesReply rep = {
+    rep = (xRRGetScreenResourcesReply) {
         .type = X_Reply,
         .sequenceNumber = client->sequence,
+        .length = 0,
         .timestamp = pScrPriv->lastSetTime.milliseconds,
         .configTimestamp = pScrPriv->lastConfigTime.milliseconds,
         .nCrtcs = total_crtcs,
@@ -485,8 +491,8 @@ rrGetScreenResources(ClientPtr client, Bool query)
     WindowPtr pWin;
     ScreenPtr pScreen;
     rrScrPrivPtr pScrPriv;
-    CARD8 *extra = NULL;
-    unsigned long extraLen = 0;
+    CARD8 *extra;
+    unsigned long extraLen;
     int i, rc, has_primary = 0;
     RRCrtc *crtcs;
     RROutput *outputs;
@@ -512,9 +518,16 @@ rrGetScreenResources(ClientPtr client, Bool query)
         rep = (xRRGetScreenResourcesReply) {
             .type = X_Reply,
             .sequenceNumber = client->sequence,
+            .length = 0,
             .timestamp = currentTime.milliseconds,
             .configTimestamp = currentTime.milliseconds,
+            .nCrtcs = 0,
+            .nOutputs = 0,
+            .nModes = 0,
+            .nbytesNames = 0
         };
+        extra = NULL;
+        extraLen = 0;
     }
     else {
         RRModePtr *modes;
@@ -527,12 +540,15 @@ rrGetScreenResources(ClientPtr client, Bool query)
         rep = (xRRGetScreenResourcesReply) {
             .type = X_Reply,
             .sequenceNumber = client->sequence,
+            .length = 0,
             .timestamp = pScrPriv->lastSetTime.milliseconds,
             .configTimestamp = pScrPriv->lastConfigTime.milliseconds,
             .nCrtcs = pScrPriv->numCrtcs,
             .nOutputs = pScrPriv->numOutputs,
             .nModes = num_modes,
+            .nbytesNames = 0
         };
+
 
         for (i = 0; i < num_modes; i++)
             rep.nbytesNames += modes[i]->mode.nameLength;
@@ -746,8 +762,8 @@ ProcRRGetScreenInfo(ClientPtr client)
     int rc;
     ScreenPtr pScreen;
     rrScrPrivPtr pScrPriv;
-    CARD8 *extra = NULL;
-    unsigned long extraLen = 0;
+    CARD8 *extra;
+    unsigned long extraLen;
     RROutputPtr output;
 
     REQUEST_SIZE_MATCH(xRRGetScreenInfoReq);
@@ -769,11 +785,18 @@ ProcRRGetScreenInfo(ClientPtr client)
             .type = X_Reply,
             .setOfRotations = RR_Rotate_0,
             .sequenceNumber = client->sequence,
+            .length = 0,
             .root = pWin->drawable.pScreen->root->drawable.id,
             .timestamp = currentTime.milliseconds,
             .configTimestamp = currentTime.milliseconds,
+            .nSizes = 0,
+            .sizeID = 0,
             .rotation = RR_Rotate_0,
+            .rate = 0,
+            .nrateEnts = 0
         };
+        extra = 0;
+        extraLen = 0;
     }
     else {
         int i, j;
@@ -792,6 +815,7 @@ ProcRRGetScreenInfo(ClientPtr client)
             .type = X_Reply,
             .setOfRotations = output->crtc->rotations,
             .sequenceNumber = client->sequence,
+            .length = 0,
             .root = pWin->drawable.pScreen->root->drawable.id,
             .timestamp = pScrPriv->lastSetTime.milliseconds,
             .configTimestamp = pScrPriv->lastConfigTime.milliseconds,
@@ -881,6 +905,7 @@ int
 ProcRRSetScreenConfig(ClientPtr client)
 {
     REQUEST(xRRSetScreenConfigReq);
+    xRRSetScreenConfigReply rep;
     DrawablePtr pDraw;
     int rc;
     ScreenPtr pScreen;
@@ -1085,10 +1110,12 @@ ProcRRSetScreenConfig(ClientPtr client)
 
     free(pData);
 
-    xRRSetScreenConfigReply rep = {
+    rep = (xRRSetScreenConfigReply) {
         .type = X_Reply,
         .status = status,
         .sequenceNumber = client->sequence,
+        .length = 0,
+
         .newTimestamp = pScrPriv->lastSetTime.milliseconds,
         .newConfigTimestamp = pScrPriv->lastConfigTime.milliseconds,
         .root = pDraw->pScreen->root->drawable.id,
