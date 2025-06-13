@@ -133,8 +133,8 @@ xf86PciProbe(void)
                     primaryBus.id.pci = info;
                 }
                 else {
-                    LogMessageVerb(X_NOTICE, 1,
-                                   "More than one possible primary device found\n");
+                    xf86Msg(X_NOTICE,
+                            "More than one possible primary device found\n");
                     primaryBus.type ^= (BusType) (-1);
                 }
             }
@@ -154,10 +154,10 @@ xf86PciProbe(void)
         if (xf86IsPrimaryPci(info))
             prim = "*";
 
-        LogMessageVerb(X_PROBED, 1, "PCI:%s(%u@%u:%u:%u) %04x:%04x:%04x:%04x ", prim,
-                       info->bus, info->domain, info->dev, info->func,
-                       info->vendor_id, info->device_id,
-                       info->subvendor_id, info->subdevice_id);
+        xf86Msg(X_PROBED, "PCI:%s(%u@%u:%u:%u) %04x:%04x:%04x:%04x ", prim,
+                info->bus, info->domain, info->dev, info->func,
+                info->vendor_id, info->device_id,
+                info->subvendor_id, info->subdevice_id);
 
         xf86ErrorF("rev %d", info->revision);
 
@@ -840,7 +840,8 @@ xf86MatchPciInstances(const char *driverName, int vendorID,
                  * only assign to it to the primary device.
                  */
                 if (xf86IsPrimaryPci(pPci)) {
-                    LogMessageVerb(X_PROBED, 1, "Assigning device section with no busID to primary device\n");
+                    xf86Msg(X_PROBED, "Assigning device section with no busID"
+                            " to primary device\n");
                     if (dev || devBus)
                         LogMessageVerb(X_WARNING, 0,
                                        "%s: More than one matching Device section "
@@ -900,8 +901,8 @@ xf86MatchPciInstances(const char *driverName, int vendorID,
                         break;
                 }
                 if (id->numChipset >= 0) {
-                    LogMessageVerb(X_CONFIG, 1, "Chipset override: %s\n",
-                                   instances[i].dev->chipset);
+                    xf86Msg(X_CONFIG, "Chipset override: %s\n",
+                            instances[i].dev->chipset);
                     from = X_CONFIG;
                 }
                 else {
@@ -929,8 +930,9 @@ xf86MatchPciInstances(const char *driverName, int vendorID,
             }
             else {
                 instances[i].chip = id->numChipset;
-                LogMessageVerb(X_CONFIG, 1, "ChipID override: 0x%04X\n",
-                               instances[i].dev->chipID);
+
+                xf86Msg(X_CONFIG, "ChipID override: 0x%04X\n",
+                        instances[i].dev->chipID);
                 from = X_CONFIG;
             }
         }
@@ -947,7 +949,7 @@ xf86MatchPciInstances(const char *driverName, int vendorID,
                 if (c->token == instances[i].chip)
                     break;
             }
-            LogMessageVerb(from, 1, "Chipset %s found\n", c->name);
+            xf86Msg(from, "Chipset %s found\n", c->name);
         }
     }
 
@@ -1308,9 +1310,9 @@ xf86MatchDriverFromFiles(uint16_t match_vendor, uint16_t match_chip,
     if (!idsdir)
         return;
 
-    LogMessageVerb(X_INFO, 1,
-                   "Scanning %s directory for additional PCI ID's supported by the drivers\n",
-                   PCI_TXT_IDS_PATH);
+    xf86Msg(X_INFO,
+            "Scanning %s directory for additional PCI ID's supported by the drivers\n",
+            PCI_TXT_IDS_PATH);
     direntry = readdir(idsdir);
     /* Read the directory */
     while (direntry) {
@@ -1326,8 +1328,8 @@ xf86MatchDriverFromFiles(uint16_t match_vendor, uint16_t match_chip,
                      PCI_TXT_IDS_PATH, direntry->d_name);
             fp = fopen(path_name, "r");
             if (fp == NULL) {
-                LogMessageVerb(X_ERROR, 1, "Could not open %s for reading. Exiting.\n",
-                               path_name);
+                xf86Msg(X_ERROR, "Could not open %s for reading. Exiting.\n",
+                        path_name);
                 goto end;
             }
             /* Read the file */
@@ -1361,8 +1363,8 @@ xf86MatchDriverFromFiles(uint16_t match_vendor, uint16_t match_chip,
                             (char *) malloc(sizeof(char) *
                                             strlen(direntry->d_name) - 3);
                         if (!tmpMatch) {
-                            LogMessageVerb(X_ERROR, 1,
-                                           "Could not allocate space for the module name. Exiting.\n");
+                            xf86Msg(X_ERROR,
+                                    "Could not allocate space for the module name. Exiting.\n");
                             goto end;
                         }
                         /* hack off the .ids suffix. This should guard
@@ -1378,8 +1380,8 @@ xf86MatchDriverFromFiles(uint16_t match_vendor, uint16_t match_chip,
                             }
                         }
                         xf86AddMatchedDriver(md, tmpMatch);
-                        LogMessageVerb(X_INFO, 1, "Matched %s from file name %s\n",
-                                       tmpMatch, direntry->d_name);
+                        xf86Msg(X_INFO, "Matched %s from file name %s\n",
+                                tmpMatch, direntry->d_name);
                         free(tmpMatch);
                     }
                 }
