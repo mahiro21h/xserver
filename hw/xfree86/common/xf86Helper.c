@@ -1698,7 +1698,7 @@ xf86IsUnblank(int mode)
     case SCREEN_SAVER_CYCLE:
         return FALSE;
     default:
-        LogMessageVerb(X_WARNING, 0, "Unexpected save screen mode: %d\n", mode);
+        xf86MsgVerb(X_WARNING, 0, "Unexpected save screen mode: %d\n", mode);
         return TRUE;
     }
 }

@@ -60,13 +60,13 @@ xf86EnableIO()
 {
     int fd = xf86Info.consoleFd;
 
-    LogMessageVerb(X_WARNING, 3, "xf86EnableIO %d\n", fd);
+    xf86MsgVerb(X_WARNING, 3, "xf86EnableIO %d\n", fd);
     if (ioBase == MAP_FAILED) {
         ioBase = mmap(NULL, 0x10000, PROT_READ | PROT_WRITE, MAP_SHARED, fd,
                       0xf2000000);
-        LogMessageVerb(X_INFO, 3, "xf86EnableIO: %08x\n", ioBase);
+        xf86MsgVerb(X_INFO, 3, "xf86EnableIO: %08x\n", ioBase);
         if (ioBase == MAP_FAILED) {
-            LogMessageVerb(X_WARNING, 3, "Can't map IO space!\n");
+            xf86MsgVerb(X_WARNING, 3, "Can't map IO space!\n");
             return FALSE;
         }
     }

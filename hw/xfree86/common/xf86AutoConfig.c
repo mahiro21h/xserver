@@ -205,14 +205,14 @@ xf86AutoConfig(void)
         free(md.matches[i]);
     }
 
-    LogMessageVerb(X_DEFAULT, 0,
+    xf86MsgVerb(X_DEFAULT, 0,
                 "Using default built-in configuration (%d lines)\n",
                 builtinLines);
 
-    LogMessageVerb(X_DEFAULT, 3, "--- Start of built-in configuration ---\n");
+    xf86MsgVerb(X_DEFAULT, 3, "--- Start of built-in configuration ---\n");
     for (cp = builtinConfig; *cp; cp++)
         xf86ErrorFVerb(3, "\t%s", *cp);
-    LogMessageVerb(X_DEFAULT, 3, "--- End of built-in configuration ---\n");
+    xf86MsgVerb(X_DEFAULT, 3, "--- End of built-in configuration ---\n");
 
     xf86initConfigFiles();
     xf86setBuiltinConfig(builtinConfig);

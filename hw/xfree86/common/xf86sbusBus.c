@@ -464,11 +464,11 @@ xf86MatchSbusInstances(const char *driverName, int sbusDevId,
             if (devList[j]->busID && *devList[j]->busID) {
                 if (xf86CompareSbusBusString(devList[j]->busID, psdp->fbNum)) {
                     if (devBus)
-                        LogMessageVerb(X_WARNING, 0,
-                                      "%s: More than one matching Device section for "
-                                      "instance (BusID: %s) found: %s\n",
-                                      driverName, devList[j]->identifier,
-                                      devList[j]->busID);
+                        xf86MsgVerb(X_WARNING, 0,
+                                    "%s: More than one matching Device section for "
+                                    "instance (BusID: %s) found: %s\n",
+                                    driverName, devList[j]->identifier,
+                                    devList[j]->busID);
                     else
                         devBus = devList[j];
                 }
@@ -486,24 +486,24 @@ xf86MatchSbusInstances(const char *driverName, int sbusDevId,
                     dev = devList[j];
                 }
                 else
-                    LogMessageVerb(X_WARNING, 0,
-                                  "%s: More than one matching Device section "
-                                  "found: %s\n", driverName,
-                                  devList[j]->identifier);
+                    xf86MsgVerb(X_WARNING, 0,
+                                "%s: More than one matching Device section "
+                                "found: %s\n", driverName,
+                                devList[j]->identifier);
             }
         }
         if (devBus)
             dev = devBus;       /* busID preferred */
         if (!dev && psdp->fd != -2) {
             if (promPath) {
-                LogMessageVerb(X_WARNING, 0, "%s: No matching Device section "
-                              "for instance (BusID SBUS:%s) found\n",
-                              driverName, promPath);
+                xf86MsgVerb(X_WARNING, 0, "%s: No matching Device section "
+                            "for instance (BusID SBUS:%s) found\n",
+                            driverName, promPath);
             }
             else
-                LogMessageVerb(X_WARNING, 0, "%s: No matching Device section "
-                              "for instance (BusID SBUS:fb%d) found\n",
-                              driverName, psdp->fbNum);
+                xf86MsgVerb(X_WARNING, 0, "%s: No matching Device section "
+                            "for instance (BusID SBUS:fb%d) found\n",
+                            driverName, psdp->fbNum);
         }
         else if (dev) {
             numClaimedInstances++;

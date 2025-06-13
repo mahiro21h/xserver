@@ -149,7 +149,7 @@ lnxACPIOpen(void)
         strcpy(addr.sun_path, ACPI_SOCKET);
         if ((r = connect(fd, (struct sockaddr *) &addr, sizeof(addr))) == -1) {
             if (!warned)
-                LogMessageVerb(X_WARNING, 3, "Open ACPI failed (%s) (%s)\n",
+                xf86MsgVerb(X_WARNING, 3, "Open ACPI failed (%s) (%s)\n",
                             ACPI_SOCKET, strerror(errno));
             warned = 1;
             shutdown(fd, 2);
@@ -161,7 +161,7 @@ lnxACPIOpen(void)
     xf86PMGetEventFromOs = lnxACPIGetEventFromOs;
     xf86PMConfirmEventToOs = lnxACPIConfirmEventToOs;
     ACPIihPtr = xf86AddGeneralHandler(fd, xf86HandlePMEvents, NULL);
-    LogMessageVerb(X_INFO, 3, "Open ACPI successful (%s)\n", ACPI_SOCKET);
+    xf86MsgVerb(X_INFO, 3, "Open ACPI successful (%s)\n", ACPI_SOCKET);
     warned = 0;
 
     return lnxCloseACPI;
