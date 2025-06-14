@@ -24,7 +24,6 @@
 
 #include <dix-config.h>
 
-#include "os/bug_priv.h"
 #include "os/xsha1.h"
 
 #include "misc.h"

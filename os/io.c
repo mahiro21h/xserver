@@ -74,7 +74,6 @@ SOFTWARE.
 #include <X11/Xproto.h>
 
 #include "dix/dix_priv.h"
-#include "os/bug_priv.h"
 #include "os/client_priv.h"
 #include "os/osdep.h"
 

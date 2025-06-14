@@ -34,7 +34,6 @@
 #include "dix/input_priv.h"
 #include "mi/mi_priv.h"
 #include "mi/mipointer_priv.h"
-#include "os/bug_priv.h"
 
 #include <inputstr.h>
 #include <xkbsrv.h>
