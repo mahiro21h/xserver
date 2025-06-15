@@ -69,8 +69,6 @@
 
 #include "xf86bigfontsrv.h"
 
-Bool noXFree86BigfontExtension = FALSE;
-
 static void XF86BigfontResetProc(ExtensionEntry *extEntry );
 
 #ifdef MITSHM

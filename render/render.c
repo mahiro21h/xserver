@@ -57,8 +57,6 @@
 #include "panoramiXsrv.h"
 #endif /* XINERAMA */
 
-Bool noRenderExtension = FALSE;
-
 static int ProcRenderQueryVersion(ClientPtr pClient);
 static int ProcRenderQueryPictFormats(ClientPtr pClient);
 static int ProcRenderQueryPictIndexValues(ClientPtr pClient);

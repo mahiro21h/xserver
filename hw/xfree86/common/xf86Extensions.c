@@ -51,11 +51,6 @@
 #include "vidmodestr.h"
 #endif
 
-Bool noXFree86VidModeExtension = FALSE;
-Bool noXFree86DGAExtension = FALSE;
-Bool noXFree86DRIExtension = FALSE;
-Bool noDRI2Extension = FALSE;
-
 /*
  * DDX-specific extensions.
  */
