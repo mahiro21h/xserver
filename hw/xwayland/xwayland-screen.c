@@ -43,7 +43,6 @@
 #include "os/osdep.h"
 #include "os/xserver_poll.h"
 
-#include "extinit_priv.h"
 #include <micmap.h>
 #include <misyncshm.h>
 #include <os.h>
