@@ -601,6 +601,7 @@ ProcScreenSaverQueryVersion(ClientPtr client)
     xScreenSaverQueryVersionReply rep = {
         .type = X_Reply,
         .sequenceNumber = client->sequence,
+        .length = 0,
         .majorVersion = SERVER_SAVER_MAJOR_VERSION,
         .minorVersion = SERVER_SAVER_MINOR_VERSION
     };
@@ -609,6 +610,7 @@ ProcScreenSaverQueryVersion(ClientPtr client)
 
     if (client->swapped) {
         swaps(&rep.sequenceNumber);
+        swapl(&rep.length);
         swaps(&rep.majorVersion);
         swaps(&rep.minorVersion);
     }
@@ -620,6 +622,7 @@ static int
 ProcScreenSaverQueryInfo(ClientPtr client)
 {
     REQUEST(xScreenSaverQueryInfoReq);
+    xScreenSaverQueryInfoReply rep;
     int rc;
     ScreenSaverStuffPtr pSaver;
     DrawablePtr pDraw;
@@ -641,24 +644,30 @@ ProcScreenSaverQueryInfo(ClientPtr client)
     UpdateCurrentTime();
     lastInput = GetTimeInMillis() - LastEventTime(XIAllDevices).milliseconds;
 
-    xScreenSaverQueryInfoReply rep = {
+    rep = (xScreenSaverQueryInfoReply) {
         .type = X_Reply,
         .sequenceNumber = client->sequence,
+        .length = 0,
         .window = pSaver->wid
     };
     if (screenIsSaved != SCREEN_SAVER_OFF) {
         rep.state = ScreenSaverOn;
         if (ScreenSaverTime)
             rep.tilOrSince = lastInput - ScreenSaverTime;
+        else
+            rep.tilOrSince = 0;
     }
     else {
         if (ScreenSaverTime) {
             rep.state = ScreenSaverOff;
-            if (ScreenSaverTime >= lastInput)
+            if (ScreenSaverTime < lastInput)
+                rep.tilOrSince = 0;
+            else
                 rep.tilOrSince = ScreenSaverTime - lastInput;
         }
         else {
             rep.state = ScreenSaverDisabled;
+            rep.tilOrSince = 0;
         }
     }
     rep.idle = lastInput;
@@ -671,6 +680,7 @@ ProcScreenSaverQueryInfo(ClientPtr client)
         rep.kind = ScreenSaverInternal;
     if (client->swapped) {
         swaps(&rep.sequenceNumber);
+        swapl(&rep.length);
         swapl(&rep.window);
         swapl(&rep.tilOrSince);
         swapl(&rep.idle);
