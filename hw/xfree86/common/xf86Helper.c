@@ -638,7 +638,7 @@ void
 xf86PrintDepthBpp(ScrnInfoPtr scrp)
 {
     xf86DrvMsg(scrp->scrnIndex, scrp->depthFrom, "Depth %d, ", scrp->depth);
-    LogMessageVerb(scrp->bitsPerPixelFrom, 1, "framebuffer bpp %d\n", scrp->bitsPerPixel);
+    xf86Msg(scrp->bitsPerPixelFrom, "framebuffer bpp %d\n", scrp->bitsPerPixel);
 }
 
 /*
@@ -1095,6 +1095,28 @@ xf86IDrvMsg(InputInfoPtr dev, MessageType type, const char *format, ...)
     va_end(ap);
 }
 
+/* Print non-driver messages with verbose level specified directly */
+void
+xf86MsgVerb(MessageType type, int verb, const char *format, ...)
+{
+    va_list ap;
+
+    va_start(ap, format);
+    LogVMessageVerb(type, verb, format, ap);
+    va_end(ap);
+}
+
+/* Print non-driver messages with verbose level of 1 (default) */
+void
+xf86Msg(MessageType type, const char *format, ...)
+{
+    va_list ap;
+
+    va_start(ap, format);
+    LogVMessageVerb(type, 1, format, ap);
+    va_end(ap);
+}
+
 /* Just like ErrorF, but with the verbose level checked */
 void
 xf86ErrorFVerb(int verb, const char *format, ...)
@@ -1244,7 +1266,7 @@ xf86PrintChipsets(const char *drvname, const char *drvmsg, SymTabPtr chips)
     int len, i;
 
     len = 6 + strlen(drvname) + 2 + strlen(drvmsg) + 2;
-    LogMessageVerb(X_INFO, 1, "%s: %s:", drvname, drvmsg);
+    xf86Msg(X_INFO, "%s: %s:", drvname, drvmsg);
     for (i = 0; chips[i].name != NULL; i++) {
         if (i != 0) {
             xf86ErrorF(",");
@@ -1698,7 +1720,7 @@ xf86IsUnblank(int mode)
     case SCREEN_SAVER_CYCLE:
         return FALSE;
     default:
-        LogMessageVerb(X_WARNING, 0, "Unexpected save screen mode: %d\n", mode);
+        xf86MsgVerb(X_WARNING, 0, "Unexpected save screen mode: %d\n", mode);
         return TRUE;
     }
 }

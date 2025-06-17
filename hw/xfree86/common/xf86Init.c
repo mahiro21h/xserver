@@ -309,7 +309,7 @@ InitOutput(ScreenInfo * pScreenInfo, int argc, char **argv)
 
             t = time(NULL);
             ct = ctime(&t);
-            LogMessageVerb(xf86LogFileFrom, 0, "Log file: \"%s\", Time: %s",
+            xf86MsgVerb(xf86LogFileFrom, 0, "Log file: \"%s\", Time: %s",
                         xf86LogFile, ct);
         }
 
@@ -319,7 +319,7 @@ InitOutput(ScreenInfo * pScreenInfo, int argc, char **argv)
             case CONFIG_OK:
                 break;
             case CONFIG_PARSE_ERROR:
-                LogMessageVerb(X_ERROR, 1, "Error parsing the config file\n");
+                xf86Msg(X_ERROR, "Error parsing the config file\n");
                 return;
             case CONFIG_NOFILE:
                 autoconfig = TRUE;
@@ -351,7 +351,7 @@ InitOutput(ScreenInfo * pScreenInfo, int argc, char **argv)
 
         if (autoconfig) {
             if (!xf86AutoConfig()) {
-                LogMessageVerb(X_ERROR, 1, "Auto configuration failed\n");
+                xf86Msg(X_ERROR, "Auto configuration failed\n");
                 return;
             }
         }
@@ -374,7 +374,7 @@ InitOutput(ScreenInfo * pScreenInfo, int argc, char **argv)
         configured_device = xf86ConfigLayout.screens->screen->device;
         if ((!configured_device) || (!configured_device->driver)) {
             if (!autoConfigDevice(configured_device)) {
-                LogMessageVerb(X_ERROR, 1, "Automatic driver configuration failed\n");
+                xf86Msg(X_ERROR, "Automatic driver configuration failed\n");
                 return;
             }
         }
@@ -404,7 +404,7 @@ InitOutput(ScreenInfo * pScreenInfo, int argc, char **argv)
          */
 
         if (xf86NumDrivers == 0) {
-            LogMessageVerb(X_ERROR, 1, "No drivers available.\n");
+            xf86Msg(X_ERROR, "No drivers available.\n");
             return;
         }
 
@@ -502,8 +502,8 @@ InitOutput(ScreenInfo * pScreenInfo, int argc, char **argv)
          */
 
         if (xf86NumScreens == 0) {
-            LogMessageVerb(X_ERROR, 1,
-                           "Screen(s) found, but none have a usable configuration.\n");
+            xf86Msg(X_ERROR,
+                    "Screen(s) found, but none have a usable configuration.\n");
             return;
         }
 
@@ -580,7 +580,7 @@ InitOutput(ScreenInfo * pScreenInfo, int argc, char **argv)
         if (xf86OSPMClose)
             xf86OSPMClose();
         if ((xf86OSPMClose = xf86OSPMOpen()) != NULL)
-            LogMessageVerb(X_INFO, 3, "APM registered successfully\n");
+            xf86MsgVerb(X_INFO, 3, "APM registered successfully\n");
 
         /* Make sure full I/O access is enabled */
         if (xorgHWAccess)

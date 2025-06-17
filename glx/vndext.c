@@ -198,7 +198,7 @@ GLXClientCallback(CallbackListPtr *list, void *closure, void *data)
 static void
 GLXReset(ExtensionEntry *extEntry)
 {
-    // LogMessageVerb(X_INFO, 1, "GLX: GLXReset\n");
+    // xf86Msg(X_INFO, "GLX: GLXReset\n");
 
     GlxVendorExtensionReset(extEntry);
     GlxDispatchReset();
