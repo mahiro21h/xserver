@@ -66,7 +66,6 @@
 #include <X11/Xdefs.h>
 #include <X11/Xfuncproto.h>
 #include <limits.h>
-#include "xf86Parser_priv.h"
 
 #if !defined(MAXHOSTNAMELEN)
 #define MAXHOSTNAMELEN 32
