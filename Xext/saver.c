@@ -601,6 +601,7 @@ ProcScreenSaverQueryVersion(ClientPtr client)
     xScreenSaverQueryVersionReply rep = {
         .type = X_Reply,
         .sequenceNumber = client->sequence,
+        .length = 0,
         .majorVersion = SERVER_SAVER_MAJOR_VERSION,
         .minorVersion = SERVER_SAVER_MINOR_VERSION
     };
@@ -609,6 +610,7 @@ ProcScreenSaverQueryVersion(ClientPtr client)
 
     if (client->swapped) {
         swaps(&rep.sequenceNumber);
+        swapl(&rep.length);
         swaps(&rep.majorVersion);
         swaps(&rep.minorVersion);
     }
@@ -620,6 +622,7 @@ static int
 ProcScreenSaverQueryInfo(ClientPtr client)
 {
     REQUEST(xScreenSaverQueryInfoReq);
+    xScreenSaverQueryInfoReply rep;
     int rc;
     ScreenSaverStuffPtr pSaver;
     DrawablePtr pDraw;
@@ -641,24 +644,30 @@ ProcScreenSaverQueryInfo(ClientPtr client)
     UpdateCurrentTime();
     lastInput = GetTimeInMillis() - LastEventTime(XIAllDevices).milliseconds;
 
-    xScreenSaverQueryInfoReply rep = {
+    rep = (xScreenSaverQueryInfoReply) {
         .type = X_Reply,
         .sequenceNumber = client->sequence,
+        .length = 0,
         .window = pSaver->wid
     };
     if (screenIsSaved != SCREEN_SAVER_OFF) {
         rep.state = ScreenSaverOn;
         if (ScreenSaverTime)
             rep.tilOrSince = lastInput - ScreenSaverTime;
+        else
+            rep.tilOrSince = 0;
     }
     else {
         if (ScreenSaverTime) {
             rep.state = ScreenSaverOff;
-            if (ScreenSaverTime >= lastInput)
+            if (ScreenSaverTime < lastInput)
+                rep.tilOrSince = 0;
+            else
                 rep.tilOrSince = ScreenSaverTime - lastInput;
         }
         else {
             rep.state = ScreenSaverDisabled;
+            rep.tilOrSince = 0;
         }
     }
     rep.idle = lastInput;
@@ -671,6 +680,7 @@ ProcScreenSaverQueryInfo(ClientPtr client)
         rep.kind = ScreenSaverInternal;
     if (client->swapped) {
         swaps(&rep.sequenceNumber);
+        swapl(&rep.length);
         swapl(&rep.window);
         swapl(&rep.tilOrSince);
         swapl(&rep.idle);
@@ -1242,26 +1252,23 @@ ProcScreenSaverSuspend(ClientPtr client)
     return Success;
 }
 
+static int (*NormalVector[]) (ClientPtr /* client */ ) = {
+        ProcScreenSaverQueryVersion,
+        ProcScreenSaverQueryInfo,
+        ProcScreenSaverSelectInput,
+        ProcScreenSaverSetAttributes,
+        ProcScreenSaverUnsetAttributes,
+        ProcScreenSaverSuspend,
+};
+
 static int
 ProcScreenSaverDispatch(ClientPtr client)
 {
     REQUEST(xReq);
-    switch (stuff->data) {
-        case X_ScreenSaverQueryVersion:
-            return ProcScreenSaverQueryVersion(client);
-        case X_ScreenSaverQueryInfo:
-            return ProcScreenSaverQueryInfo(client);
-        case X_ScreenSaverSelectInput:
-            return ProcScreenSaverSelectInput(client);
-        case X_ScreenSaverSetAttributes:
-            return ProcScreenSaverSetAttributes(client);
-        case X_ScreenSaverUnsetAttributes:
-            return ProcScreenSaverUnsetAttributes(client);
-        case X_ScreenSaverSuspend:
-            return ProcScreenSaverSuspend(client);
-        default:
-            return BadRequest;
-    }
+
+    if (stuff->data < ARRAY_SIZE(NormalVector))
+        return (*NormalVector[stuff->data]) (client);
+    return BadRequest;
 }
 
 static int _X_COLD
@@ -1318,26 +1325,23 @@ SProcScreenSaverSuspend(ClientPtr client)
     return ProcScreenSaverSuspend(client);
 }
 
+static int (*SwappedVector[]) (ClientPtr /* client */ ) = {
+        ProcScreenSaverQueryVersion,
+        SProcScreenSaverQueryInfo,
+        SProcScreenSaverSelectInput,
+        SProcScreenSaverSetAttributes,
+        SProcScreenSaverUnsetAttributes,
+        SProcScreenSaverSuspend,
+};
+
 static int _X_COLD
 SProcScreenSaverDispatch(ClientPtr client)
 {
     REQUEST(xReq);
-    switch (stuff->data) {
-        case X_ScreenSaverQueryVersion:
-            return ProcScreenSaverQueryVersion(client);
-        case X_ScreenSaverQueryInfo:
-            return SProcScreenSaverQueryInfo(client);
-        case X_ScreenSaverSelectInput:
-            return SProcScreenSaverSelectInput(client);
-        case X_ScreenSaverSetAttributes:
-            return SProcScreenSaverSetAttributes(client);
-        case X_ScreenSaverUnsetAttributes:
-            return SProcScreenSaverUnsetAttributes(client);
-        case X_ScreenSaverSuspend:
-            return SProcScreenSaverSuspend(client);
-        default:
-            return BadRequest;
-    }
+
+    if (stuff->data < ARRAY_SIZE(NormalVector))
+        return (*SwappedVector[stuff->data]) (client);
+    return BadRequest;
 }
 
 void
