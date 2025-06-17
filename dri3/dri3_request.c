@@ -244,7 +244,7 @@ proc_dri3_pixmap_from_buffer(ClientPtr client)
                   pixmap, X11_RESTYPE_NONE, NULL, DixCreateAccess);
 
     if (rc != Success) {
-        dixDestroyPixmap(pixmap, 0);
+        (*drawable->pScreen->DestroyPixmap) (pixmap);
         return rc;
     }
     if (!AddResource(stuff->pixmap, X11_RESTYPE_PIXMAP, (void *) pixmap))
@@ -508,7 +508,7 @@ proc_dri3_pixmap_from_buffers(ClientPtr client)
                   pixmap, X11_RESTYPE_NONE, NULL, DixCreateAccess);
 
     if (rc != Success) {
-        dixDestroyPixmap(pixmap, 0);
+        (*screen->DestroyPixmap) (pixmap);
         return rc;
     }
     if (!AddResource(stuff->pixmap, X11_RESTYPE_PIXMAP, (void *) pixmap))

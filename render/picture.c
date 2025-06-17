@@ -1416,7 +1416,7 @@ FreePicture(void *value, XID pid)
                 }
             }
             else if (pPicture->pDrawable->type == DRAWABLE_PIXMAP) {
-                dixDestroyPixmap((PixmapPtr) pPicture->pDrawable, 0);
+                (*pScreen->DestroyPixmap) ((PixmapPtr) pPicture->pDrawable);
             }
         }
         dixFreeObjectWithPrivates(pPicture, PRIVATE_PICTURE);

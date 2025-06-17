@@ -83,7 +83,7 @@ fbOverlayCloseScreen(ScreenPtr pScreen)
     int i;
 
     for (i = 0; i < pScrPriv->nlayers; i++) {
-        dixDestroyPixmap(pScrPriv->layer[i].u.run.pixmap, 0);
+        (*pScreen->DestroyPixmap) (pScrPriv->layer[i].u.run.pixmap);
         RegionUninit(&pScrPriv->layer[i].u.run.region);
     }
     return TRUE;

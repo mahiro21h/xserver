@@ -382,11 +382,11 @@ rrDestroySharedPixmap(RRCrtcPtr crtc, PixmapPtr pPixmap) {
          */
         PixmapUnshareSecondaryPixmap(pPixmap);
 
-        dixDestroyPixmap(pPixmap->primary_pixmap, 0);
-        dixDestroyPixmap(pPixmap->primary_pixmap, 0);
+        primary->DestroyPixmap(pPixmap->primary_pixmap);
+        primary->DestroyPixmap(pPixmap->primary_pixmap);
     }
 
-    dixDestroyPixmap(pPixmap, 0);
+    crtc->pScreen->DestroyPixmap(pPixmap);
 }
 
 void
@@ -440,7 +440,7 @@ rrCreateSharedPixmap(RRCrtcPtr crtc, ScreenPtr primary,
 
     spix = PixmapShareToSecondary(mpix, crtc->pScreen);
     if (spix == NULL) {
-        dixDestroyPixmap(mpix, 0);
+        primary->DestroyPixmap(mpix);
         return NULL;
     }
 

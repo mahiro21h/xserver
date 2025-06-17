@@ -436,7 +436,7 @@ glamor_composite_glyphs(CARD8 op,
                                 glyphs_queued = 0;
                             }
                             if (glyph_atlas->atlas) {
-                                dixDestroyPixmap(glyph_atlas->atlas, 0);
+                                (*screen->DestroyPixmap)(glyph_atlas->atlas);
                                 glyph_atlas->atlas = NULL;
                             }
                         }
@@ -571,7 +571,8 @@ glamor_free_glyph_atlas(struct glamor_glyph_atlas *atlas)
 {
     if (!atlas)
         return;
-    dixDestroyPixmap(atlas->atlas, 0);
+    if (atlas->atlas)
+        (*atlas->atlas->drawable.pScreen->DestroyPixmap)(atlas->atlas);
     free (atlas);
 }
 

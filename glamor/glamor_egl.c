@@ -346,7 +346,7 @@ glamor_make_pixmap_exportable(PixmapPtr pixmap, Bool modifiers_ok)
         xf86DrvMsg(scrn->scrnIndex, X_ERROR,
                    "Failed to make %dx%dx%dbpp pixmap from GBM bo\n",
                    width, height, pixmap->drawable.bitsPerPixel);
-        dixDestroyPixmap(exported, 0);
+        screen->DestroyPixmap(exported);
         gbm_bo_destroy(bo);
         return FALSE;
     }
@@ -367,7 +367,7 @@ glamor_make_pixmap_exportable(PixmapPtr pixmap, Bool modifiers_ok)
     /* Swap the devKind into the original pixmap, reflecting the bo's stride */
     screen->ModifyPixmapHeader(pixmap, 0, 0, 0, 0, exported->devKind, NULL);
 
-    dixDestroyPixmap(exported, 0);
+    screen->DestroyPixmap(exported);
 
     return TRUE;
 }
@@ -632,7 +632,7 @@ glamor_pixmap_from_fds(ScreenPtr screen,
 
 error:
     if (ret == FALSE) {
-        dixDestroyPixmap(pixmap, 0);
+        screen->DestroyPixmap(pixmap);
         return NULL;
     }
     return pixmap;
@@ -654,7 +654,7 @@ glamor_pixmap_from_fd(ScreenPtr screen,
                                      stride, depth, bpp);
 
     if (ret == FALSE) {
-        dixDestroyPixmap(pixmap, 0);
+        screen->DestroyPixmap(pixmap);
         return NULL;
     }
     return pixmap;

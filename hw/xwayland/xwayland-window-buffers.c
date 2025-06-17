@@ -97,8 +97,10 @@ xwl_window_buffer_new(struct xwl_window *xwl_window)
 static void
 xwl_window_buffer_destroy_pixmap(struct xwl_window_buffer *xwl_window_buffer)
 {
+    ScreenPtr pScreen = xwl_window_buffer->pixmap->drawable.pScreen;
+
     xwl_pixmap_del_buffer_release_cb(xwl_window_buffer->pixmap);
-    dixDestroyPixmap(xwl_window_buffer->pixmap, 0);
+    (*pScreen->DestroyPixmap) (xwl_window_buffer->pixmap);
     xwl_window_buffer->pixmap = NullPixmap;
 }
 
@@ -361,7 +363,7 @@ xwl_window_realloc_pixmap(struct xwl_window *xwl_window)
                      window_pixmap->drawable.width,
                      window_pixmap->drawable.height);
     xwl_window_set_pixmap(xwl_window->surface_window, new_window_pixmap);
-    dixDestroyPixmap(window_pixmap, 0);
+    screen->DestroyPixmap(window_pixmap);
 }
 
 static Bool
