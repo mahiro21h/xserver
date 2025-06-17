@@ -65,7 +65,6 @@
 #include "xf86pciBus.h"
 #include "xf86Xinput.h"
 #include "loaderProcs.h"
-#include "xf86Xinput_priv.h"
 
 #include "xkbsrv.h"
 #include "picture.h"
