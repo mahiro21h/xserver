@@ -64,7 +64,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include <X11/dri/xf86driproto.h>
 #include "swaprep.h"
 #include "xf86str.h"
-#include "dri_priv.h"
+#include "dri.h"
 #include "sarea.h"
 #include "dristruct.h"
 #include "mi.h"
