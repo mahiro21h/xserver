@@ -36,8 +36,6 @@
 #define SubPixelUnknown 0
 #endif
 
-Bool noRRExtension = FALSE;
-
 #define RR_VALIDATE
 static int RRNScreens;
 

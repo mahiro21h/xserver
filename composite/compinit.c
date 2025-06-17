@@ -49,8 +49,6 @@
 #include "compint.h"
 #include "compositeext.h"
 
-Bool noCompositeExtension = FALSE;
-
 DevPrivateKeyRec CompScreenPrivateKeyRec;
 DevPrivateKeyRec CompWindowPrivateKeyRec;
 DevPrivateKeyRec CompSubwindowsPrivateKeyRec;

@@ -51,7 +51,6 @@
 #include "xace.h"
 
 /* GLOBALS */
-Bool noDbeExtension = FALSE;
 
 /* These are globals for use by DDX */
 DevPrivateKeyRec dbeScreenPrivKeyRec;

@@ -63,9 +63,6 @@ extern VisualPtr glxMatchVisual(ScreenPtr pScreen,
                                 VisualPtr pVisual, ScreenPtr pMatchScreen);
 #endif
 
-/* Xinerama is disabled by default unless enabled via +xinerama */
-Bool noPanoramiXExtension = TRUE;
-
 /*
  *	PanoramiX data declarations
  */

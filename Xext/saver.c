@@ -67,8 +67,6 @@ in this Software without prior written authorization from the X Consortium.
 // see: https://gitlab.freedesktop.org/xorg/xserver/-/merge_requests/1355
 #undef CreateWindow
 
-Bool noScreenSaverExtension = FALSE;
-
 static int ScreenSaverEventBase = 0;
 
 static Bool ScreenSaverHandle(ScreenPtr pScreen, int xstate, Bool force);
