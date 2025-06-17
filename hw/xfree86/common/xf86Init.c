@@ -64,7 +64,6 @@
 #include "windowstr.h"
 #include "scrnintstr.h"
 #include "systemd-logind.h"
-#include "xf86VGAarbiter_priv.h"
 #include "loaderProcs.h"
 
 #include "xf86Module_priv.h"
