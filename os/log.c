@@ -551,6 +551,19 @@ vpnprintf(char *string, int size_in, const char *f, va_list args)
     return s_idx;
 }
 
+static int
+pnprintf(char *string, int size, const char *f, ...)
+{
+    int rc;
+    va_list args;
+
+    va_start(args, f);
+    rc = vpnprintf(string, size, f, args);
+    va_end(args);
+
+    return rc;
+}
+
 /* This function does the actual log message writes. It must be signal safe.
  * When attempting to call non-signal-safe functions, guard them with a check
  * of the inSignalContext global variable. */
@@ -653,50 +666,34 @@ LogMessageTypeVerbString(MessageType type, int verb)
     }
 }
 
-#define LOG_MSG_BUF_SIZE 1024
-
-static ssize_t prepMsgHdr(MessageType type, int verb, char *buf)
-{
-    const char *type_str = LogMessageTypeVerbString(type, verb);
-    if (!type_str)
-        return -1;
-
-    size_t prefixLen = strlen_sigsafe(type_str);
-    if (prefixLen) {
-        memcpy(buf, type_str, prefixLen + 1); // rely on buffer being big enough
-        buf[prefixLen] = ' ';
-        prefixLen++;
-    }
-    buf[prefixLen] = 0;
-    return prefixLen;
-}
-
-static inline void writeLog(int verb, char *buf, int len)
-{
-    /* Force '\n' at end of truncated line */
-    if (LOG_MSG_BUF_SIZE  - len == 1)
-        buf[len - 1] = '\n';
-
-    LogSWrite(verb, buf, len, (buf[len - 1] == '\n'));
-}
-
 void
 LogVMessageVerb(MessageType type, int verb, const char *format, va_list args)
 {
-    char buf[LOG_MSG_BUF_SIZE];
+    const char *type_str;
+    char buf[1024];
+    size_t len = 0;
 
     if (inSignalContext) {
         LogVMessageVerbSigSafe(type, verb, format, args);
         return;
     }
 
-    size_t len = prepMsgHdr(type, verb, buf);
-    if (len == -1)
+    type_str = LogMessageTypeVerbString(type, verb);
+    if (!type_str)
         return;
 
-    len += Xvscnprintf(&buf[len], sizeof(buf) - len, format, args);
+    /* if type_str is not "", prepend it and ' ', to message */
+    if (type_str[0] != '\0')
+        len += Xscnprintf(&buf[len], sizeof(buf) - len, "%s ", type_str);
 
-    writeLog(verb, buf, len);
+    if (sizeof(buf) - len > 1)
+        len += Xvscnprintf(&buf[len], sizeof(buf) - len, format, args);
+
+    /* Force '\n' at end of truncated line */
+    if (sizeof(buf) - len == 1)
+        buf[len - 1] = '\n';
+
+    LogSWrite(verb, buf, len, (buf[len - 1] == '\n'));
 }
 
 /* Log message with verbosity level specified. */
@@ -734,28 +731,56 @@ LogMessageVerbSigSafe(MessageType type, int verb, const char *format, ...)
 void
 LogVMessageVerbSigSafe(MessageType type, int verb, const char *format, va_list args)
 {
-    char buf[LOG_MSG_BUF_SIZE];
+    const char *type_str;
+    char buf[1024];
+    int len;
 
-    int len = prepMsgHdr(type, verb, buf);
-    if (len == -1)
+    type_str = LogMessageTypeVerbString(type, verb);
+    if (!type_str)
         return;
 
-    len += vpnprintf(&buf[len], sizeof(buf) - len, format, args);
+    /* if type_str is not "", prepend it and ' ', to message */
+    if (type_str[0] != '\0') {
+        LogSWrite(verb, type_str, strlen_sigsafe(type_str), FALSE);
+        LogSWrite(verb, " ", 1, FALSE);
+    }
 
-    writeLog(verb, buf, len);
+    len = vpnprintf(buf, sizeof(buf), format, args);
+
+    /* Force '\n' at end of truncated line */
+    if (sizeof(buf) - len == 1)
+        buf[len - 1] = '\n';
+
+    LogSWrite(verb, buf, len, (len > 0 && buf[len - 1] == '\n'));
 }
 
 void
 LogVHdrMessageVerb(MessageType type, int verb, const char *msg_format,
                    va_list msg_args, const char *hdr_format, va_list hdr_args)
 {
-    char buf[LOG_MSG_BUF_SIZE];
+    const char *type_str;
+    char buf[1024];
+    size_t len = 0;
     int (*vprintf_func)(char *, int, const char* _X_RESTRICT_KYWD f, va_list args)
-            _X_ATTRIBUTE_PRINTF(3, 0) = (inSignalContext ? vpnprintf : Xvscnprintf);
+            _X_ATTRIBUTE_PRINTF(3, 0);
+    int (*printf_func)(char *, int, const char* _X_RESTRICT_KYWD f, ...)
+            _X_ATTRIBUTE_PRINTF(3, 4);
 
-    size_t len = prepMsgHdr(type, verb, buf);
-    if (len == -1)
+    type_str = LogMessageTypeVerbString(type, verb);
+    if (!type_str)
         return;
+
+    if (inSignalContext) {
+        vprintf_func = vpnprintf;
+        printf_func = pnprintf;
+    } else {
+        vprintf_func = Xvscnprintf;
+        printf_func = Xscnprintf;
+    }
+
+    /* if type_str is not "", prepend it and ' ', to message */
+    if (type_str[0] != '\0')
+        len += printf_func(&buf[len], sizeof(buf) - len, "%s ", type_str);
 
     if (hdr_format && sizeof(buf) - len > 1)
         len += vprintf_func(&buf[len], sizeof(buf) - len, hdr_format, hdr_args);
@@ -763,7 +788,11 @@ LogVHdrMessageVerb(MessageType type, int verb, const char *msg_format,
     if (msg_format && sizeof(buf) - len > 1)
         len += vprintf_func(&buf[len], sizeof(buf) - len, msg_format, msg_args);
 
-    writeLog(verb, buf, len);
+    /* Force '\n' at end of truncated line */
+    if (sizeof(buf) - len == 1)
+        buf[len - 1] = '\n';
+
+    LogSWrite(verb, buf, len, (buf[len - 1] == '\n'));
 }
 
 void
