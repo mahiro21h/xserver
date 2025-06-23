@@ -854,9 +854,9 @@ UnloadModule(void *_mod)
         const char *name = mod->VersionInfo->modname;
 
         if (mod->parent)
-            LogMessageVerb(X_INFO, 3, "UnloadSubModule: \"%s\"\n", name);
+            LogMessageVerbSigSafe(X_INFO, 3, "UnloadSubModule: \"%s\"\n", name);
         else
-            LogMessageVerb(X_INFO, 3, "UnloadModule: \"%s\"\n", name);
+            LogMessageVerbSigSafe(X_INFO, 3, "UnloadModule: \"%s\"\n", name);
 
         if (mod->TearDownData != ModuleDuplicated) {
             if ((mod->TearDownProc) && (mod->TearDownData))

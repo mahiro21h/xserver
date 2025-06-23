@@ -324,6 +324,9 @@ _X_ATTRIBUTE_PRINTF(3, 4);
 extern _X_EXPORT void
 LogMessage(MessageType type, const char *format, ...)
 _X_ATTRIBUTE_PRINTF(2, 3);
+extern _X_EXPORT void
+LogMessageVerbSigSafe(MessageType type, int verb, const char *format, ...)
+_X_ATTRIBUTE_PRINTF(3, 4);
 
 extern _X_EXPORT void
 LogVHdrMessageVerb(MessageType type, int verb,
@@ -375,7 +378,6 @@ typedef _sigset_t sigset_t;
 
 /* should not be used anymore, just for backwards compat with drivers */
 #define LogVMessageVerbSigSafe(...) LogVMessageVerb(__VA_ARGS__)
-#define LogMessageVerbSigSafe(...) LogMessageVerb(__VA_ARGS__)
 
 /* only for backwards compat with drivers that haven't kept up yet
    (xf86-video-intel)
