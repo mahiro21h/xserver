@@ -350,6 +350,9 @@ _X_ATTRIBUTE_PRINTF(1, 2)
 #endif
 
 extern _X_EXPORT void
+VErrorF(const char *f, va_list args)
+_X_ATTRIBUTE_PRINTF(1, 0);
+extern _X_EXPORT void
 ErrorF(const char *f, ...)
 _X_ATTRIBUTE_PRINTF(1, 2);
 extern _X_EXPORT void
@@ -369,7 +372,6 @@ typedef _sigset_t sigset_t;
 #define LogMessageVerbSigSafe(...) LogMessageVerb(__VA_ARGS__)
 #define ErrorFSigSafe(...) ErrorF(__VA_ARGS__)
 #define VErrorFSigSafe(...) VErrorF(__VA_ARGS__)
-#define VErrorF(...) LogVMessageVerb(X_NONE, -1, __VA_ARGS__)
 
 /* only for backwards compat with drivers that haven't kept up yet
    (xf86-video-intel)
