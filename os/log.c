@@ -680,17 +680,21 @@ static inline void writeLog(int verb, char *buf, int len)
     LogSWrite(verb, buf, len, (buf[len - 1] == '\n'));
 }
 
-/* signal safe */
 void
 LogVMessageVerb(MessageType type, int verb, const char *format, va_list args)
 {
     char buf[LOG_MSG_BUF_SIZE];
 
+    if (inSignalContext) {
+        LogVMessageVerbSigSafe(type, verb, format, args);
+        return;
+    }
+
     size_t len = prepMsgHdr(type, verb, buf);
     if (len == -1)
         return;
 
-    len += vpnprintf(&buf[len], sizeof(buf) - len, format, args);
+    len += Xvscnprintf(&buf[len], sizeof(buf) - len, format, args);
 
     writeLog(verb, buf, len);
 }
@@ -723,8 +727,22 @@ LogMessageVerbSigSafe(MessageType type, int verb, const char *format, ...)
 {
     va_list ap;
     va_start(ap, format);
-    LogVMessageVerb(type, verb, format, ap);
+    LogVMessageVerbSigSafe(type, verb, format, ap);
     va_end(ap);
+}
+
+void
+LogVMessageVerbSigSafe(MessageType type, int verb, const char *format, va_list args)
+{
+    char buf[LOG_MSG_BUF_SIZE];
+
+    int len = prepMsgHdr(type, verb, buf);
+    if (len == -1)
+        return;
+
+    len += vpnprintf(&buf[len], sizeof(buf) - len, format, args);
+
+    writeLog(verb, buf, len);
 }
 
 void
@@ -732,16 +750,18 @@ LogVHdrMessageVerb(MessageType type, int verb, const char *msg_format,
                    va_list msg_args, const char *hdr_format, va_list hdr_args)
 {
     char buf[LOG_MSG_BUF_SIZE];
+    int (*vprintf_func)(char *, int, const char* _X_RESTRICT_KYWD f, va_list args)
+            _X_ATTRIBUTE_PRINTF(3, 0) = (inSignalContext ? vpnprintf : Xvscnprintf);
 
     size_t len = prepMsgHdr(type, verb, buf);
     if (len == -1)
         return;
 
     if (hdr_format && sizeof(buf) - len > 1)
-        len += vpnprintf(&buf[len], sizeof(buf) - len, hdr_format, hdr_args);
+        len += vprintf_func(&buf[len], sizeof(buf) - len, hdr_format, hdr_args);
 
     if (msg_format && sizeof(buf) - len > 1)
-        len += vpnprintf(&buf[len], sizeof(buf) - len, msg_format, msg_args);
+        len += vprintf_func(&buf[len], sizeof(buf) - len, msg_format, msg_args);
 
     writeLog(verb, buf, len);
 }
@@ -921,7 +941,7 @@ ErrorF(const char *f, ...)
 void
 VErrorFSigSafe(const char *f, va_list args)
 {
-    LogVMessageVerb(X_ERROR, -1, f, args);
+    LogVMessageVerbSigSafe(X_ERROR, -1, f, args);
 }
 
 void
