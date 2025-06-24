@@ -32,7 +32,6 @@
 #include <X11/X.h>
 
 #include "dix/colormap_priv.h"
-#include "mi/mi_priv.h"
 
 #include "fb.h"
 #include "micmap.h"
