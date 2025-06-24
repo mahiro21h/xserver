@@ -974,7 +974,7 @@ xf86parseError(const char *format, ...)
     ErrorF("Parse error on line %d of section %s in file %s\n\t",
            configLineNo, configSection, filename);
     va_start(ap, format);
-    LogVMessageVerb(X_NONE, -1, format, ap);
+    VErrorF(format, ap);
     va_end(ap);
 
     ErrorF("\n");
@@ -989,7 +989,7 @@ xf86validationError(const char *format, ...)
 
     ErrorF("Data incomplete in file %s\n\t", filename);
     va_start(ap, format);
-    LogVMessageVerb(X_NONE, -1, format, ap);
+    VErrorF(format, ap);
     va_end(ap);
 
     ErrorF("\n");

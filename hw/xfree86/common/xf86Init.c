@@ -856,12 +856,12 @@ ddxGiveUp(enum ExitCode error)
 void
 OsVendorFatalError(const char *f, va_list args)
 {
-    ErrorF("\nPlease consult the " XVENDORNAME " support \n\t at "
-           __VENDORDWEBSUPPORT__ "\n for help. \n");
+    ErrorFSigSafe("\nPlease consult the " XVENDORNAME " support \n\t at "
+                 __VENDORDWEBSUPPORT__ "\n for help. \n");
     if (xf86LogFile && xf86LogFileWasOpened)
-        ErrorF("Please also check the log file at \"%s\" for additional "
-               "information.\n", xf86LogFile);
-    ErrorF("\n");
+        ErrorFSigSafe("Please also check the log file at \"%s\" for additional "
+                     "information.\n", xf86LogFile);
+    ErrorFSigSafe("\n");
 }
 
 void

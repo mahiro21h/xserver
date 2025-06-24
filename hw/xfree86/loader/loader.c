@@ -141,7 +141,7 @@ LoaderSymbolFromModule(void *handle, const char *name)
 void
 LoaderUnload(const char *name, void *handle)
 {
-    LogMessageVerb(X_INFO, 1, "Unloading %s\n", name);
+    LogMessageVerbSigSafe(X_INFO, 1, "Unloading %s\n", name);
     if (handle)
         dlclose(handle);
 }

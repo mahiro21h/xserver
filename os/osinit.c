@@ -119,8 +119,10 @@ OsSigHandler(int signo)
     if (signo == SIGNAL_FOR_RTLD_ERROR) {
         const char *dlerr = dlerror();
 
-        if (dlerr)
-            LogMessageVerb(X_ERROR, 1, "Dynamic loader error: %s\n", dlerr);
+        if (dlerr) {
+            LogMessageVerbSigSafe(X_ERROR, 1,
+                                  "Dynamic loader error: %s\n", dlerr);
+        }
     }
 #endif                          /* RTLD_DI_SETSIGNAL */
 
@@ -136,8 +138,8 @@ OsSigHandler(int signo)
 
 #ifdef SA_SIGINFO
     if (sip->si_code == SI_USER) {
-        ErrorF("Received signal %u sent by process %u, uid %u\n", signo,
-               sip->si_pid, sip->si_uid);
+        ErrorFSigSafe("Received signal %u sent by process %u, uid %u\n", signo,
+                     sip->si_pid, sip->si_uid);
     }
     else {
         switch (signo) {
@@ -145,7 +147,7 @@ OsSigHandler(int signo)
         case SIGBUS:
         case SIGILL:
         case SIGFPE:
-            ErrorF("%s at address %p\n", strsignal(signo), sip->si_addr);
+            ErrorFSigSafe("%s at address %p\n", strsignal(signo), sip->si_addr);
         }
     }
 #endif
