@@ -47,7 +47,6 @@ typedef void (*mieqHandler) (int screen, InternalEvent *event,
 void mieqSetHandler(int event, mieqHandler handler);
 
 void miSendExposures(WindowPtr pWin, RegionPtr pRgn, int dx, int dy);
-void miWindowExposures(WindowPtr pWin, RegionPtr prgn);
 
 void miPaintWindow(WindowPtr pWin, RegionPtr prgn, int what);
 

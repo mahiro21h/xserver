@@ -27,6 +27,8 @@ is" without express or implied warranty.
 #include "scrnintstr.h"
 #include "region.h"
 
+#include "mi.h"
+
 #include "Xnest.h"
 
 #include "Display.h"
