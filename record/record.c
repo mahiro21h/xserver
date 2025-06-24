@@ -36,7 +36,6 @@ and Jim Haggerty of Metheus.
 
 #include "dix/cursor_priv.h"
 #include "dix/eventconvert.h"
-#include "os/client_priv.h"
 #include "os/osdep.h"
 
 #include "dixstruct.h"

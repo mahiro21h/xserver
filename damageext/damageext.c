@@ -24,7 +24,6 @@
 #include <dix-config.h>
 
 #include "dix/dix_priv.h"
-#include "os/client_priv.h"
 
 #include "damageextint.h"
 #include "damagestr.h"
