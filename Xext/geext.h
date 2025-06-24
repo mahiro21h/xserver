@@ -38,4 +38,6 @@ extern _X_EXPORT void GERegisterExtension(int extension,
                                                                xGenericEvent
                                                                *to));
 
+extern _X_EXPORT void GEInitEvent(xGenericEvent *ev, int extension);
+
 #endif                          /* _GEEXT_H_ */
