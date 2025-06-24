@@ -58,6 +58,10 @@ cat > sdksyms.c << EOF
 #include "shmint.h"
 #endif
 #include "syncsdk.h"
+#ifdef XINERAMA
+# include "panoramiXsrv.h"
+# include "panoramiX.h"
+#endif
 
 /* glx/Makefile.am */
 #ifdef GLX
