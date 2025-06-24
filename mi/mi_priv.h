@@ -51,9 +51,9 @@ void miSendExposures(WindowPtr pWin, RegionPtr pRgn, int dx, int dy);
 void miWindowExposures(WindowPtr pWin, RegionPtr prgn);
 
 void miPaintWindow(WindowPtr pWin, RegionPtr prgn, int what);
+
 void miSourceValidate(DrawablePtr pDrawable, int x, int y, int w, int h,
                       unsigned int subWindowMode);
-Bool miCreateScreenResources(ScreenPtr pScreen);
 int miShapedWindowIn(RegionPtr universe, RegionPtr bounding, BoxPtr rect,
                      int x, int y);
 int miValidateTree(WindowPtr pParent, WindowPtr pChild, VTKind kind);
