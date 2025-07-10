@@ -157,6 +157,9 @@ glamor_download_boxes(DrawablePtr drawable, BoxPtr in_boxes, int in_nbox,
 
     glamor_make_current(glamor_priv);
 
+    LogMessage(X_INFO, "glamor_download_boxes: render_format=%d bytes_per_pixel=%d\n",
+        f->render_format, bytes_per_pixel);
+
     glPixelStorei(GL_PACK_ALIGNMENT, 4);
     if (glamor_priv->has_pack_subimage)
         glPixelStorei(GL_PACK_ROW_LENGTH, byte_stride / bytes_per_pixel);
