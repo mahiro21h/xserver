@@ -21,3 +21,7 @@ endif
 if get_option('xf86-video-dummy')
     subdir('dummy')
 endif
+
+if get_option('xf86-video-fbdev')
+    subdir('fbdev')
+endif
