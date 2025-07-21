@@ -5,3 +5,5 @@ endif
 if get_option('xf86-input-inputtest')
     subdir('inputtest')
 endif
+
+subdir('video')
