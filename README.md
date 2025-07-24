@@ -72,7 +72,7 @@ the driver repositories are now moved to GitHub:
 | xf86-input-synaptics:     | https://github.com/X11Libre/xf86-input-synaptics      | xlibre-xf86-input-synaptics-1.10.0.1     |
 | xf86-input-vmmouse:       | https://github.com/X11Libre/xf86-input-vmmouse        | xlibre-xf86-input-vmmouse-13.2.0.1       |
 | xf86-input-wacom:         | https://github.com/X11Libre/xf86-input-wacom          | xlibre-xf86-input-wacom-1.2.3.1          |
-| xf86-video-amdgpu:        | https://github.com/X11Libre/xf86-video-amdgpu         | xlibre-xf86-video-amdgpu-23.0.0.1        |
+| xf86-video-amdgpu:        | https://github.com/X11Libre/xf86-video-amdgpu         | xlibre-xf86-video-amdgpu-23.0.0.2        |
 | xf86-video-apm:           | https://github.com/X11Libre/xf86-video-apm            | xlibre-xf86-video-apm-1.3.0.1            |
 | xf86-video-ark:           | https://github.com/X11Libre/xf86-video-ark            | xfree-xf86-video-ark-0.7.6.1             |
 | xf86-video-ast:           | https://github.com/X11Libre/xf86-video-ast            | xlibre-xf86-video-ast-1.2.0              |
