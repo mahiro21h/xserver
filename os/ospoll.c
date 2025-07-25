@@ -27,6 +27,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 
+#include "include/fd_notify.h"
 #include "os/xserver_poll.h"
 
 #include "misc.h"               /* for typedef of pointer */
