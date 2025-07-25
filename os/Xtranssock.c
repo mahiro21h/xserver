@@ -122,6 +122,7 @@ from the copyright holders.
 
 #define socket_close closesocket
 
+#undef EADDRINUSE
 #define EADDRINUSE WSAEADDRINUSE
 #undef EWOULDBLOCK
 #define EWOULDBLOCK WSAEWOULDBLOCK
