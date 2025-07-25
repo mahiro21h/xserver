@@ -219,6 +219,4 @@ Ones(unsigned long mask)
 }
 #endif
 
-#define LIMITCLIENTS     256     /* Must be a power of 2 and <= MAXCLIENTS */
-
 #endif                          /* _OSDEP_H_ */
