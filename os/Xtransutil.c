@@ -190,7 +190,9 @@ int _XSERVTransConvertAddress(int *familyp, int *addrlenp, Xtransaddr **addrp)
 	 */
 
 	char hostnamebuf[256];
-	int len = _XSERVTransGetHostname (hostnamebuf, sizeof hostnamebuf);
+	hostnamebuf[0] = 0;
+	int len = gethostname(hostnamebuf, sizeof(hostnamebuf));
+	hostnamebuf[sizeof(hostnamebuf)-1] = 0;
 
 	if (len > 0) {
 	    if (*addrp && *addrlenp < (len + 1))

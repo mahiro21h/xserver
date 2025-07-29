@@ -311,7 +311,9 @@ _XSERVTransParseAddress (const char *address,
     _host_len = strlen(_host);
     if (_host_len == 0)
     {
-	_XSERVTransGetHostname (hostnamebuf, sizeof (hostnamebuf));
+	hostnamebuf[0] = 0;
+	gethostname(hostnamebuf, sizeof(hostnamebuf));
+	hostnamebuf[sizeof(hostnamebuf)-1] = 0;
 	_host = hostnamebuf;
     }
 #ifdef IPv6
@@ -1133,36 +1135,6 @@ static int _XSERVTransWriteV (XtransConnInfo ciptr, struct iovec *iov, int iovcn
 	}
     }
     return total;
-}
-
-/*
- * _XSERVTransGetHostname - similar to gethostname but allows special processing.
- */
-int _XSERVTransGetHostname (char *buf, int maxlen)
-{
-    buf[0] = '\0';
-    (void) gethostname (buf, maxlen);
-    buf [maxlen - 1] = '\0';
-    return strlen(buf);
-}
-
-#else /* WIN32 */
-
-#include <sys/utsname.h>
-
-/*
- * _XSERVTransGetHostname - similar to gethostname but allows special processing.
- */
-int _XSERVTransGetHostname (char *buf, int maxlen)
-{
-    struct utsname name;
-    uname (&name);
-
-    int len = strlen (name.nodename);
-    if (len >= maxlen) len = maxlen - 1;
-    memcpy (buf, name.nodename, len);
-    buf[len] = '\0';
-    return len;
 }
 
 #endif /* WIN32 */
