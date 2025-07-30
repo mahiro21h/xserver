@@ -116,13 +116,6 @@ Xtransport_table Xtransports[] = {
 
 #define NUMTRANS	(sizeof(Xtransports)/sizeof(Xtransport_table))
 
-
-#ifdef WIN32
-#define ioctl ioctlsocket
-#endif
-
-
-
 /*
  * These are a few utility function used by the public interface functions.
  */
@@ -588,7 +581,7 @@ int _XSERVTransSetOption (XtransConnInfo ciptr, int option, int arg)
 	{
 	    int arg;
 	    arg = 1;
-	    ret = ioctl (fd, FIOSNBIO, &arg);
+	    ret = ossock_ioctl (fd, FIOSNBIO, &arg);
 	}
 #else
 #if defined(WIN32)
@@ -596,7 +589,7 @@ int _XSERVTransSetOption (XtransConnInfo ciptr, int option, int arg)
 	    u_long arg_ret = 1;
 /* IBM TCP/IP understands this option too well: it causes _XSERVTransRead to fail
  * eventually with EWOULDBLOCK */
-	    ret = ioctl (fd, FIONBIO, &arg_ret);
+	    ret = ossock_ioctl (fd, FIONBIO, &arg_ret);
 	}
 #else
 	    ret = fcntl (fd, F_GETFL, 0);
