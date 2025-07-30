@@ -707,7 +707,7 @@ int _XSERVTransRead (XtransConnInfo ciptr, char *buf, int size)
 
 ssize_t _XSERVTransWrite (XtransConnInfo ciptr, const char *buf, size_t size)
 {
-    return ciptr->transptr->Write (ciptr, buf, size);
+    return ciptr->transptr->Writev (ciptr, buf, size);
 }
 
 #if XTRANS_SEND_FDS
