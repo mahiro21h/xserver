@@ -761,11 +761,6 @@ int _XSERVTransWrite (XtransConnInfo ciptr, const char *buf, int size)
     return ciptr->transptr->Write (ciptr, buf, size);
 }
 
-int _XSERVTransReadv (XtransConnInfo ciptr, struct iovec *buf, int size)
-{
-    return ciptr->transptr->Readv (ciptr, buf, size);
-}
-
 int _XSERVTransWritev (XtransConnInfo ciptr, struct iovec *buf, int size)
 {
     return ciptr->transptr->Writev (ciptr, buf, size);
