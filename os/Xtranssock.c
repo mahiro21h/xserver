@@ -1377,7 +1377,7 @@ static ssize_t _XSERVTransSocketWritev (
         return i;
     }
 #endif
-    return WRITEV (ciptr, iov, iovcnt);
+    return _XSERVTransWriteV(ciptr, iov, iovcnt);
 }
 
 static ssize_t _XSERVTransSocketWrite (

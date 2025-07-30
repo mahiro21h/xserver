@@ -1028,14 +1028,12 @@ int _XSERVTransMakeAllCOTSServerListeners (const char *port, int *partial,
  * may be used by it.
  */
 
-
-#ifdef WIN32
-
 /*
  * emulate writev
  */
 static int _XSERVTransWriteV (XtransConnInfo ciptr, struct iovec *iov, size_t iovcnt)
 {
+#ifdef WIN32
     int i, len, total;
     char *base;
 
@@ -1055,6 +1053,7 @@ static int _XSERVTransWriteV (XtransConnInfo ciptr, struct iovec *iov, size_t io
 	}
     }
     return total;
+#else
+    return writev(ciptr->fd, iov, iovcnt);
+#endif
 }
-
-#endif /* WIN32 */
