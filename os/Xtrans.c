@@ -710,11 +710,6 @@ ssize_t _XSERVTransWrite (XtransConnInfo ciptr, const char *buf, size_t size)
     return ciptr->transptr->Write (ciptr, buf, size);
 }
 
-ssize_t _XSERVTransWritev (XtransConnInfo ciptr, struct iovec *buf, size_t iovcnt)
-{
-    return ciptr->transptr->Writev (ciptr, buf, iovcnt);
-}
-
 #if XTRANS_SEND_FDS
 int _XSERVTransSendFd (XtransConnInfo ciptr, int fd, int do_close)
 {
