@@ -304,8 +304,4 @@ int _XSERVTransConvertAddress (
     Xtransaddr **	/* addrp */
 );
 
-#if defined(WIN32) && defined(TCPCONN)
-int _XSERVTransWSAStartup(void);
-#endif
-
 #endif /* _XTRANS_H_ */
