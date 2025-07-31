@@ -1391,28 +1391,6 @@ static ssize_t _XSERVTransSocketWritev (
 #endif
 }
 
-static ssize_t _XSERVTransSocketWrite (
-    XtransConnInfo ciptr, const char *buf, size_t size)
-{
-    prmsg (2,"SocketWrite(%d,%p,%lu)\n", ciptr->fd, (const void *) buf, (unsigned long)size);
-
-#ifdef WIN32
-    {
-	ssize_t ret = send ((SOCKET)ciptr->fd, buf, size, 0);
-	if (ret == SOCKET_ERROR) errno = WSAGetLastError();
-	return ret;
-    }
-#else
-#if XTRANS_SEND_FDS
-    if (ciptr->send_fds)
-    {
-        return _XSERVTransSocketWritev(ciptr, buf, size);
-    }
-#endif /* XTRANS_SEND_FDS */
-    return write (ciptr->fd, buf, size);
-#endif /* WIN32 */
-}
-
 static int _XSERVTransSocketDisconnect (XtransConnInfo ciptr)
 {
     prmsg (2,"SocketDisconnect(%p,%d)\n", (void *) ciptr, ciptr->fd);
@@ -1507,7 +1485,6 @@ static Xtransport _XSERVTransSocketTCPFuncs = {
 	_XSERVTransSocketINETAccept,
 	_XSERVTransSocketBytesReadable,
 	_XSERVTransSocketRead,
-	_XSERVTransSocketWrite,
 	_XSERVTransSocketWritev,
 #if XTRANS_SEND_FDS
 	_XSERVTransSocketSendFdInvalid,
@@ -1531,7 +1508,6 @@ static Xtransport _XSERVTransSocketINETFuncs = {
 	_XSERVTransSocketINETAccept,
 	_XSERVTransSocketBytesReadable,
 	_XSERVTransSocketRead,
-	_XSERVTransSocketWrite,
 	_XSERVTransSocketWritev,
 #if XTRANS_SEND_FDS
 	_XSERVTransSocketSendFdInvalid,
@@ -1556,7 +1532,6 @@ static Xtransport _XSERVTransSocketINET6Funcs = {
 	_XSERVTransSocketINETAccept,
 	_XSERVTransSocketBytesReadable,
 	_XSERVTransSocketRead,
-	_XSERVTransSocketWrite,
 	_XSERVTransSocketWritev,
 #if XTRANS_SEND_FDS
 	_XSERVTransSocketSendFdInvalid,
@@ -1588,7 +1563,6 @@ static Xtransport _XSERVTransSocketLocalFuncs = {
 	_XSERVTransSocketUNIXAccept,
 	_XSERVTransSocketBytesReadable,
 	_XSERVTransSocketRead,
-	_XSERVTransSocketWrite,
 	_XSERVTransSocketWritev,
 #if XTRANS_SEND_FDS
 	_XSERVTransSocketSendFd,
@@ -1624,7 +1598,6 @@ static Xtransport _XSERVTransSocketUNIXFuncs = {
 	_XSERVTransSocketUNIXAccept,
 	_XSERVTransSocketBytesReadable,
 	_XSERVTransSocketRead,
-	_XSERVTransSocketWrite,
 	_XSERVTransSocketWritev,
 #if XTRANS_SEND_FDS
 	_XSERVTransSocketSendFd,
