@@ -181,7 +181,7 @@ typedef struct _Xtransport {
 	int			/* size */
     );
 
-    ssize_t (*Writev)(XtransConnInfo ciptr, const char *buf, size_t size);
+    ssize_t (*Write)(XtransConnInfo ciptr, const char *buf, size_t size);
 
 #if XTRANS_SEND_FDS
     int (*SendFd)(
