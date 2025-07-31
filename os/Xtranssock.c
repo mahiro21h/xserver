@@ -1342,17 +1342,16 @@ static ssize_t _XSERVTransSocketWritev (
 {
     prmsg (2,"SocketWritev(%d,%p,%ld)\n", ciptr->fd, (void *) buf, (unsigned long)size);
 
-    struct iovec iov = {
-        .iov_len = size,
-        .iov_base = (char*)buf,
-    };
-
 #if XTRANS_SEND_FDS
     if (ciptr->send_fds)
     {
         union fd_pass           cmsgbuf;
         int                     nfd = nFd(&ciptr->send_fds);
         struct _XtransConnFd    *cf = ciptr->send_fds;
+        struct iovec iov = {
+            .iov_len = size,
+            .iov_base = (char*)buf,
+        };
         struct msghdr           msg = {
             .msg_name = NULL,
             .msg_namelen = 0,
@@ -1382,7 +1381,14 @@ static ssize_t _XSERVTransSocketWritev (
         return i;
     }
 #endif
-    return _XSERVTransWriteV(ciptr, &iov, 1);
+
+#ifdef WIN32
+    int ret = send ((SOCKET)ciptr->fd, buf, size, 0);
+    if (ret == SOCKET_ERROR) errno = WSAGetLastError();
+    return ret;
+#else
+    return write (ciptr->fd, buf, size);
+#endif
 }
 
 static ssize_t _XSERVTransSocketWrite (
