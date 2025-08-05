@@ -3,10 +3,10 @@ project('xserver', 'c',
             'buildtype=debugoptimized',
             'c_std=gnu99',
         ],
-        version: '25.0.0.7',
+        version: '25.0.0.8',
         meson_version: '>= 0.58.0',
 )
-release_date = '2025-07-29'
+release_date = '2025-08-05'
 
 add_project_arguments('-DHAVE_DIX_CONFIG_H', language: ['c', 'objc'])
 cc = meson.get_compiler('c')
