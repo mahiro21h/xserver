@@ -553,12 +553,12 @@ glamor_setup_formats(ScreenPtr screen)
     if (glamor_priv->has_rg && glamor_priv->has_texture_swizzle) {
         glamor_add_format(screen, 1, PIXMAN_a1,
                           GL_R8, GL_RED, GL_UNSIGNED_BYTE, FALSE);
-        glamor_add_format(screen, 8, PICT_a8,
+        glamor_add_format(screen, 8, PIXMAN_a8,
                           GL_R8, GL_RED, GL_UNSIGNED_BYTE, TRUE);
     } else {
         glamor_add_format(screen, 1, PIXMAN_a1,
                           GL_ALPHA, GL_ALPHA, GL_UNSIGNED_BYTE, FALSE);
-        glamor_add_format(screen, 8, PICT_a8,
+        glamor_add_format(screen, 8, PIXMAN_a8,
                           GL_ALPHA, GL_ALPHA, GL_UNSIGNED_BYTE, TRUE);
     }
 

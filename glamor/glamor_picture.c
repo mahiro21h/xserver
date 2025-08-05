@@ -87,7 +87,7 @@ glamor_get_tex_format_type_from_pictformat(ScreenPtr pScreen,
     case PIXMAN_a1:
         *tex_format = glamor_priv->formats[1].format;
         *tex_type = GL_UNSIGNED_BYTE;
-        *temp_format = PICT_a8;
+        *temp_format = PIXMAN_a8;
         break;
 
     case PIXMAN_b8g8r8x8:
@@ -193,7 +193,7 @@ glamor_get_tex_format_type_from_pictformat(ScreenPtr pScreen,
         }
         break;
 
-    case PICT_a8:
+    case PIXMAN_a8:
         *tex_format = glamor_priv->formats[8].format;
         *tex_type = GL_UNSIGNED_BYTE;
         break;
