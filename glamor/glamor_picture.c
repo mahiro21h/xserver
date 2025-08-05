@@ -174,7 +174,7 @@ glamor_get_tex_format_type_from_pictformat(ScreenPtr pScreen,
         break;
 
     case PIXMAN_x1b5g5r5:
-    case PICT_a1b5g5r5:
+    case PIXMAN_a1b5g5r5:
         *tex_format = GL_RGBA;
         if (!glamor_priv->is_gles) {
             *tex_type = GL_UNSIGNED_SHORT_1_5_5_5_REV;
