@@ -572,10 +572,10 @@ glamor_setup_formats(ScreenPtr screen)
          * Instead, just store 16 bits using the trusted 565 path, and
          * disable render accel for now.
          */
-        glamor_add_format(screen, 15, PICT_x1r5g5b5,
+        glamor_add_format(screen, 15, PIXMAN_x1r5g5b5,
                           GL_RGB5_A1, GL_RGBA, GL_UNSIGNED_SHORT_5_5_5_1, TRUE);
     } else {
-        glamor_add_format(screen, 15, PICT_x1r5g5b5,
+        glamor_add_format(screen, 15, PIXMAN_x1r5g5b5,
                           GL_RGBA, GL_BGRA, GL_UNSIGNED_SHORT_1_5_5_5_REV, TRUE);
     }
 
