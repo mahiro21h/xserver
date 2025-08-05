@@ -158,7 +158,7 @@ glamor_get_tex_format_type_from_pictformat(ScreenPtr pScreen,
         }
         break;
 
-    case PICT_r5g6b5:
+    case PIXMAN_r5g6b5:
         *tex_format = GL_RGB;
         *tex_type = GL_UNSIGNED_SHORT_5_6_5;
         break;
