@@ -91,7 +91,7 @@ glamor_get_tex_format_type_from_pictformat(ScreenPtr pScreen,
         break;
 
     case PICT_b8g8r8x8:
-    case PICT_b8g8r8a8:
+    case PIXMAN_b8g8r8a8:
         if (!glamor_priv->is_gles) {
             *tex_format = GL_BGRA;
             *tex_type = GL_UNSIGNED_INT_8_8_8_8;

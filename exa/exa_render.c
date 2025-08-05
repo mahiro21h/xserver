@@ -51,7 +51,7 @@ exaCompositeFallbackPictDesc(PicturePtr pict, char *string, int n)
     case PIXMAN_x8r8g8b8:
         snprintf(format, 20, "XRGB8888");
         break;
-    case PICT_b8g8r8a8:
+    case PIXMAN_b8g8r8a8:
         snprintf(format, 20, "BGRA8888");
         break;
     case PICT_b8g8r8x8:
