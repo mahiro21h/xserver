@@ -124,7 +124,7 @@ glamor_get_tex_format_type_from_pictformat(ScreenPtr pScreen,
         }
         break;
 
-    case PICT_x8b8g8r8:
+    case PIXMAN_x8b8g8r8:
     case PICT_a8b8g8r8:
         *tex_format = GL_RGBA;
         if (!glamor_priv->is_gles) {

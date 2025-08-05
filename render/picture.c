@@ -272,7 +272,7 @@ PictureCreateDefaultFormats(ScreenPtr pScreen, int *nformatp)
         case 32:
             if (pDepth->depth >= 24) {
                 addFormat(formats, &nformats, PIXMAN_x8r8g8b8, pDepth->depth);
-                addFormat(formats, &nformats, PICT_x8b8g8r8, pDepth->depth);
+                addFormat(formats, &nformats, PIXMAN_x8b8g8r8, pDepth->depth);
             }
             if (pDepth->depth >= 30) {
                 addFormat(formats, &nformats, PICT_a2r10g10b10, pDepth->depth);
