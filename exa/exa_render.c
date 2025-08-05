@@ -45,7 +45,7 @@ exaCompositeFallbackPictDesc(PicturePtr pict, char *string, int n)
     }
 
     switch (pict->format) {
-    case PICT_a8r8g8b8:
+    case PIXMAN_a8r8g8b8:
         snprintf(format, 20, "ARGB8888");
         break;
     case PICT_x8r8g8b8:
@@ -193,7 +193,7 @@ exaGetRGBAFromPixel(CARD32 pixel,
         bshift = pFormat->direct.blue;
         ashift = pFormat->direct.alpha;
     }
-    else if (format == PICT_a8r8g8b8) {
+    else if (format == PIXMAN_a8r8g8b8) {
         rshift = 16;
         gshift = 8;
         bshift = 0;

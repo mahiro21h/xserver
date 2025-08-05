@@ -861,9 +861,9 @@ glamor_render_format_is_supported(PicturePtr picture)
     switch (picture->format) {
     case PICT_a2r10g10b10:
         return storage_format == PICT_x2r10g10b10;
-    case PICT_a8r8g8b8:
+    case PIXMAN_a8r8g8b8:
     case PICT_x8r8g8b8:
-        return storage_format == PICT_a8r8g8b8 || storage_format == PICT_x8r8g8b8;
+        return storage_format == PIXMAN_a8r8g8b8 || storage_format == PICT_x8r8g8b8;
     case PICT_a1r5g5b5:
         return storage_format == PICT_x1r5g5b5;
     default:
@@ -1446,7 +1446,7 @@ glamor_convert_gradient_picture(ScreenPtr screen,
         pFormat = source->pFormat;
         format = pFormat->format;
     } else {
-        format = PICT_a8r8g8b8;
+        format = PIXMAN_a8r8g8b8;
         pFormat = PictureMatchFormat(screen, 32, format);
     }
 

@@ -93,11 +93,11 @@ exaGlyphsInit(ScreenPtr pScreen)
     pExaScr->glyphCaches[i].glyphWidth = pExaScr->glyphCaches[i].glyphHeight =
         32;
     i++;
-    pExaScr->glyphCaches[i].format = PICT_a8r8g8b8;
+    pExaScr->glyphCaches[i].format = PIXMAN_a8r8g8b8;
     pExaScr->glyphCaches[i].glyphWidth = pExaScr->glyphCaches[i].glyphHeight =
         16;
     i++;
-    pExaScr->glyphCaches[i].format = PICT_a8r8g8b8;
+    pExaScr->glyphCaches[i].format = PIXMAN_a8r8g8b8;
     pExaScr->glyphCaches[i].glyphWidth = pExaScr->glyphCaches[i].glyphHeight =
         32;
     i++;
@@ -737,7 +737,7 @@ exaGlyphs(CARD8 op,
              * without component-alpha) */
             FreePicture((void *) pMask, (XID) 0);
 
-            argbFormat = PictureMatchFormat(pScreen, 32, PICT_a8r8g8b8);
+            argbFormat = PictureMatchFormat(pScreen, 32, PIXMAN_a8r8g8b8);
 
             if (argbFormat)
                 maskFormat = argbFormat;

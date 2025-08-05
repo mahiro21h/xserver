@@ -178,7 +178,7 @@ PictureCreateDefaultFormats(ScreenPtr pScreen, int *nformatp)
                                            PIXMAN_TYPE_A, 8, 0, 0, 0);
     formats[nformats].depth = 8;
     nformats++;
-    formats[nformats].format = PICT_a8r8g8b8;
+    formats[nformats].format = PIXMAN_a8r8g8b8;
     formats[nformats].depth = 32;
     nformats++;
     formats[nformats].format = PICT_x8r8g8b8;
@@ -838,7 +838,7 @@ createSourcePicture(void)
     pPicture->pDrawable = 0;
     pPicture->pFormat = 0;
     pPicture->pNext = 0;
-    pPicture->format = PICT_a8r8g8b8;
+    pPicture->format = PIXMAN_a8r8g8b8;
 
     SetPictureToDefaults(pPicture);
     return pPicture;

@@ -586,12 +586,12 @@ glamor_setup_formats(ScreenPtr screen)
         assert(X_BYTE_ORDER == X_LITTLE_ENDIAN);
         glamor_add_format(screen, 24, PICT_x8r8g8b8,
                           GL_BGRA, GL_BGRA, GL_UNSIGNED_BYTE, TRUE);
-        glamor_add_format(screen, 32, PICT_a8r8g8b8,
+        glamor_add_format(screen, 32, PIXMAN_a8r8g8b8,
                           GL_BGRA, GL_BGRA, GL_UNSIGNED_BYTE, TRUE);
     } else {
         glamor_add_format(screen, 24, PICT_x8r8g8b8,
                           GL_RGBA, GL_BGRA, GL_UNSIGNED_INT_8_8_8_8_REV, TRUE);
-        glamor_add_format(screen, 32, PICT_a8r8g8b8,
+        glamor_add_format(screen, 32, PIXMAN_a8r8g8b8,
                           GL_RGBA, GL_BGRA, GL_UNSIGNED_INT_8_8_8_8_REV, TRUE);
     }
 
