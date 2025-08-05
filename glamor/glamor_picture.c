@@ -162,7 +162,7 @@ glamor_get_tex_format_type_from_pictformat(ScreenPtr pScreen,
         *tex_format = GL_RGB;
         *tex_type = GL_UNSIGNED_SHORT_5_6_5;
         break;
-    case PICT_b5g6r5:
+    case PIXMAN_b5g6r5:
         *tex_format = GL_RGB;
         if (!glamor_priv->is_gles) {
             *tex_type = GL_UNSIGNED_SHORT_5_6_5_REV;
