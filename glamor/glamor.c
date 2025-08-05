@@ -596,7 +596,7 @@ glamor_setup_formats(ScreenPtr screen)
     }
 
     if (glamor_priv->is_gles) {
-        glamor_add_format(screen, 30, PICT_x2b10g10r10,
+        glamor_add_format(screen, 30, PIXMAN_x2b10g10r10,
                           GL_RGB10_A2, GL_RGBA, GL_UNSIGNED_INT_2_10_10_10_REV, TRUE);
     } else {
         glamor_add_format(screen, 30, PICT_x2r10g10b10,
