@@ -181,7 +181,7 @@ PictureCreateDefaultFormats(ScreenPtr pScreen, int *nformatp)
     formats[nformats].format = PIXMAN_a8r8g8b8;
     formats[nformats].depth = 32;
     nformats++;
-    formats[nformats].format = PICT_x8r8g8b8;
+    formats[nformats].format = PIXMAN_x8r8g8b8;
     formats[nformats].depth = 32;
     nformats++;
     formats[nformats].format = PICT_b8g8r8a8;
@@ -271,7 +271,7 @@ PictureCreateDefaultFormats(ScreenPtr pScreen, int *nformatp)
             break;
         case 32:
             if (pDepth->depth >= 24) {
-                addFormat(formats, &nformats, PICT_x8r8g8b8, pDepth->depth);
+                addFormat(formats, &nformats, PIXMAN_x8r8g8b8, pDepth->depth);
                 addFormat(formats, &nformats, PICT_x8b8g8r8, pDepth->depth);
             }
             if (pDepth->depth >= 30) {
