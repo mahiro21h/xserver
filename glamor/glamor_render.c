@@ -860,7 +860,7 @@ glamor_render_format_is_supported(PicturePtr picture)
 
     switch (picture->format) {
     case PICT_a2r10g10b10:
-        return storage_format == PICT_x2r10g10b10;
+        return storage_format == PIXMAN_x2r10g10b10;
     case PIXMAN_a8r8g8b8:
     case PIXMAN_x8r8g8b8:
         return storage_format == PIXMAN_a8r8g8b8 || storage_format == PIXMAN_x8r8g8b8;
