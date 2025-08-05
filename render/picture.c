@@ -171,7 +171,7 @@ PictureCreateDefaultFormats(ScreenPtr pScreen, int *nformatp)
 
     nformats = 0;
     /* formats required by protocol */
-    formats[nformats].format = PICT_a1;
+    formats[nformats].format = PIXMAN_a1;
     formats[nformats].depth = 1;
     nformats++;
     formats[nformats].format = PICT_FORMAT(BitsPerPixel(8),

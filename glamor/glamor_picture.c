@@ -60,7 +60,7 @@ static void byte_swap_swizzle(GLenum *swizzle)
  * Returns the GL format and type for uploading our bits to a given PictFormat.
  *
  * We may need to tell the caller to translate the bits to another
- * format, as in PICT_a1 (which GL doesn't support).  We may also need
+ * format, as in PIXMAN_a1 (which GL doesn't support).  We may also need
  * to tell the GL to swizzle the texture on sampling, because GLES3
  * doesn't support the GL_UNSIGNED_INT_8_8_8_8{,_REV} types, so we
  * don't have enough channel reordering options at upload time without
@@ -84,7 +84,7 @@ glamor_get_tex_format_type_from_pictformat(ScreenPtr pScreen,
     swizzle[3] = GL_ALPHA;
 
     switch (format) {
-    case PICT_a1:
+    case PIXMAN_a1:
         *tex_format = glamor_priv->formats[1].format;
         *tex_type = GL_UNSIGNED_BYTE;
         *temp_format = PICT_a8;
