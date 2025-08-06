@@ -265,7 +265,7 @@ PictureCreateDefaultFormats(ScreenPtr pScreen, int *nformatp)
                 addFormat(formats, &nformats, PIXMAN_a1b5g5r5, pDepth->depth);
                 addFormat(formats, &nformats, PIXMAN_r5g6b5, pDepth->depth);
                 addFormat(formats, &nformats, PIXMAN_b5g6r5, pDepth->depth);
-                addFormat(formats, &nformats, PICT_a4r4g4b4, pDepth->depth);
+                addFormat(formats, &nformats, PIXMAN_a4r4g4b4, pDepth->depth);
                 addFormat(formats, &nformats, PICT_a4b4g4r4, pDepth->depth);
             }
             break;
