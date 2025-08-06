@@ -610,7 +610,7 @@ glamor_setup_formats(ScreenPtr screen)
         glamor_priv->cbcr_format.internalformat = GL_RG8;
     }
     glamor_priv->cbcr_format.format = GL_RG;
-    glamor_priv->cbcr_format.render_format = PICT_yuv2;
+    glamor_priv->cbcr_format.render_format = PIXMAN_yuy2;
     glamor_priv->cbcr_format.type = GL_UNSIGNED_BYTE;
     glamor_priv->cbcr_format.rendering_supported = TRUE;
     glamor_priv->cbcr_format.texture_only = FALSE;
