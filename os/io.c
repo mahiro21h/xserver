@@ -707,7 +707,7 @@ memcpy_and_flush(ClientPtr who, OsCommPtr oc, const void* extra_buf, size_t extr
 /*
  * try to make room in the output buffer:
  * if not enough room, try to flush first.
- * if that's not giving enough room, increase the buffer size
+ * if that's not giving enough room, increase the buffer size.
  */
 static int
 OutputBufferMakeRoomAndFlush(ClientPtr who, OsCommPtr oc, const void* extra_buf, size_t extra_size)
