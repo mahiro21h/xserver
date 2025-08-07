@@ -874,12 +874,21 @@ WriteToClient(ClientPtr who, int count, const void *__buf)
 
     ConnectionOutputPtr oco = oc->output;
 
+    if (oco->count == 0 && who->local) {
+        LogMessage(X_WARNING, "WriteToClient() buffer empty and we're local => send immediately\n");
+    }
+
+    if (oco->count + count + padBytes > oco->size) {
+        LogMessage(X_WARNING, "WriteToClient() buffer too small ==> need to flush first or resize\n");
+    }
+
     if ((oco->count == 0 && who->local) || oco->count + count + padBytes > oco->size) {
         output_pending_clear(who);
         if (!any_output_pending()) {
             CriticalOutputPending = FALSE;
             NewOutputPending = FALSE;
         }
+        LogMessage(X_WARNING, "WriteToClient() flush & write\n");
         return OutputBufferMakeRoomAndFlush(who, oc, buf, count);
     }
 
