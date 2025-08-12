@@ -3009,8 +3009,7 @@ SendVisibilityNotify(WindowPtr pWin)
 
         switch (visibility) {
         case VisibilityUnobscured: {
-        unsigned int walkScreenIdx;
-        FOR_NSCREENS_BACKWARD(walkScreenIdx) {
+        XINERAMA_FOR_EACH_SCREEN_BACKWARD({
             if (walkScreenIdx == Scrnum)
                 continue;
 
@@ -3024,7 +3023,7 @@ SendVisibilityNotify(WindowPtr pWin)
                 if (!walkScreenIdx)
                     pWin = pWin2;
             }
-        }
+        });
         }
             break;
         case VisibilityPartiallyObscured:
@@ -3036,8 +3035,7 @@ SendVisibilityNotify(WindowPtr pWin)
             }
             break;
         case VisibilityFullyObscured: {
-        unsigned int walkScreenIdx;
-        FOR_NSCREENS_BACKWARD(walkScreenIdx) {
+        XINERAMA_FOR_EACH_SCREEN_BACKWARD({
             if (walkScreenIdx == Scrnum)
                 continue;
 
@@ -3051,7 +3049,7 @@ SendVisibilityNotify(WindowPtr pWin)
                 if (!walkScreenIdx)
                     pWin = pWin2;
             }
-        }
+        });
             break;
         }
         }
