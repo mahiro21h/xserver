@@ -1313,14 +1313,13 @@ XineramaXvStopVideo(ClientPtr client)
     if (result != Success)
         return result;
 
-    unsigned int walkScreenIdx;
-    FOR_NSCREENS_BACKWARD(walkScreenIdx) {
+    XINERAMA_FOR_EACH_SCREEN_BACKWARD({
         if (port->info[walkScreenIdx].id) {
             stuff->drawable = draw->info[walkScreenIdx].id;
             stuff->port = port->info[walkScreenIdx].id;
             result = SingleXvStopVideo(client);
         }
-    }
+    });
 
     return result;
 }
@@ -1339,13 +1338,13 @@ XineramaXvSetPortAttribute(ClientPtr client)
     if (result != Success)
         return result;
 
-    unsigned int walkScreenIdx;
-    FOR_NSCREENS_BACKWARD(walkScreenIdx) {
+    XINERAMA_FOR_EACH_SCREEN_BACKWARD({
         if (port->info[walkScreenIdx].id) {
             stuff->port = port->info[walkScreenIdx].id;
             result = SingleXvSetPortAttribute(client);
         }
-    }
+    });
+
     return result;
 }
 
@@ -1383,10 +1382,7 @@ XineramaXvShmPutImage(ClientPtr client)
     x = stuff->drw_x;
     y = stuff->drw_y;
 
-    unsigned int walkScreenIdx;
-    FOR_NSCREENS_BACKWARD(walkScreenIdx) {
-        ScreenPtr walkScreen = screenInfo.screens[walkScreenIdx];
-
+    XINERAMA_FOR_EACH_SCREEN_BACKWARD({
         if (port->info[walkScreenIdx].id) {
             stuff->drawable = draw->info[walkScreenIdx].id;
             stuff->port = port->info[walkScreenIdx].id;
@@ -1401,7 +1397,8 @@ XineramaXvShmPutImage(ClientPtr client)
 
             result = SingleXvShmPutImage(client);
         }
-    }
+    });
+
     return result;
 }
 #else /* CONFIG_MITSHM */
@@ -1438,9 +1435,7 @@ XineramaXvPutImage(ClientPtr client)
     x = stuff->drw_x;
     y = stuff->drw_y;
 
-    unsigned int walkScreenIdx;
-    FOR_NSCREENS_BACKWARD(walkScreenIdx) {
-        ScreenPtr walkScreen = screenInfo.screens[walkScreenIdx];
+    XINERAMA_FOR_EACH_SCREEN_BACKWARD({
         if (port->info[walkScreenIdx].id) {
             stuff->drawable = draw->info[walkScreenIdx].id;
             stuff->port = port->info[walkScreenIdx].id;
@@ -1454,7 +1449,8 @@ XineramaXvPutImage(ClientPtr client)
 
             result = SingleXvPutImage(client);
         }
-    }
+    });
+
     return result;
 }
 
@@ -1488,9 +1484,7 @@ XineramaXvPutVideo(ClientPtr client)
     x = stuff->drw_x;
     y = stuff->drw_y;
 
-    unsigned int walkScreenIdx;
-    FOR_NSCREENS_BACKWARD(walkScreenIdx) {
-        ScreenPtr walkScreen = screenInfo.screens[walkScreenIdx];
+    XINERAMA_FOR_EACH_SCREEN_BACKWARD({
         if (port->info[walkScreenIdx].id) {
             stuff->drawable = draw->info[walkScreenIdx].id;
             stuff->port = port->info[walkScreenIdx].id;
@@ -1504,7 +1498,8 @@ XineramaXvPutVideo(ClientPtr client)
 
             result = SingleXvPutVideo(client);
         }
-    }
+    });
+
     return result;
 }
 
@@ -1538,9 +1533,7 @@ XineramaXvPutStill(ClientPtr client)
     x = stuff->drw_x;
     y = stuff->drw_y;
 
-    unsigned int walkScreenIdx;
-    FOR_NSCREENS_BACKWARD(walkScreenIdx) {
-        ScreenPtr walkScreen = screenInfo.screens[walkScreenIdx];
+    XINERAMA_FOR_EACH_SCREEN_BACKWARD({
         if (port->info[walkScreenIdx].id) {
             stuff->drawable = draw->info[walkScreenIdx].id;
             stuff->port = port->info[walkScreenIdx].id;
@@ -1551,10 +1544,10 @@ XineramaXvPutStill(ClientPtr client)
                 stuff->drw_x -= walkScreen->x;
                 stuff->drw_y -= walkScreen->y;
             }
-
             result = SingleXvPutStill(client);
         }
-    }
+    });
+
     return result;
 }
 
@@ -1639,13 +1632,9 @@ XineramifyXv(void)
         MatchingAdaptors[0] = refAdapt;
         isOverlay = hasOverlay(refAdapt);
 
-        unsigned int walkScreenIdx;
-        FOR_NSCREENS_FORWARD(walkScreenIdx) {
-            ScreenPtr walkScreen = screenInfo.screens[walkScreenIdx];
-            if (!walkScreenIdx)
-                continue; /* skip screen #0 */
+        XINERAMA_FOR_EACH_SCREEN_FORWARD_SKIP0({
             MatchingAdaptors[walkScreenIdx] = matchAdaptor(walkScreen, refAdapt, isOverlay);
-        }
+        });
 
         /* now create a resource for each port */
         for (int j = 0; j < refAdapt->nPorts; j++) {
@@ -1654,12 +1643,13 @@ XineramifyXv(void)
             if (!port)
                 break;
 
-            FOR_NSCREENS_BACKWARD(walkScreenIdx) {
+            XINERAMA_FOR_EACH_SCREEN_BACKWARD({
                 if (MatchingAdaptors[walkScreenIdx] && (MatchingAdaptors[walkScreenIdx]->nPorts > j))
                     port->info[walkScreenIdx].id = MatchingAdaptors[walkScreenIdx]->base_id + j;
                 else
                     port->info[walkScreenIdx].id = 0;
-            }
+            });
+
             AddResource(port->info[0].id, XvXRTPort, port);
         }
     }
