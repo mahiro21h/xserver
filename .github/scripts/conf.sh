@@ -3,6 +3,7 @@ export X11_OS=`uname -s`
 export X11_PREFIX="${X11_PREFIX:-$HOME/x11}"
 export X11_BUILD_DIR="${X11_BUILD_DIR:-$HOME/build-deps}"
 export DRV_BUILD_DIR="${DRV_BUILD_DIR:-$HOME/build-drivers}"
+export X11_DEPS_DIR="${X11_DEPS_DIR:-$X11_PREFIX/deps}"
 
 case "$X11_OS" in
 Darwin) export FDO_CI_CONCURRENT=`sysctl -n hw.logicalcpu` ;;

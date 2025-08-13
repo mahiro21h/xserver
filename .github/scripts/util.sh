@@ -1,25 +1,35 @@
 
 . .github/scripts/conf.sh
 
+pkg_dir() {
+    echo -n "${X11_DEPS_DIR}/$1"
+}
+
 clone_source() {
     local pkgname="$1"
     local url="$2"
     local ref="$3"
     local commit="$4"
 
-    if [ ! -f $pkgname/.git/config ]; then
-        echo "need to clone $pkgname"
+    local pkgdir=$(pkg_dir $pkgname)
+
+    echo "clone: pkgdir=$pkgdir"
+    pwd
+    ls -la $pkgname || true
+
+    if [ ! -f $pkgdir/.git/config ]; then
+        echo "need to clone $pkgname into $pkgdir"
         if [ "$commit" ]; then
-            git clone $url $pkgname --branch=$ref
+            git clone $url $pkgdir --branch=$ref
         else
-            git clone $url $pkgname --branch=$ref --depth 1
+            git clone $url $pkgdir --branch=$ref --depth 1
         fi
     else
-        echo "already cloned $pkgname"
+        echo "already cloned $pkgname -- $pkgdir"
     fi
 
     if [ "$commit" ]; then
-        ( cd $pkgname && git checkout -f "$commit" )
+        ( cd $pkgdir && git checkout -f "$commit" )
     fi
 }
 
@@ -28,6 +38,7 @@ build_meson() {
     local url="$2"
     local ref="$3"
     local commit="$4"
+    local pkgdir=$(pkg_dir $pkgname)
     shift
     shift
     shift
@@ -37,7 +48,7 @@ build_meson() {
     else
         clone_source "$pkgname" "$url" "$ref" "$commit"
         (
-            cd $pkgname
+            cd $pkgdir
             meson "$@" build -Dprefix=$X11_PREFIX
             ninja -j${FDO_CI_CONCURRENT:-4} -C build install
         )
@@ -50,6 +61,7 @@ build_ac() {
     local url="$2"
     local ref="$3"
     local commit="$4"
+    local pkgdir=$(pkg_dir $pkgname)
     shift
     shift
     shift
@@ -59,7 +71,7 @@ build_ac() {
     else
         clone_source "$pkgname" "$url" "$ref" "$commit"
         (
-            cd $pkgname
+            cd $pkgdir
             ./autogen.sh --prefix=$X11_PREFIX
             make -j${FDO_CI_CONCURRENT:-4} install
         )
@@ -72,13 +84,14 @@ build_drv_ac() {
     local url="$2"
     local ref="$3"
     local commit="$4"
+    local pkgdir=$(pkg_dir $pkgname)
     shift
     shift
     shift
     shift || true
     clone_source "$pkgname" "$url" "$ref" "$commit"
     (
-        cd $pkgname
+        cd $pkgdir
         ./autogen.sh # --prefix=$X11_PREFIX
         make -j${FDO_CI_CONCURRENT:-4} # install
     )
@@ -89,6 +102,7 @@ build_ac_xts() {
     local url="$2"
     local ref="$3"
     local commit="$4"
+    local pkgdir=$(pkg_dir $pkgname)
     shift
     shift
     shift
@@ -98,7 +112,7 @@ build_ac_xts() {
     else
         clone_source "$pkgname" "$url" "$ref" "$commit"
         (
-            cd $pkgname
+            cd $pkgdir
             CFLAGS='-fcommon'
             ./autogen.sh --prefix=$X11_PREFIX CFLAGS="$CFLAGS"
             make -j${FDO_CI_CONCURRENT:-4} install

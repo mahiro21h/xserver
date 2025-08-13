@@ -21,5 +21,5 @@ build_ac_xts  xts               https://gitlab.freedesktop.org/xorg/test/xts    
 
 clone_source piglit             https://gitlab.freedesktop.org/mesa/piglit               main       265896c86f90cb72e8f218ba6a3617fca8b9a1e3
 
-echo '[xts]' > piglit/piglit.conf
-echo "path=$X11_BUILD_DIR/xts" >> piglit/piglit.conf
+echo '[xts]' > "$(pkg_dir piglit)/piglit.conf"
+echo "path=$X11_BUILD_DIR/xts" >> "$(pkg_dir piglit)/piglit.conf"

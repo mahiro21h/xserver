@@ -6,7 +6,8 @@ permissions:
 env:
     MESON_BUILDDIR:  "build"
     X11_PREFIX:      /home/runner/x11
-    X11_BUILD_DIR:   /home/runner/build-deps
+    X11_BUILD_DIR:   /home/runner/build
+    X11_DEPS_DIR:    /home/runner/deps
 
 on:
     push:
@@ -43,8 +44,8 @@ jobs:
               with:
                 path: |
                     ${{ env.X11_PREFIX }}
-                    ${{ env.X11_BUILD_DIR }}/xts
-                    ${{ env.X11_BUILD_DIR }}/piglit
+                    ${{ env.X11_DEPS_DIR }}/xts
+                    ${{ env.X11_DEPS_DIR }}/piglit
                 key: ${{ runner.name }}-x11-deps-${{ hashFiles('.github/scripts/install-prereq.sh') }}
                 restore-keys: ${{ runner.name }}-x11-deps-
 
