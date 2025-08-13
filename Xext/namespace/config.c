@@ -92,7 +92,7 @@ static void parseLine(char *line, struct Xnamespace **walk_ns)
     {
         if ((token = strtok(NULL, " ")) == NULL)
         {
-            XNS_LOG("container missing id\n");
+            XNS_LOG("namespace missing id\n");
             return;
         }
 
