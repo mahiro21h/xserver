@@ -655,7 +655,7 @@ ProcRRGetProviderProperty(ClientPtr client)
         }
     }
 
-    WriteToClient(client, sizeof(xGenericReply), &reply);
+    WriteToClient(client, sizeof(reply), &reply);
     WriteToClient(client, len, extra);
     free(extra);
 
