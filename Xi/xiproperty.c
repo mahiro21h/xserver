@@ -989,7 +989,7 @@ ProcXGetDeviceProperty(ClientPtr client)
         swapl(&rep.bytesAfter);
         swapl(&rep.nItems);
     }
-    WriteToClient(client, sizeof(xGenericReply), &rep);
+    WriteToClient(client, sizeof(rep), &rep);
 
     if (length) {
         switch (rep.format) {
