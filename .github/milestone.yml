@@ -1,0 +1,5 @@
+base-branch:
+  - "maint-([\\d\.]+)"
+
+head-branch:
+  - ".*"
