@@ -499,13 +499,12 @@ void
 CompositeExtensionInit(void)
 {
     ExtensionEntry *extEntry;
-    int s;
 
     /* Assume initialization is going to fail */
     noCompositeExtension = TRUE;
 
-    for (s = 0; s < screenInfo.numScreens; s++) {
-        ScreenPtr walkScreen = screenInfo.screens[s];
+    for (unsigned int walkScreenIdx = 0; walkScreenIdx < screenInfo.numScreens; walkScreenIdx++) {
+        ScreenPtr walkScreen = screenInfo.screens[walkScreenIdx];
         VisualPtr vis;
 
         /* Composite on 8bpp pseudocolor root windows appears to fail, so
@@ -544,8 +543,8 @@ CompositeExtensionInit(void)
                                sizeof(CompositeClientRec)))
         return;
 
-    for (s = 0; s < screenInfo.numScreens; s++) {
-        ScreenPtr walkScreen = screenInfo.screens[s];
+    for (unsigned int walkScreenIdx = 0; walkScreenIdx < screenInfo.numScreens; walkScreenIdx++) {
+        ScreenPtr walkScreen = screenInfo.screens[walkScreenIdx];
         if (!compScreenInit(walkScreen))
             return;
     }
@@ -572,7 +571,7 @@ ProcCompositeRedirectWindow(ClientPtr client)
         return SingleCompositeRedirectWindow(client, stuff);
 
     PanoramiXRes *win;
-    int rc = 0, j;
+    int rc = 0;
 
     if ((rc = dixLookupResourceByType((void **) &win, stuff->window, XRT_WINDOW,
                                       client, DixUnknownAccess))) {
@@ -580,8 +579,9 @@ ProcCompositeRedirectWindow(ClientPtr client)
         return rc;
     }
 
-    FOR_NSCREENS_FORWARD(j) {
-        stuff->window = win->info[j].id;
+    int walkScreenIdx;
+    FOR_NSCREENS_FORWARD(walkScreenIdx) {
+        stuff->window = win->info[walkScreenIdx].id;
         rc = SingleCompositeRedirectWindow(client, stuff);
         if (rc != Success)
             break;
@@ -604,7 +604,7 @@ ProcCompositeRedirectSubwindows(ClientPtr client)
         return SingleRedirectSubwindows(client, stuff);
 
     PanoramiXRes *win;
-    int rc = 0, j;
+    int rc = 0;
 
     if ((rc = dixLookupResourceByType((void **) &win, stuff->window, XRT_WINDOW,
                                       client, DixUnknownAccess))) {
@@ -612,8 +612,9 @@ ProcCompositeRedirectSubwindows(ClientPtr client)
         return rc;
     }
 
-    FOR_NSCREENS_FORWARD(j) {
-        stuff->window = win->info[j].id;
+    unsigned int walkScreenIdx;
+    FOR_NSCREENS_FORWARD(walkScreenIdx) {
+        stuff->window = win->info[walkScreenIdx].id;
         rc = SingleRedirectSubwindows(client, stuff);
         if (rc != Success)
             break;
@@ -636,7 +637,7 @@ ProcCompositeUnredirectWindow(ClientPtr client)
         return SingleCompositeUnredirectWindow(client, stuff);
 
     PanoramiXRes *win;
-    int rc = 0, j;
+    int rc = 0;
 
     if ((rc = dixLookupResourceByType((void **) &win, stuff->window, XRT_WINDOW,
                                       client, DixUnknownAccess))) {
@@ -644,8 +645,9 @@ ProcCompositeUnredirectWindow(ClientPtr client)
         return rc;
     }
 
-    FOR_NSCREENS_FORWARD(j) {
-        stuff->window = win->info[j].id;
+    unsigned int walkScreenIdx;
+    FOR_NSCREENS_FORWARD(walkScreenIdx) {
+        stuff->window = win->info[walkScreenIdx].id;
         rc = SingleCompositeUnredirectWindow(client, stuff);
         if (rc != Success)
             break;
@@ -668,7 +670,7 @@ ProcCompositeUnredirectSubwindows(ClientPtr client)
         return SingleCompositeUnredirectSubwindows(client, stuff);
 
     PanoramiXRes *win;
-    int rc = 0, j;
+    int rc = 0;
 
     if ((rc = dixLookupResourceByType((void **) &win, stuff->window, XRT_WINDOW,
                                       client, DixUnknownAccess))) {
@@ -676,8 +678,9 @@ ProcCompositeUnredirectSubwindows(ClientPtr client)
         return rc;
     }
 
-    FOR_NSCREENS_FORWARD(j) {
-        stuff->window = win->info[j].id;
+    unsigned int walkScreenIdx;
+    FOR_NSCREENS_FORWARD(walkScreenIdx) {
+        stuff->window = win->info[walkScreenIdx].id;
         rc = SingleCompositeUnredirectSubwindows(client, stuff);
         if (rc != Success)
             break;
@@ -704,7 +707,6 @@ ProcCompositeNameWindowPixmap(ClientPtr client)
     PixmapPtr pPixmap;
     int rc;
     PanoramiXRes *win, *newPix;
-    int i;
 
     if ((rc = dixLookupResourceByType((void **) &win, stuff->window, XRT_WINDOW,
                                       client, DixUnknownAccess))) {
@@ -721,8 +723,9 @@ ProcCompositeNameWindowPixmap(ClientPtr client)
     newPix->u.pix.shared = FALSE;
     panoramix_setup_ids(newPix, client, stuff->pixmap);
 
-    FOR_NSCREENS_BACKWARD(i) {
-        rc = dixLookupResourceByType((void **) &pWin, win->info[i].id,
+    unsigned int walkScreenIdx;
+    FOR_NSCREENS_BACKWARD(walkScreenIdx) {
+        rc = dixLookupResourceByType((void **) &pWin, win->info[walkScreenIdx].id,
                                      X11_RESTYPE_WINDOW, client,
                                      DixGetAttrAccess);
         if (rc != Success) {
@@ -748,7 +751,7 @@ ProcCompositeNameWindowPixmap(ClientPtr client)
             return BadMatch;
         }
 
-        if (!AddResource(newPix->info[i].id, X11_RESTYPE_PIXMAP, (void *) pPixmap))
+        if (!AddResource(newPix->info[walkScreenIdx].id, X11_RESTYPE_PIXMAP, (void *) pPixmap))
             return BadAlloc;
 
         ++pPixmap->refcnt;
@@ -780,7 +783,6 @@ ProcCompositeGetOverlayWindow(ClientPtr client)
     CompOverlayClientPtr pOc;
     int rc;
     PanoramiXRes *win, *overlayWin = NULL;
-    int i;
 
     if ((rc = dixLookupResourceByType((void **) &win, stuff->window, XRT_WINDOW,
                                       client, DixUnknownAccess))) {
@@ -797,8 +799,9 @@ ProcCompositeGetOverlayWindow(ClientPtr client)
         overlayWin->u.win.root = FALSE;
     }
 
-    FOR_NSCREENS_BACKWARD(i) {
-        rc = dixLookupResourceByType((void **) &pWin, win->info[i].id,
+    unsigned int walkScreenIdx;
+    FOR_NSCREENS_BACKWARD(walkScreenIdx) {
+        rc = dixLookupResourceByType((void **) &pWin, win->info[walkScreenIdx].id,
                                      X11_RESTYPE_WINDOW, client,
                                      DixGetAttrAccess);
         if (rc != Success) {
@@ -841,10 +844,10 @@ ProcCompositeGetOverlayWindow(ClientPtr client)
     }
 
     if (overlayWin) {
-        FOR_NSCREENS_BACKWARD(i) {
-            ScreenPtr walkScreen = screenInfo.screens[i];
+        FOR_NSCREENS_BACKWARD(walkScreenIdx) {
+            ScreenPtr walkScreen = screenInfo.screens[walkScreenIdx];
             cs = GetCompScreen(walkScreen);
-            overlayWin->info[i].id = cs->pOverlayWin->drawable.id;
+            overlayWin->info[walkScreenIdx].id = cs->pOverlayWin->drawable.id;
         }
 
         AddResource(overlayWin->info[0].id, XRT_WINDOW, overlayWin);
@@ -879,7 +882,7 @@ ProcCompositeReleaseOverlayWindow(ClientPtr client)
     WindowPtr pWin;
     CompOverlayClientPtr pOc;
     PanoramiXRes *win;
-    int i, rc;
+    int rc;
 
     if ((rc = dixLookupResourceByType((void **) &win, stuff->window, XRT_WINDOW,
                                       client, DixUnknownAccess))) {
@@ -887,8 +890,9 @@ ProcCompositeReleaseOverlayWindow(ClientPtr client)
         return rc;
     }
 
-    FOR_NSCREENS_BACKWARD(i) {
-        if ((rc = dixLookupResourceByType((void **) &pWin, win->info[i].id,
+    unsigned int walkScreenIdx;
+    FOR_NSCREENS_BACKWARD(walkScreenIdx) {
+        if ((rc = dixLookupResourceByType((void **) &pWin, win->info[walkScreenIdx].id,
                                           XRT_WINDOW, client,
                                           DixUnknownAccess))) {
             client->errorValue = stuff->window;
