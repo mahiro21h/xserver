@@ -324,13 +324,13 @@ dix_main(int argc, char *argv[], char *envp[])
             dixFreeScreen(screenInfo.gpuscreens[i]);
             screenInfo.numGPUScreens = i;
         }
-        memset(&screenInfo.numGPUScreens, 0, sizeof(screenInfo.numGPUScreens));
+        memset(&screenInfo.gpuscreens, 0, sizeof(screenInfo.gpuscreens));
 
         for (i = screenInfo.numScreens - 1; i >= 0; i--) {
             dixFreeScreen(screenInfo.screens[i]);
             screenInfo.numScreens = i;
         }
-        memset(&screenInfo.screens, 0, sizeof(screenInfo.numGPUScreens));
+        memset(&screenInfo.screens, 0, sizeof(screenInfo.screens));
 
         ReleaseClientIds(serverClient);
         dixFreePrivates(serverClient->devPrivates, PRIVATE_CLIENT);
