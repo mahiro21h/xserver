@@ -1781,8 +1781,7 @@ ProcRRGetCrtcTransform(ClientPtr client)
         swaps(&rep.currentNparamsFilter);
     }
 
-    WriteToClient(client, sizeof(xRRGetCrtcTransformReply), &rep);
-    WriteRpcbufToClient(client, &rpcbuf);
+    X_SEND_REPLY_WITH_RPCBUF(client, reply, rpcbuf);
     return Success;
 }
 
