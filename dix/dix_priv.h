@@ -753,7 +753,7 @@ static inline void __write_reply_hdr_and_rpcbuf(
 {
     xGenericReply *reply = hdrData;
     reply->type = X_Reply;
-    reply->length = (pad_to_int32(hdrLen - sizeof(xGenericReply)))
+    reply->length = (bytes_to_int32(hdrLen - sizeof(xGenericReply)))
                   + x_rpcbuf_wsize_units(rpcbuf);
     reply->sequenceNumber = pClient->sequence;
 
