@@ -4375,17 +4375,15 @@ XkbSizeGeomProperties(XkbGeometryPtr geom)
     return size;
 }
 
-static char *
-XkbWriteGeomProperties(char *wire, XkbGeometryPtr geom, Bool swap)
+static inline void XkbWriteGeomProperties(x_rpcbuf_t *rpcbuf, XkbGeometryPtr geom)
 {
     register int i;
     register XkbPropertyPtr prop;
 
     for (i = 0, prop = geom->properties; i < geom->num_properties; i++, prop++) {
-        wire = XkbWriteCountedString(wire, prop->name, swap);
-        wire = XkbWriteCountedString(wire, prop->value, swap);
+        x_rpcbuf_write_counted_string_pad(rpcbuf, prop->name);
+        x_rpcbuf_write_counted_string_pad(rpcbuf, prop->value);
     }
-    return wire;
 }
 
 static int
@@ -4739,8 +4737,14 @@ XkbAssembleGeometry(ClientPtr client,
         return;
 
     desc = XkbWriteCountedString(desc, geom->label_font, client->swapped);
-    if (rep.nProperties > 0)
-        desc = XkbWriteGeomProperties(desc, geom, client->swapped);
+
+    if (rep.nProperties > 0) {
+        x_rpcbuf_t rpcbuf = { .swapped = client->swapped, .err_clear = TRUE };
+        XkbWriteGeomProperties(&rpcbuf, geom);
+        memcpy(desc, rpcbuf.buffer, rpcbuf.wpos);
+        desc += rpcbuf.wpos;
+        x_rpcbuf_clear(&rpcbuf);
+    }
     if (rep.nColors > 0) {
         x_rpcbuf_t rpcbuf = { .swapped = client->swapped, .err_clear = TRUE };
         XkbWriteGeomColors(&rpcbuf, geom);
