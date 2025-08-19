@@ -5851,6 +5851,10 @@ ProcXkbGetKbdByName(ClientPtr client)
 
         XkbAssembleMap(client, new, mrep, &childbuf);
 
+        if (childbuf.wpos != (mrep.length * 4))
+            LogMessage(X_WARNING, "ProcXkbGetKbdByName() childbuf size (%ld) mismatch mrep size (%ld // %d units)\n",
+                       (unsigned long)childbuf.wpos, (unsigned long)mrep.length * 4, mrep.length);
+
         if (client->swapped) {
             swaps(&mrep.sequenceNumber);
             swapl(&mrep.length);
@@ -5867,6 +5871,10 @@ ProcXkbGetKbdByName(ClientPtr client)
         x_rpcbuf_t childbuf = { .swapped = client->swapped, .err_clear = TRUE };
 
         XkbAssembleCompatMap(client, new->compat, crep, &childbuf);
+
+        if (childbuf.wpos != (crep.length * 4))
+            LogMessage(X_WARNING, "ProcXkbGetKbdByName() childbuf size (%ld) mismatch crep size (%ld // %d units)\n",
+                       (unsigned long)childbuf.wpos, (unsigned long)crep.length * 4, crep.length);
 
         if (client->swapped) {
             swaps(&crep.sequenceNumber);
@@ -5885,6 +5893,10 @@ ProcXkbGetKbdByName(ClientPtr client)
 
         XkbAssembleIndicatorMap(client, new->indicators, irep, &childbuf);
 
+        if (childbuf.wpos != (irep.length * 4))
+            LogMessage(X_WARNING, "ProcXkbGetKbdByName() childbuf size (%ld) mismatch irep size (%ld // %d units)\n",
+                       (unsigned long)childbuf.wpos, (unsigned long)irep.length * 4, irep.length);
+
         if (client->swapped) {
             swaps(&irep.sequenceNumber);
             swapl(&irep.length);
@@ -5900,6 +5912,10 @@ ProcXkbGetKbdByName(ClientPtr client)
         x_rpcbuf_t childbuf = { .swapped = client->swapped, .err_clear = TRUE };
 
         XkbAssembleNames(client, new, nrep, &childbuf);
+
+        if (childbuf.wpos != (nrep.length * 4))
+            LogMessage(X_WARNING, "ProcXkbGetKbdByName() childbuf size (%ld) mismatch nrep size (%ld // %d units)\n",
+                       (unsigned long)childbuf.wpos, (unsigned long)nrep.length * 4, nrep.length);
 
         if (client->swapped) {
             swaps(&nrep.sequenceNumber);
@@ -5917,6 +5933,10 @@ ProcXkbGetKbdByName(ClientPtr client)
         x_rpcbuf_t childbuf = { .swapped = client->swapped, .err_clear = TRUE };
 
         XkbAssembleGeometry(client, new->geom, grep, &childbuf);
+
+        if (childbuf.wpos != (grep.length * 4))
+            LogMessage(X_WARNING, "ProcXkbGetKbdByName() childbuf size (%ld) mismatch nrep size (%ld // %d units)\n",
+                       (unsigned long)childbuf.wpos, (unsigned long)grep.length * 4, grep.length);
 
         if (client->swapped) {
             swaps(&grep.sequenceNumber);
