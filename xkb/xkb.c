@@ -6166,30 +6166,17 @@ CheckDeviceLedFBs(DeviceIntPtr dev,
 }
 
 static int
-FillDeviceLedInfo(XkbSrvLedInfoPtr sli, char *buffer, ClientPtr client)
+FillDeviceLedInfo(XkbSrvLedInfoPtr sli, x_rpcbuf_t *rpcbuf, ClientPtr client)
 {
-    int length = 0;
-    xkbDeviceLedsWireDesc wire = {
-        .ledClass = sli->class,
-        .ledID = sli->id,
-        .namesPresent = sli->namesPresent,
-        .mapsPresent = sli->mapsPresent,
-        .physIndicators = sli->physIndicators,
-        .state = sli->effectiveState,
-    };
+    size_t oldpos = rpcbuf->wpos;
 
-    if (client->swapped) {
-        swaps(&wire.ledClass);
-        swaps(&wire.ledID);
-        swapl(&wire.namesPresent);
-        swapl(&wire.mapsPresent);
-        swapl(&wire.physIndicators);
-        swapl(&wire.state);
-    }
-
-    memcpy(buffer, &wire, sizeof(wire));
-    buffer += sizeof(wire);
-    length += sizeof(wire);
+    /* write xkbDeviceLedsWireDesc */
+    x_rpcbuf_write_CARD16(rpcbuf, sli->class);
+    x_rpcbuf_write_CARD16(rpcbuf, sli->id);
+    x_rpcbuf_write_CARD32(rpcbuf, sli->namesPresent);
+    x_rpcbuf_write_CARD32(rpcbuf, sli->mapsPresent);
+    x_rpcbuf_write_CARD32(rpcbuf, sli->physIndicators);
+    x_rpcbuf_write_CARD32(rpcbuf, sli->effectiveState);
 
     if (sli->namesPresent | sli->mapsPresent) {
         register unsigned i, bit;
@@ -6197,41 +6184,27 @@ FillDeviceLedInfo(XkbSrvLedInfoPtr sli, char *buffer, ClientPtr client)
         if (sli->namesPresent) {
             for (i = 0, bit = 1; i < XkbNumIndicators; i++, bit <<= 1) {
                 if (sli->namesPresent & bit) {
-                    CARD32 *val = (CARD32*)buffer;
-                    *val = sli->names[i];
-                    if (client->swapped) {
-                        swapl(val);
-                    }
-                    length += sizeof(CARD32);
-                    buffer += sizeof(CARD32);
+                    x_rpcbuf_write_CARD32(rpcbuf, sli->names[i]);
                 }
             }
         }
         if (sli->mapsPresent) {
             for (i = 0, bit = 1; i < XkbNumIndicators; i++, bit <<= 1) {
                 if (sli->mapsPresent & bit) {
-                    xkbIndicatorMapWireDesc iwire = {
-                        .flags = sli->maps[i].flags,
-                        .whichGroups = sli->maps[i].which_groups,
-                        .groups = sli->maps[i].groups,
-                        .whichMods = sli->maps[i].which_mods,
-                        .mods = sli->maps[i].mods.mask,
-                        .realMods = sli->maps[i].mods.real_mods,
-                        .virtualMods = sli->maps[i].mods.vmods,
-                        .ctrls = sli->maps[i].ctrls,
-                    };
-                    if (client->swapped) {
-                        swaps(&iwire.virtualMods);
-                        swapl(&iwire.ctrls);
-                    }
-                    memcpy(buffer, &iwire, sizeof(iwire));
-                    buffer += sizeof(iwire);
-                    length += sizeof(iwire);
+                    /* write xkbIndicatorMapWireDesc */
+                    x_rpcbuf_write_CARD8(rpcbuf, sli->maps[i].flags);
+                    x_rpcbuf_write_CARD8(rpcbuf, sli->maps[i].which_groups);
+                    x_rpcbuf_write_CARD8(rpcbuf, sli->maps[i].groups);
+                    x_rpcbuf_write_CARD8(rpcbuf, sli->maps[i].which_mods);
+                    x_rpcbuf_write_CARD8(rpcbuf, sli->maps[i].mods.mask);
+                    x_rpcbuf_write_CARD8(rpcbuf, sli->maps[i].mods.real_mods);
+                    x_rpcbuf_write_CARD16(rpcbuf, sli->maps[i].mods.vmods);
+                    x_rpcbuf_write_CARD32(rpcbuf, sli->maps[i].ctrls);
                 }
             }
         }
     }
-    return length;
+    return rpcbuf->wpos - oldpos;
 }
 
 static int
@@ -6253,7 +6226,12 @@ FillDeviceLedFBs(DeviceIntPtr dev, int class, int id, unsigned wantLength,
         for (kf = dev->kbdfeed; (kf); kf = kf->next) {
             if ((id == XkbAllXIIds) || (id == XkbDfltXIId) ||
                 (id == kf->ctrl.id)) {
-                int written = FillDeviceLedInfo(kf->xkb_sli, buffer, client);
+
+                x_rpcbuf_t rpcbuf = { .swapped = client->swapped, .err_clear = TRUE };
+                int written = FillDeviceLedInfo(kf->xkb_sli, &rpcbuf, client);
+                memcpy(buffer, rpcbuf.buffer, rpcbuf.wpos);
+                x_rpcbuf_clear(&rpcbuf);
+
                 buffer += written;
                 length += written;
                 if (id != XkbAllXIIds)
@@ -6268,7 +6246,11 @@ FillDeviceLedFBs(DeviceIntPtr dev, int class, int id, unsigned wantLength,
         for (lf = dev->leds; (lf); lf = lf->next) {
             if ((id == XkbAllXIIds) || (id == XkbDfltXIId) ||
                 (id == lf->ctrl.id)) {
-                int written = FillDeviceLedInfo(lf->xkb_sli, buffer, client);
+                x_rpcbuf_t rpcbuf = { .swapped = client->swapped, .err_clear = TRUE };
+                int written = FillDeviceLedInfo(lf->xkb_sli, &rpcbuf, client);
+                memcpy(buffer, rpcbuf.buffer, rpcbuf.wpos);
+                x_rpcbuf_clear(&rpcbuf);
+
                 buffer += written;
                 length += written;
                 if (id != XkbAllXIIds)
