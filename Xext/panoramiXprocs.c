@@ -571,9 +571,6 @@ PanoramiXGetGeometry(ClientPtr client)
         return rc;
 
     xGetGeometryReply rep = {
-        .type = X_Reply,
-        .sequenceNumber = client->sequence,
-        .length = 0,
         .root = screenInfo.screens[0]->root->drawable.id,
         .depth = pDraw->depth,
         .width = pDraw->width,
@@ -605,7 +602,6 @@ PanoramiXGetGeometry(ClientPtr client)
     }
 
     if (client->swapped) {
-        swaps(&rep.sequenceNumber);
         swapl(&rep.root);
         swaps(&rep.x);
         swaps(&rep.y);
@@ -613,7 +609,7 @@ PanoramiXGetGeometry(ClientPtr client)
         swaps(&rep.height);
         swaps(&rep.borderWidth);
     }
-    WriteToClient(client, sizeof(xGetGeometryReply), &rep);
+    X_SEND_REPLY_SIMPLE(client, rep);
     return Success;
 }
 
@@ -681,9 +677,6 @@ PanoramiXTranslateCoords(ClientPtr client)
     }
 
     xTranslateCoordsReply rep = {
-        .type = X_Reply,
-        .sequenceNumber = client->sequence,
-        .length = 0,
         .sameScreen = xTrue,
         .dstX = dstX,
         .dstY = dstY,
@@ -691,12 +684,11 @@ PanoramiXTranslateCoords(ClientPtr client)
     };
 
     if (client->swapped) {
-        swaps(&rep.sequenceNumber);
         swapl(&rep.child);
         swaps(&rep.dstX);
         swaps(&rep.dstY);
     }
-    WriteToClient(client, sizeof(rep), &rep);
+    X_SEND_REPLY_SIMPLE(client, rep);
     return Success;
 }
 
