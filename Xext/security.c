@@ -349,9 +349,6 @@ ProcSecurityQueryVersion(ClientPtr client)
 {
     /* REQUEST(xSecurityQueryVersionReq); */
     xSecurityQueryVersionReply rep = {
-        .type = X_Reply,
-        .sequenceNumber = client->sequence,
-        .length = 0,
         .majorVersion = SERVER_SECURITY_MAJOR_VERSION,
         .minorVersion = SERVER_SECURITY_MINOR_VERSION
     };
@@ -359,11 +356,10 @@ ProcSecurityQueryVersion(ClientPtr client)
     REQUEST_SIZE_MATCH(xSecurityQueryVersionReq);
 
     if (client->swapped) {
-        swaps(&rep.sequenceNumber);
         swaps(&rep.majorVersion);
         swaps(&rep.minorVersion);
     }
-    WriteToClient(client, SIZEOF(xSecurityQueryVersionReply), &rep);
+    X_SEND_REPLY_SIMPLE(client, rep);
     return Success;
 }                               /* ProcSecurityQueryVersion */
 
