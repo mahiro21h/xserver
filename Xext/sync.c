@@ -1263,18 +1263,13 @@ static int
 ProcSyncInitialize(ClientPtr client)
 {
     xSyncInitializeReply rep = {
-        .type = X_Reply,
-        .sequenceNumber = client->sequence,
         .majorVersion = SERVER_SYNC_MAJOR_VERSION,
         .minorVersion = SERVER_SYNC_MINOR_VERSION,
     };
 
     REQUEST_SIZE_MATCH(xSyncInitializeReq);
 
-    if (client->swapped) {
-        swaps(&rep.sequenceNumber);
-    }
-    WriteToClient(client, sizeof(rep), &rep);
+    X_SEND_REPLY_SIMPLE(client, rep);
     return Success;
 }
 
@@ -1405,18 +1400,14 @@ ProcSyncGetPriority(ClientPtr client)
     }
 
     xSyncGetPriorityReply rep = {
-        .type = X_Reply,
-        .sequenceNumber = client->sequence,
         .priority = priorityclient->priority
     };
 
     if (client->swapped) {
-        swaps(&rep.sequenceNumber);
         swapl(&rep.priority);
     }
 
-    WriteToClient(client, sizeof(xSyncGetPriorityReply), &rep);
-
+    X_SEND_REPLY_SIMPLE(client, rep);
     return Success;
 }
 
@@ -1689,19 +1680,15 @@ ProcSyncQueryCounter(ClientPtr client)
     }
 
     xSyncQueryCounterReply rep = {
-        .type = X_Reply,
-        .sequenceNumber = client->sequence,
         .value_hi = pCounter->value >> 32,
         .value_lo = pCounter->value
     };
 
     if (client->swapped) {
-        swaps(&rep.sequenceNumber);
-        swapl(&rep.length);
         swapl(&rep.value_hi);
         swapl(&rep.value_lo);
     }
-    WriteToClient(client, sizeof(xSyncQueryCounterReply), &rep);
+    X_SEND_REPLY_SIMPLE(client, rep);
     return Success;
 }
 
@@ -1850,9 +1837,6 @@ ProcSyncQueryAlarm(ClientPtr client)
     pTrigger = &pAlarm->trigger;
 
     xSyncQueryAlarmReply rep = {
-        .type = X_Reply,
-        .sequenceNumber = client->sequence,
-        .length = X_REPLY_HEADER_UNITS(xSyncQueryAlarmReply),
         .counter = (pTrigger->pSync) ? pTrigger->pSync->id : None,
 
 #if 0  /* XXX unclear what to do, depends on whether relative value-types
@@ -1876,8 +1860,6 @@ ProcSyncQueryAlarm(ClientPtr client)
     };
 
     if (client->swapped) {
-        swaps(&rep.sequenceNumber);
-        swapl(&rep.length);
         swapl(&rep.counter);
         swapl(&rep.wait_value_hi);
         swapl(&rep.wait_value_lo);
@@ -1886,7 +1868,7 @@ ProcSyncQueryAlarm(ClientPtr client)
         swapl(&rep.delta_lo);
     }
 
-    WriteToClient(client, sizeof(xSyncQueryAlarmReply), &rep);
+    X_SEND_REPLY_SIMPLE(client, rep);
     return Success;
 }
 
@@ -2029,17 +2011,10 @@ ProcSyncQueryFence(ClientPtr client)
         return rc;
 
     xSyncQueryFenceReply rep = {
-        .type = X_Reply,
-        .sequenceNumber = client->sequence,
         .triggered = pFence->funcs.CheckTriggered(pFence)
     };
 
-    if (client->swapped) {
-        swaps(&rep.sequenceNumber);
-        swapl(&rep.length);
-    }
-
-    WriteToClient(client, sizeof(xSyncQueryFenceReply), &rep);
+    X_SEND_REPLY_SIMPLE(client, rep);
     return Success;
 }
 
