@@ -363,7 +363,7 @@ ProcSecurityQueryVersion(ClientPtr client)
         swaps(&rep.majorVersion);
         swaps(&rep.minorVersion);
     }
-    WriteToClient(client, SIZEOF(xSecurityQueryVersionReply), &rep);
+    X_SEND_REPLY_SIMPLE(client, rep);
     return Success;
 }                               /* ProcSecurityQueryVersion */
 
