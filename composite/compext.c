@@ -104,16 +104,17 @@ ProcCompositeQueryVersion(ClientPtr client)
 
     CompositeClientPtr pCompositeClient = GetCompositeClient(client);
 
-    xCompositeQueryVersionReply rep = { 0 };
+    xCompositeQueryVersionReply rep = {
+        .majorVersion = SERVER_COMPOSITE_MAJOR_VERSION,
+        .minorVersion = SERVER_COMPOSITE_MINOR_VERSION
+    };
 
+    /* if client asking for a lower version, use this one */
     if (stuff->majorVersion < SERVER_COMPOSITE_MAJOR_VERSION) {
         rep.majorVersion = stuff->majorVersion;
         rep.minorVersion = stuff->minorVersion;
     }
-    else {
-        rep.majorVersion = SERVER_COMPOSITE_MAJOR_VERSION;
-        rep.minorVersion = SERVER_COMPOSITE_MINOR_VERSION;
-    }
+
     pCompositeClient->major_version = rep.majorVersion;
     pCompositeClient->minor_version = rep.minorVersion;
     if (client->swapped) {
