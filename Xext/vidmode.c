@@ -392,21 +392,14 @@ ProcVidModeGetAllModeLines(ClientPtr client)
         return BadAlloc;
 
     xXF86VidModeGetAllModeLinesReply rep = {
-        .type = X_Reply,
-        .length = X_REPLY_HEADER_UNITS(xXF86VidModeGetAllModeLinesReply)
-                + x_rpcbuf_wsize_units(&rpcbuf),
-        .sequenceNumber = client->sequence,
         .modecount = modecount
     };
 
     if (client->swapped) {
-        swaps(&rep.sequenceNumber);
-        swapl(&rep.length);
         swapl(&rep.modecount);
     }
 
-    WriteToClient(client, sizeof(xXF86VidModeGetAllModeLinesReply), &rep);
-    WriteRpcbufToClient(client, &rpcbuf);
+    X_SEND_REPLY_WITH_RPCBUF(client, rep, rpcbuf);
     return Success;
 }
 
@@ -1249,23 +1242,13 @@ ProcVidModeGetMonitor(ClientPtr client)
         return BadAlloc;
 
     xXF86VidModeGetMonitorReply rep = {
-        .type = X_Reply,
-        .sequenceNumber = client->sequence,
         .nhsync = nHsync,
         .nvsync = nVrefresh,
         .vendorLength = x_safe_strlen(vendorStr),
         .modelLength = x_safe_strlen(modelStr),
-        .length = X_REPLY_HEADER_UNITS(xXF86VidModeGetMonitorReply) +
-                  x_rpcbuf_wsize_units(&rpcbuf)
     };
 
-    if (client->swapped) {
-        swaps(&rep.sequenceNumber);
-        swapl(&rep.length);
-    }
-
-    WriteToClient(client, sizeof(xXF86VidModeGetMonitorReply), &rep);
-    WriteRpcbufToClient(client, &rpcbuf);
+    X_SEND_REPLY_WITH_RPCBUF(client, rep, rpcbuf);
     return Success;
 }
 
@@ -1381,24 +1364,18 @@ ProcVidModeGetDotClocks(ClientPtr client)
         return BadAlloc;
 
     xXF86VidModeGetDotClocksReply rep = {
-        .type = X_Reply,
-        .sequenceNumber = client->sequence,
-        .length = X_REPLY_HEADER_UNITS(xXF86VidModeGetDotClocksReply) + numClocks,
         .clocks = numClocks,
         .maxclocks = MAXCLOCKS,
         .flags = (ClockProg ? CLKFLAG_PROGRAMABLE : 0),
     };
 
     if (client->swapped) {
-        swaps(&rep.sequenceNumber);
-        swapl(&rep.length);
         swapl(&rep.clocks);
         swapl(&rep.maxclocks);
         swapl(&rep.flags);
     }
 
-    WriteToClient(client, sizeof(xXF86VidModeGetDotClocksReply), &rep);
-    WriteRpcbufToClient(client, &rpcbuf);
+    X_SEND_REPLY_WITH_RPCBUF(client, rep, rpcbuf);
     return Success;
 }
 

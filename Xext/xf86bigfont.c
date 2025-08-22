@@ -527,16 +527,7 @@ ProcXF86BigfontQueryFont(ClientPtr client)
 
     {
         int nfontprops = pFont->info.nprops;
-        int rlength = nfontprops * sizeof(xFontProp)
-            + (nCharInfos > 0 && shmid == -1
-               ? nUniqCharInfos * sizeof(xCharInfo)
-               + (nCharInfos + 1) / 2 * 2 * sizeof(CARD16)
-               : 0);
-
         xXF86BigfontQueryFontReply rep = {
-            .type = X_Reply,
-            .length = X_REPLY_HEADER_UNITS(xXF86BigfontQueryFontReply) + rlength,
-            .sequenceNumber = client->sequence,
             .minBounds = pFont->info.ink_minbounds,
             .maxBounds = pFont->info.ink_maxbounds,
             .minCharOrByte2 = pFont->info.firstCol,
@@ -555,8 +546,6 @@ ProcXF86BigfontQueryFont(ClientPtr client)
         };
 
         if (client->swapped) {
-            swaps(&rep.sequenceNumber);
-            swapl(&rep.length);
             swapCharInfo(&rep.minBounds);
             swapCharInfo(&rep.maxBounds);
             swaps(&rep.minCharOrByte2);
@@ -591,8 +580,7 @@ ProcXF86BigfontQueryFont(ClientPtr client)
             goto out;
         }
 
-        WriteToClient(client, sizeof(xXF86BigfontQueryFontReply), &rep);
-        WriteRpcbufToClient(client, &rpcbuf);
+        X_SEND_REPLY_WITH_RPCBUF(client, rep, rpcbuf);
 out:
         if (nCharInfos > 0) {
             if (shmid == -1)

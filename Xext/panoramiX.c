@@ -1046,17 +1046,12 @@ ProcXineramaQueryScreens(ClientPtr client)
     /* REQUEST(xXineramaQueryScreensReq); */
     CARD32 number = (noPanoramiXExtension) ? 0 : PanoramiXNumScreens;
     xXineramaQueryScreensReply rep = {
-        .type = X_Reply,
-        .sequenceNumber = client->sequence,
-        .length = bytes_to_int32(number * sz_XineramaScreenInfo),
         .number = number
     };
 
     REQUEST_SIZE_MATCH(xXineramaQueryScreensReq);
 
     if (client->swapped) {
-        swaps(&rep.sequenceNumber);
-        swapl(&rep.length);
         swapl(&rep.number);
     }
 
@@ -1078,8 +1073,7 @@ ProcXineramaQueryScreens(ClientPtr client)
         }
     }
 
-    WriteToClient(client, sizeof(xXineramaQueryScreensReply), &rep);
-    WriteRpcbufToClient(client, &rpcbuf);
+    X_SEND_REPLY_WITH_RPCBUF(client, rep, rpcbuf);
     return Success;
 }
 

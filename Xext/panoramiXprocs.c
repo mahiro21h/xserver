@@ -2128,21 +2128,16 @@ PanoramiXGetImage(ClientPtr client)
     }
 
     xGetImageReply rep = {
-        .type = X_Reply,
-        .sequenceNumber = client->sequence,
         .visual = wVisual(((WindowPtr) pDraw)),
         .depth = pDraw->depth,
-        .length = bytes_to_int32(length),
     };
 
     if (client->swapped) {
         swaps(&rep.sequenceNumber);
-        swapl(&rep.length);
         swapl(&rep.visual);
     }
 
-    WriteToClient(client, sizeof(rep), &rep);
-    WriteRpcbufToClient(client, &rpcbuf);
+    X_SEND_REPLY_WITH_RPCBUF(client, rep, rpcbuf);
     return Success;
 }
 

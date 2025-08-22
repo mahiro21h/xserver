@@ -116,19 +116,13 @@ ProcXCMiscGetXIDList(ClientPtr client)
         return BadAlloc;
 
     xXCMiscGetXIDListReply rep = {
-        .type = X_Reply,
-        .sequenceNumber = client->sequence,
-        .length = count,
         .count = count
     };
     if (client->swapped) {
-        swaps(&rep.sequenceNumber);
-        swapl(&rep.length);
         swapl(&rep.count);
     }
 
-    WriteToClient(client, sizeof(xXCMiscGetXIDListReply), &rep);
-    WriteRpcbufToClient(client, &rpcbuf);
+    X_SEND_REPLY_WITH_RPCBUF(client, rep, rpcbuf);
     return Success;
 }
 
