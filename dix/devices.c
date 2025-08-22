@@ -1939,11 +1939,7 @@ ProcGetKeyboardMapping(ClientPtr client)
     const int count = syms->mapWidth * stuff->count;
 
     xGetKeyboardMappingReply rep = {
-        .type = X_Reply,
         .keySymsPerKeyCode = syms->mapWidth,
-        .sequenceNumber = client->sequence,
-        /* length is a count of 4 byte quantities and KeySyms are 4 bytes */
-        .length = count
     };
 
     x_rpcbuf_t rpcbuf = { .swapped = client->swapped, .err_clear = TRUE };
@@ -1958,13 +1954,7 @@ ProcGetKeyboardMapping(ClientPtr client)
     if (rpcbuf.error)
         return BadAlloc;
 
-    if (client->swapped) {
-        swaps(&rep.sequenceNumber);
-        swapl(&rep.length);
-    }
-
-    WriteToClient(client, sizeof(rep), &rep);
-    WriteRpcbufToClient(client, &rpcbuf);
+    X_SEND_REPLY_WITH_RPCBUF(client, rep, rpcbuf);
     return Success;
 }
 

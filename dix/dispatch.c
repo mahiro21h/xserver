@@ -1042,24 +1042,18 @@ ProcQueryTree(ClientPtr client)
         return BadAlloc;
 
     xQueryTreeReply rep = {
-        .type = X_Reply,
-        .sequenceNumber = client->sequence,
         .root = pWin->drawable.pScreen->root->drawable.id,
         .parent = (pWin->parent) ? pWin->parent->drawable.id : (Window) None,
         .nChildren = numChildren,
-        .length = x_rpcbuf_wsize_units(&rpcbuf)
     };
 
     if (client->swapped) {
-        swaps(&rep.sequenceNumber);
-        swapl(&rep.length);
         swapl(&rep.root);
         swapl(&rep.parent);
         swaps(&rep.nChildren);
     }
 
-    WriteToClient(client, sizeof(rep), &rep);
-    WriteRpcbufToClient(client, &rpcbuf);
+    X_SEND_REPLY_WITH_RPCBUF(client, rep, rpcbuf);
     return Success;
 }
 
