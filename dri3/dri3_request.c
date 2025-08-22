@@ -66,8 +66,6 @@ proc_dri3_query_version(ClientPtr client)
     REQUEST(xDRI3QueryVersionReq);
 
     xDRI3QueryVersionReply rep = {
-        .type = X_Reply,
-        .sequenceNumber = client->sequence,
         .majorVersion = SERVER_DRI3_MAJOR_VERSION,
         .minorVersion = SERVER_DRI3_MINOR_VERSION
     };
@@ -113,12 +111,10 @@ proc_dri3_query_version(ClientPtr client)
     }
 
     if (client->swapped) {
-        swaps(&rep.sequenceNumber);
-        swapl(&rep.length);
         swapl(&rep.majorVersion);
         swapl(&rep.minorVersion);
     }
-    WriteToClient(client, sizeof(rep), &rep);
+    X_SEND_REPLY_SIMPLE(client, rep);
     return Success;
 }
 
@@ -126,23 +122,15 @@ int
 dri3_send_open_reply(ClientPtr client, int fd)
 {
     xDRI3OpenReply rep = {
-        .type = X_Reply,
         .nfd = 1,
-        .sequenceNumber = client->sequence,
     };
-
-    if (client->swapped) {
-        swaps(&rep.sequenceNumber);
-        swapl(&rep.length);
-    }
 
     if (WriteFdToClient(client, fd, TRUE) < 0) {
         close(fd);
         return BadAlloc;
     }
 
-    WriteToClient(client, sizeof (rep), &rep);
-
+    X_SEND_REPLY_SIMPLE(client, rep);
     return Success;
 }
 
@@ -272,9 +260,7 @@ proc_dri3_buffer_from_pixmap(ClientPtr client)
     }
 
     xDRI3BufferFromPixmapReply rep = {
-        .type = X_Reply,
         .nfd = 1,
-        .sequenceNumber = client->sequence,
         .width = pixmap->drawable.width,
         .height = pixmap->drawable.height,
         .depth = pixmap->drawable.depth,
@@ -286,8 +272,6 @@ proc_dri3_buffer_from_pixmap(ClientPtr client)
         return BadPixmap;
 
     if (client->swapped) {
-        swaps(&rep.sequenceNumber);
-        swapl(&rep.length);
         swapl(&rep.size);
         swaps(&rep.width);
         swaps(&rep.height);
@@ -298,8 +282,7 @@ proc_dri3_buffer_from_pixmap(ClientPtr client)
         return BadAlloc;
     }
 
-    WriteToClient(client, sizeof(rep), &rep);
-
+    X_SEND_REPLY_SIMPLE(client, rep);
     return Success;
 }
 
@@ -334,9 +317,7 @@ proc_dri3_fd_from_fence(ClientPtr client)
 {
     REQUEST(xDRI3FDFromFenceReq);
     xDRI3FDFromFenceReply rep = {
-        .type = X_Reply,
         .nfd = 1,
-        .sequenceNumber = client->sequence,
     };
     DrawablePtr drawable;
     int fd;
@@ -356,15 +337,10 @@ proc_dri3_fd_from_fence(ClientPtr client)
     if (fd < 0)
         return BadMatch;
 
-    if (client->swapped) {
-        swaps(&rep.sequenceNumber);
-        swapl(&rep.length);
-    }
     if (WriteFdToClient(client, fd, FALSE) < 0)
         return BadAlloc;
 
-    WriteToClient(client, sizeof(rep), &rep);
-
+    X_SEND_REPLY_SIMPLE(client, rep);
     return Success;
 }
 
