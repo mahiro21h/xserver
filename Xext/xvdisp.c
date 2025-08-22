@@ -128,20 +128,14 @@ ProcXvQueryAdaptors(ClientPtr client)
     }
 
     xvQueryAdaptorsReply rep = {
-        .type = X_Reply,
-        .sequenceNumber = client->sequence,
         .num_adaptors = numAdaptors,
-        .length = x_rpcbuf_wsize_units(&rpcbuf)
     };
 
     if (client->swapped) {
-        swaps(&rep.sequenceNumber);
-        swapl(&rep.length);
         swaps(&rep.num_adaptors);
     }
 
-    WriteToClient(client, sizeof(rep), &rep);
-    WriteRpcbufToClient(client, &rpcbuf);
+    X_SEND_REPLY_WITH_RPCBUF(client, rep, rpcbuf);
     return Success;
 }
 
@@ -176,20 +170,14 @@ ProcXvQueryEncodings(ClientPtr client)
         return BadAlloc;
 
     xvQueryEncodingsReply rep = {
-        .type = X_Reply,
-        .sequenceNumber = client->sequence,
         .num_encodings = pPort->pAdaptor->nEncodings,
-        .length = x_rpcbuf_wsize_units(&rpcbuf),
     };
 
     if (client->swapped) {
-        swaps(&rep.sequenceNumber);
-        swapl(&rep.length);
         swaps(&rep.num_encodings);
     }
 
-    WriteToClient(client, sizeof(rep), &rep);
-    WriteRpcbufToClient(client, &rpcbuf);
+    X_SEND_REPLY_WITH_RPCBUF(client, rep, rpcbuf);
     return Success;
 }
 
@@ -568,22 +556,16 @@ ProcXvQueryPortAttributes(ClientPtr client)
         return BadAlloc;
 
     xvQueryPortAttributesReply rep = {
-        .type = X_Reply,
-        .sequenceNumber = client->sequence,
         .num_attributes = pPort->pAdaptor->nAttributes,
-        .length = x_rpcbuf_wsize_units(&rpcbuf),
         .text_size = textSize,
     };
 
     if (client->swapped) {
-        swaps(&rep.sequenceNumber);
-        swapl(&rep.length);
         swapl(&rep.num_attributes);
         swapl(&rep.text_size);
     }
 
-    WriteToClient(client, sizeof(rep), &rep);
-    WriteRpcbufToClient(client, &rpcbuf);
+    X_SEND_REPLY_WITH_RPCBUF(client, rep, rpcbuf);
     return Success;
 }
 
@@ -804,9 +786,6 @@ ProcXvQueryImageAttributes(ClientPtr client)
                                                        pitches);
 
     xvQueryImageAttributesReply rep = {
-        .type = X_Reply,
-        .sequenceNumber = client->sequence,
-        .length = x_rpcbuf_wsize_units(&rpcbuf),
         .num_planes = num_planes,
         .width = width,
         .height = height,
@@ -814,8 +793,6 @@ ProcXvQueryImageAttributes(ClientPtr client)
     };
 
     if (client->swapped) {
-        swaps(&rep.sequenceNumber);
-        swapl(&rep.length);
         swapl(&rep.num_planes);
         swapl(&rep.data_size);
         swaps(&rep.width);
@@ -825,8 +802,7 @@ ProcXvQueryImageAttributes(ClientPtr client)
         SwapLongs((CARD32 *) offsets, x_rpcbuf_wsize_units(&rpcbuf));
     }
 
-    WriteToClient(client, sz_xvQueryImageAttributesReply, &rep);
-    WriteRpcbufToClient(client, &rpcbuf);
+    X_SEND_REPLY_WITH_RPCBUF(client, rep, rpcbuf);
     return Success;
 }
 
@@ -891,20 +867,14 @@ ProcXvListImageFormats(ClientPtr client)
                    rpcbuf.wpos, (pPort->pAdaptor->nImages*sz_xvImageFormatInfo));
 
     xvListImageFormatsReply rep = {
-        .type = X_Reply,
-        .sequenceNumber = client->sequence,
         .num_formats = pPort->pAdaptor->nImages,
-        .length = x_rpcbuf_wsize_units(&rpcbuf)
     };
 
     if (client->swapped) {
-        swaps(&rep.sequenceNumber);
-        swapl(&rep.length);
         swapl(&rep.num_formats);
     }
 
-    WriteToClient(client, sz_xvListImageFormatsReply, &rep);
-    WriteRpcbufToClient(client, &rpcbuf);
+    X_SEND_REPLY_WITH_RPCBUF(client, rep, rpcbuf);
     return Success;
 }
 
