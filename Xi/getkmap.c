@@ -121,20 +121,10 @@ ProcXGetDeviceKeyMapping(ClientPtr client)
         return BadAlloc;
 
     xGetDeviceKeyMappingReply rep = {
-        .repType = X_Reply,
         .RepType = X_GetDeviceKeyMapping,
-        .sequenceNumber = client->sequence,
         .keySymsPerKeyCode = mapWidth,
-        .length = numKeySyms /* KeySyms are 4 bytes */
     };
 
-    if (client->swapped) {
-        swaps(&rep.sequenceNumber);
-        swapl(&rep.length);
-    }
-
-    WriteToClient(client, sizeof(xGetDeviceKeyMappingReply), &rep);
-    WriteRpcbufToClient(client, &rpcbuf);
-
+    X_SEND_REPLY_WITH_RPCBUF(client, rep, rpcbuf);
     return Success;
 }
