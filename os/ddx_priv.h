@@ -24,4 +24,14 @@ void ddxGiveUp(enum ExitCode error);
 
 void ddxInputThreadInit(void);
 
+typedef enum ddxattr {
+    dontVTSwitch,
+    dontZap,
+} enum_ddxattr;
+
+extern Bool get_ddxInfo(enum ddxattr attr);
+extern void set_ddxInfo(enum ddxattr attr, Bool val);
+
+void set_ddxInfo(enum ddxattr attr, int val);
+
 #endif /* _XSERVER_OS_DDX_PRIV_H */

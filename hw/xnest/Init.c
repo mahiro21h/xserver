@@ -182,3 +182,10 @@ ddxInputThreadInit(void)
 {
 }
 #endif
+
+void set_ddxInfo(enum_ddxattr attr, Bool val) {
+}
+
+Bool get_ddxInfo(enum_ddxattr attr) {
+    return FALSE;
+}

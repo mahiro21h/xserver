@@ -1342,3 +1342,27 @@ ddxInputThreadInit(void)
     xf86OSInputThreadInit();
 }
 #endif
+
+void set_ddxInfo(enum ddxattr attr, Bool val) {
+    switch (attr) {
+        case dontVTSwitch:
+            xf86Info.dontVTSwitch = val;
+            break;
+        case dontZap:
+            xf86Info.dontZap = val;
+            break;
+        default:
+            break;
+    }
+}
+
+Bool get_ddxInfo(enum ddxattr attr) {
+    switch (attr) {
+        case dontVTSwitch:
+            return xf86Info.dontVTSwitch;
+        case dontZap:
+            return xf86Info.dontZap;
+        default:
+            return 0;
+    }
+}

@@ -140,4 +140,7 @@ int ProcUninstallColormap(ClientPtr /* client */ );
 int ProcUnmapSubwindows(ClientPtr /* client */ );
 int ProcUnmapWindow(ClientPtr /* client */ );
 
+void set_ddxInfo_wrap(enum ddxattr attr, Bool val);
+Bool get_ddxInfo_wrap(enum ddxattr attr);
+
 #endif                          /* DISPATCH_H */

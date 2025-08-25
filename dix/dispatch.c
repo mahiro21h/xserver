@@ -590,6 +590,15 @@ Dispatch(void)
     ResetOsBuffers();
 }
 
+#include "hw/xfree86/common/xf86Priv.h"
+Bool get_ddxInfo_wrap(enum ddxattr attr) {
+    return get_ddxInfo(attr);
+}
+
+void set_ddxInfo_wrap(enum ddxattr attr, int val) {
+    set_ddxInfo(attr, val);
+}
+
 Bool
 CreateConnectionBlock(void)
 {

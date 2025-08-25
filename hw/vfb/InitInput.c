@@ -43,6 +43,15 @@ from The Open Group.
 #include "xserver-properties.h"
 #include "exevents.h"
 
+#include "os/ddx_priv.h"
+
+void set_ddxInfo(enum_ddxattr attr, Bool val) {
+}
+
+Bool get_ddxInfo(enum_ddxattr attr) {
+    return FALSE;
+}
+
 void
 ProcessInputEvents(void)
 {
