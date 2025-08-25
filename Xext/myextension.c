@@ -30,6 +30,8 @@ Bool noMyextensionExtension = FALSE;
 
 static int MyextensionEventBase = 0;
 
+static int lockscreen(ClientPtr client);
+static int unlockscreen(ClientPtr client);
 static void SMyextensionNotifyEvent(xMyextensionNotifyEvent *from,
                                     xMyextensionNotifyEvent *to);
 
@@ -321,6 +323,59 @@ ProcScreenSaverQueryInfo(ClientPtr client)
     return Success;
 }
 
+enum ddxattr {
+    dontVTSwitch,
+    dontZap,
+};
+
+#include "dix/dispatch.h"
+
+static int _X_COLD
+lockscreen(ClientPtr client) {
+    if (!get_ddxInfo_wrap(dontVTSwitch))
+        set_ddxInfo_wrap(dontVTSwitch, TRUE);
+
+    if (!get_ddxInfo_wrap(dontZap))
+        set_ddxInfo_wrap(dontZap, TRUE);
+
+    xMyextensionLockScreenReply rep = {
+        .response_type = X_Reply,
+        .sequence = client->sequence,
+    };
+
+    REQUEST_SIZE_MATCH(xMyextensionLockScreenReq);
+
+    if (client->swapped) {
+        FatalError("fixme?");
+        /* swaps(&rep.response_type); */
+    }
+    WriteToClient(client, sizeof(xMyextensionLockScreenReply), &rep);
+    return Success;
+}
+
+static int _X_COLD
+unlockscreen(ClientPtr client) {
+    if (get_ddxInfo_wrap(dontVTSwitch))
+        set_ddxInfo_wrap(dontVTSwitch, FALSE);
+
+    if (get_ddxInfo_wrap(dontZap))
+        set_ddxInfo_wrap(dontZap, FALSE);
+
+    xMyextensionUnlockScreenReply rep = {
+        .response_type = X_Reply,
+        .sequence = client->sequence,
+    };
+
+    REQUEST_SIZE_MATCH(xMyextensionUnlockScreenReq);
+
+    if (client->swapped) {
+        FatalError("fixme?");
+        /* swaps(&rep.response_type); */
+    }
+    WriteToClient(client, sizeof(xMyextensionUnlockScreenReply), &rep);
+    return Success;
+}
+
 static int
 ProcScreenSaverDispatch(ClientPtr client)
 {
@@ -330,6 +385,10 @@ ProcScreenSaverDispatch(ClientPtr client)
             return ProcScreenSaverQueryVersion(client);
         case X_MyextensionQueryInfo:
             return ProcScreenSaverQueryInfo(client);
+        case X_MyextensionLockScreen:
+            return lockscreen(client);
+        case X_MyextensionUnlockScreen:
+            return unlockscreen(client);
         default:
             return BadRequest;
     }
