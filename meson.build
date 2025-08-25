@@ -90,6 +90,7 @@ videoproto_dep = dependency('videoproto', fallback: ['xorgproto', 'ext_xorgproto
 compositeproto_dep = dependency('compositeproto', version: '>= 0.4', fallback: ['xorgproto', 'ext_xorgproto'])
 recordproto_dep = dependency('recordproto', version: '>= 1.13.99.1', fallback: ['xorgproto', 'ext_xorgproto'])
 scrnsaverproto_dep = dependency('scrnsaverproto', version: '>= 1.1', fallback: ['xorgproto', 'ext_xorgproto'])
+myextensionproto_dep = dependency('myextensionproto', version: '>= 1.0', fallback: ['xorgproto', 'ext_xorgproto'])
 resourceproto_dep = dependency('resourceproto', version: '>= 1.2.0', fallback: ['xorgproto', 'ext_xorgproto'])
 xf86driproto_dep = dependency('xf86driproto', version: '>= 2.1.0', fallback: ['xorgproto', 'ext_xorgproto'], required: get_option('dri1') == 'true')
 dri2proto_dep = dependency('dri2proto', version: '>= 2.8', fallback: ['xorgproto', 'ext_xorgproto'], required: get_option('dri2') == 'true')
@@ -501,6 +502,7 @@ endif
 
 build_xf86bigfont = get_option('xf86bigfont')
 build_screensaver = get_option('screensaver')
+build_myextension = get_option('myextension')
 build_res = get_option('xres')
 if build_res
     build_hashtable = true

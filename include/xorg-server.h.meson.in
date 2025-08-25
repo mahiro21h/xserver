@@ -78,6 +78,8 @@
 /* Support MIT-SCREEN-SAVER extension */
 #mesondefine SCREENSAVER
 
+#mesondefine MYEXTENSION
+
 /* Support SHAPE extension */
 #mesondefine SHAPE
 

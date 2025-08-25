@@ -37,6 +37,10 @@ if build_xace
     srcs_xext += 'xace.c'
 endif
 
+if build_myextension
+    srcs_xext += 'myextension.c'
+endif
+
 if build_xf86bigfont
     srcs_xext += 'xf86bigfont.c'
 endif

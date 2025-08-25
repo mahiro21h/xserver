@@ -167,6 +167,9 @@ static const ExtensionModule staticExtensions[] = {
 #ifdef GLXEXT
     {GlxExtensionInit, "GLX", &noGlxExtension},
 #endif
+#ifdef MYEXTENSION
+    {MyextensionExtensionInit, "MIT-MY-EXTENSION", &noMyextensionExtension},
+#endif
 };
 
 void

@@ -43,6 +43,7 @@
 #define EXTENSION_MAJOR_XTEST               (EXTENSION_BASE + 33)
 #define EXTENSION_MAJOR_XVIDEO              (EXTENSION_BASE + 34)
 #define EXTENSION_MAJOR_XVMC                (EXTENSION_BASE + 35)
+#define EXTENSION_MAJOR_MYEXTENSION         (EXTENSION_BASE + 36)
 
 #define RESERVED_EXTENSIONS                 38
 

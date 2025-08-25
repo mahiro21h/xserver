@@ -106,6 +106,7 @@ static struct { const char *name; int id; } reservedExt[] = {
     { "XTEST",                      EXTENSION_MAJOR_XTEST },
     { "XVideo",                     EXTENSION_MAJOR_XVIDEO },
     { "XVideo-MotionCompensation",  EXTENSION_MAJOR_XVMC },
+    { "MIT-MY-EXTENSION",           EXTENSION_MAJOR_MYEXTENSION },
 };
 
 static int checkReserved(const char* name)
