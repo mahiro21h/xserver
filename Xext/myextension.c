@@ -260,7 +260,7 @@ SMyextensionNotifyEvent(xMyextensionNotifyEvent * from,
 }
 
 static int
-ProcScreenSaverQueryVersion(ClientPtr client)
+ProcMyextensionQueryVersion(ClientPtr client)
 {
     xMyextensionQueryVersionReply rep = {
         .type = X_Reply,
@@ -277,49 +277,6 @@ ProcScreenSaverQueryVersion(ClientPtr client)
         swaps(&rep.minorVersion);
     }
     WriteToClient(client, sizeof(xMyextensionQueryVersionReply), &rep);
-    return Success;
-}
-
-static int
-ProcScreenSaverQueryInfo(ClientPtr client)
-{
-    REQUEST(xMyextensionQueryInfoReq);
-    int rc;
-    ScreenSaverStuffPtr pSaver;
-    DrawablePtr pDraw;
-    CARD32 lastInput;
-    MyextensionScreenPrivatePtr pPriv;
-
-    REQUEST_SIZE_MATCH(xMyextensionQueryInfoReq);
-    rc = dixLookupDrawable(&pDraw, stuff->drawable, client, 0,
-                           DixGetAttrAccess);
-    if (rc != Success)
-        return rc;
-    rc = XaceHookScreensaverAccess(client, pDraw->pScreen, DixGetAttrAccess);
-    if (rc != Success)
-        return rc;
-
-    pSaver = &pDraw->pScreen->screensaver;
-    pPriv = GetScreenPrivate(pDraw->pScreen);
-
-    UpdateCurrentTime();
-    lastInput = GetTimeInMillis() - LastEventTime(XIAllDevices).milliseconds;
-
-    xMyextensionQueryInfoReply rep = {
-        .type = X_Reply,
-        .sequenceNumber = client->sequence,
-        .window = pSaver->wid
-    };
-    rep.idle = lastInput;
-    rep.eventMask = getEventMask(pDraw->pScreen, client);
-    if (client->swapped) {
-        swaps(&rep.sequenceNumber);
-        swapl(&rep.window);
-        swapl(&rep.tilOrSince);
-        swapl(&rep.idle);
-        swapl(&rep.eventMask);
-    }
-    WriteToClient(client, sizeof(xMyextensionQueryInfoReply), &rep);
     return Success;
 }
 
@@ -382,9 +339,7 @@ ProcScreenSaverDispatch(ClientPtr client)
     REQUEST(xReq);
     switch (stuff->data) {
         case X_MyextensionQueryVersion:
-            return ProcScreenSaverQueryVersion(client);
-        case X_MyextensionQueryInfo:
-            return ProcScreenSaverQueryInfo(client);
+            return ProcMyextensionQueryVersion(client);
         case X_MyextensionLockScreen:
             return lockscreen(client);
         case X_MyextensionUnlockScreen:
@@ -395,24 +350,16 @@ ProcScreenSaverDispatch(ClientPtr client)
 }
 
 static int _X_COLD
-SProcScreenSaverDispatch(ClientPtr client)
+SProcScreenSaverDispatch(ClientPtr client) /* TODO: add swapped versions of funcs */
 {
+    FatalError("todo");
     REQUEST(xReq);
     switch (stuff->data) {
         case X_MyextensionQueryVersion:
-            return ProcScreenSaverQueryVersion(client);
+            return ProcMyextensionQueryVersion(client);
         default:
             return BadRequest;
     }
-}
-
-static int _X_COLD
-SProcScreenSaverQueryInfo(ClientPtr client)
-{
-    REQUEST(xMyextensionQueryInfoReq);
-    REQUEST_SIZE_MATCH(xMyextensionQueryInfoReq);
-    swapl(&stuff->drawable);
-    return ProcScreenSaverQueryInfo(client);
 }
 
 void
