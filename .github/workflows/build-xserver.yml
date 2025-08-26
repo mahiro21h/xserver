@@ -67,6 +67,8 @@ jobs:
                   name: build-logs
                   path: |
                       build/meson-logs/*
+                      build/test/piglit-results/*
+
             - name: ddx build check
               run:  .gitlab-ci/check-ddx-build.sh
             - name: manpage check
@@ -176,6 +178,8 @@ jobs:
                   name: build-logs-macos
                   path: |
                       build/meson-logs/*
+                      build/test/piglit-results/*
+
             - name: ddx build check
               run:  .gitlab-ci/check-ddx-build.sh
             - name: manpage check
