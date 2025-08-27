@@ -46,10 +46,17 @@ rendercheck_tests_noblend = [
     ['mask coordinates', '-t mcoords'],
     ['translated source coordinates', '-t tscoords'],
     ['translated mask coordinates', '-t tmcoords'],
-    ['triangles', '-t triangles'],
     ['LibreOffice xRGB', '-t libreoffice_xrgb'],
     ['GTK ARGB vs xBGR', '-t gtk_argb_xbgr'],
 ]
+
+if get_option('test_rendercheck_triangles')
+    message('testsuite: rendercheck triangles enabled - expected to fail on Xephyr')
+    rendercheck_tests_noblend += [ ['triangles', '-t triangles'] ]
+else
+    message('testsuite: rendercheck triangles disabled')
+endif
+
 rendercheck_blend = [
     ['blend/Clear', '-t blend -o clear'],
     ['blend/Src', '-t blend -o src'],

@@ -147,3 +147,7 @@ option('devel-docs', type: 'combo', choices: ['true', 'false', 'auto'], value: '
         description: 'Build development documentation')
 option('docs-pdf', type: 'combo', choices: ['true', 'false', 'auto'], value: 'auto',
         description: 'Whether to build PDF version of documentation. Setting is ignored if documentation is not built.')
+
+# testsuite fine tuning - some things might not run everywhere
+option('test_rendercheck_triangles', type: 'boolean', value: false,
+       description: 'testsuite: run rendercheck triangles tests (might fail on Xephyr)')
