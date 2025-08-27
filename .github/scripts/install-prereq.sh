@@ -16,6 +16,7 @@ build_ac      xorgproto         https://gitlab.freedesktop.org/xorg/proto/xorgpr
 if [ "$X11_OS" = "Darwin" ]; then
 build_ac      xset              https://gitlab.freedesktop.org/xorg/app/xset             xset-1.2.5
 fi
+# really must be build via autoconf instead of meson, otherwise piglit wont find the test programs
 build_ac_xts  xts               https://gitlab.freedesktop.org/xorg/test/xts             12a887c2c72c4258962b56ced7b0aec782f1ffed
 
 clone_source piglit             https://gitlab.freedesktop.org/mesa/piglit               28d1349844eacda869f0f82f551bcd4ac0c4edfe
