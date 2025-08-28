@@ -57,9 +57,8 @@ jobs:
             - name: build
               run:  .gitlab-ci/meson-build.sh
 
-            - name: tests (may fail)
-              continue-on-error: true
-              run:  meson test -C "${{ env.MESON_BUILDDIR }}" --print-errorlogs || true
+            - name: tests
+              run:  meson test -C "${{ env.MESON_BUILDDIR }}" --print-errorlogs
               env:
                   XTEST_DIR:  ${{ env.X11_BUILD_DIR }}/xts
                   PIGLIT_DIR: ${{ env.X11_BUILD_DIR }}/piglit
