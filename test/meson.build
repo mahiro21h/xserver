@@ -112,7 +112,11 @@ if get_option('xvfb')
     endif
 
     if get_option('xephyr') and build_glamor
-        foreach testsuite : ['','-gles2','-gles3']
+        glamor_tests = ['']
+        if get_option('test_xephyr_gles')
+            glamor_tests += ['-gles2','-gles3']
+        endif
+        foreach testsuite : glamor_tests
             test_env = piglit_env
             if(testsuite == '-gles2')
                 test_env = gles20_env
