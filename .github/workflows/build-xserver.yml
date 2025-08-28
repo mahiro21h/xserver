@@ -16,6 +16,9 @@ jobs:
     xserver-build-ubuntu:
         env:
             MESON_ARGS: -Dc_args="-fno-common" -Dprefix=/usr -Dxephyr=true -Dwerror=false -Dxcsecurity=true -Dxorg=true -Dxvfb=true -Dxnest=true
+            LIBGL_ALWAYS_SOFTWARE: 1
+            GALLIUM_DRIVER: llvmpipe
+            PIGLIT_PLATFORM: x11_egl
         runs-on: ubuntu-latest
         steps:
             - name: Check out repository code
