@@ -104,7 +104,11 @@ build_ac_xts() {
                 fi
             fi
             ./autogen.sh --prefix=$X11_PREFIX CFLAGS="$CFLAGS"
-            xvfb-run make -j${FDO_CI_CONCURRENT:-4} install tetexec.cfg
+            if [ "$X11_OS" = "Darwin" ]; then
+                make -j${FDO_CI_CONCURRENT:-4} install tetexec.cfg
+            else
+                xvfb-run make -j${FDO_CI_CONCURRENT:-4} install tetexec.cfg
+            fi
         )
         touch $X11_PREFIX/$pkgname.DONE
         echo "::endgroup::"
