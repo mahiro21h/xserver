@@ -28,8 +28,6 @@
 
 #ifdef FB_DEBUG
 static void fbInitializeDrawable(DrawablePtr pDrawable);
-#else
-static inline void fbInitializeDrawable(DrawablePtr pDrawable) {}
 #endif
 
 PixmapPtr
