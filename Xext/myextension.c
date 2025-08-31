@@ -78,6 +78,60 @@ unlockscreen(ClientPtr client) {
     return Success;
 }
 
+/*
+ * UNUSED. this function fetches the name of the process whose pid is `pid`
+ * from `/proc/pid/stat` and waits for the file to be gone ideally,
+ * or contain a different name than `procname`. this function is linux-specific.
+ */
+static int
+wait_process(pid_t pid) {
+    char filepath[255];
+    sprintf(filepath, "/proc/%d/stat", pid);
+    LogMessage(X_INFO, "file: '%s'\n", filepath);
+
+    char * procname = NULL;
+
+    static const struct timespec sleep = {
+        .tv_sec = 0, .tv_nsec = (300 * 1000 * 1000) /* 300ms */
+    };
+    while(1) {
+        LogMessage(X_INFO, "checking...\n");
+        FILE * stat = fopen(filepath, "r");
+        if (!stat && procname) { /* we'll assume file no longer exists.
+                                  * process died */
+            free(procname);
+            return 0;
+        }
+
+        if (!stat)
+            return -1;
+
+        char * tmp;
+        fscanf(stat, "%*d (%ms", &tmp);
+        if (!tmp)
+            return -2;
+        tmp[strlen(tmp) - 1] = '\0';
+
+        fclose(stat);
+
+        if (!procname) {
+            procname = strdup(tmp);
+            if (!procname)
+                return -2;
+            goto check_again;
+        } else if (strcmp(procname, tmp) == 0)
+            goto check_again;
+
+        break; /* original process died but a new
+                * procces spawned with an identical pid */
+    check_again:
+        free(tmp);
+        nanosleep(&sleep, NULL);
+    }
+
+    return 0;
+}
+
 static void *
 restart_client(_X_UNUSED void * vargp) {
     int err = pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, NULL);
