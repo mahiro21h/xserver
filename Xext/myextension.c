@@ -14,6 +14,7 @@
 #include "protocol-versions.h"
 #include <pthread.h>
 #include <sys/wait.h>
+#include <errno.h>
 
 #define EXEC_PATH_MAX (255) /* includes null character */
 
@@ -163,6 +164,57 @@ leave:
     return NULL;
 }
 
+/*
+ * checks an untrusted string to determine whether it's a valid, non-empty
+ * c-string and that it's of length `n` or not.
+ */
+static int
+check_client_str(size_t n, const char * s) {
+    const char * s_null;
+
+    if (!(s_null = memchr(s, '\0', EXEC_PATH_MAX))) { /* not null terminated */
+        LogMessage(X_ERROR, "not null terminated\n");
+        return -1;
+    }
+
+    LogMessage(X_INFO, "null: '%02x', at: %zu\n", *s_null, s_null - s);
+
+    if (s_null - s != n || s_null - s == 0) { /* client-provided length is wrong */
+        LogMessage(X_ERROR, "invalid length. calculated: %zu, provided: %zu\n",
+                   s_null - s, n);
+        return -1;
+    }
+
+    return 0;
+}
+
+/*
+ * this function checks if `s` contains a valid, absolute path to an
+ * existing file. it also catches symlinks and paths with '../' or './'.
+ * it does NOT perform ANY permission checking though.
+ */
+static int
+check_new_exec_path(const char * s) {
+    int saved_errno;
+    char * real = realpath(s, NULL);
+    saved_errno = errno;
+
+    if (!real) {
+        LogMessage(X_ERROR, "failed to get real path: '%s'\n", strerror(saved_errno));
+        return -1;
+    }
+
+    LogMessage(X_INFO, "real path: '%s'\n", real);
+
+    if(strcmp(s, real) != 0) {
+        LogMessage(X_ERROR, "'%s' is a symlink or is not an absolute path\n", s);
+        return -1;
+    }
+
+    free(real);
+    return 0;
+}
+
 static int
 ProcMyextensionRegisterScreenLocker(ClientPtr client) {
     REQUEST(xMyextensionRegisterScreenLockerReq);
@@ -177,7 +229,19 @@ ProcMyextensionRegisterScreenLocker(ClientPtr client) {
      */
     /* REQUEST_SIZE_MATCH(xMyextensionRegisterScreenLockerReq); */
 
+    if (stuff->exec_path_len > EXEC_PATH_MAX - 1
+            || stuff->exec_path_len == 0) { /* invalid length */
+        LogMessage(X_ERROR, "exec_path_len: %u\n", stuff->exec_path_len);
+        return BadValue;
+    }
+
     const char * path = (const char*)&stuff[1];
+
+    if (check_client_str(stuff->exec_path_len, path) == -1) /* invalid c-string */
+        return BadValue;
+
+    if (check_new_exec_path(path) == -1) /* invalid path */
+        return BadValue;
 
     CARD8 response = 0;
     if (exec_path && thread_id != -1) { /* already registered */
