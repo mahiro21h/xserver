@@ -2,6 +2,7 @@
 #include <X11/Xmd.h>
 #include <dix-config.h>
 
+#include <stdatomic.h>
 #include <stdio.h>
 #include <X11/X.h>
 #include <X11/Xproto.h>
@@ -25,6 +26,7 @@ static int unlockscreen(ClientPtr client);
 
 static char * exec_path = NULL;
 static pthread_t thread_id = -1;
+static atomic_int thread_run = -1; /* not 100% sure if this type is safe */
 static pid_t proc_id = -1;
 
 static int
@@ -135,14 +137,10 @@ wait_process(pid_t pid) {
 
 static void *
 restart_client(_X_UNUSED void * vargp) {
-    int err = pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, NULL);
-    if (err != 0)
-        LogMessage(X_ERROR, "%s: failed to set cancel type\n", __func__);
-
     /* if (proc_id != -1) */
     /*     wait_process(proc_id); /\* wait for original process *\/ */
 
-    while (1) {
+    while (thread_run == 1) {
         switch(fork()) {
         case -1:
             /* TODO: try again */
@@ -254,6 +252,8 @@ ProcMyextensionRegisterScreenLocker(ClientPtr client) {
     if (!(exec_path = Xstrdup(path)))
         return BadAlloc;
 
+    /* start restart_clinet thread */
+    thread_run = 1;
     if (pthread_create(&thread_id, NULL, restart_client, NULL) != 0) {
         free(exec_path);
         exec_path = NULL;
@@ -295,8 +295,12 @@ ProcMyextensionUnregisterScreenLocker(ClientPtr client) {
     }
 
     if (thread_id != -1) {
-        pthread_cancel(thread_id);
-        thread_id = -1;
+        /*
+         * thread is running client in `exec_path`, and client is
+         * making the current request. no choice but to make `thread_run` false
+         * and hope the client exits so the thread can exit.
+         */
+        thread_run = thread_id = -1;
     }
 
     return Success;
