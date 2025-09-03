@@ -740,19 +740,24 @@ compPaintChildrenToWindow(WindowPtr pWin)
 WindowPtr
 CompositeRealChildHead(WindowPtr pWin)
 {
-    WindowPtr pChild, pChildBefore;
+    WindowPtr pChild, pChildBefore = NullWindow;
     CompScreenPtr cs;
 
-    if (!pWin->parent &&
-        (screenIsSaved == SCREEN_SAVER_ON) &&
-        (HasSaverWindow(pWin->drawable.pScreen))) {
+    if (!pWin->parent) {
+        if (HasLockerWindow(pWin->drawable.pScreen)) {
+            /* First child is the screen locker, so use next child instead */
+            pChildBefore = pWin->firstChild;
+            pChild = pChildBefore->nextSib;
+        }
 
-        /* First child is the screen saver; see if next child is the overlay */
-        pChildBefore = pWin->firstChild;
-        pChild = pChildBefore->nextSib;
-
-    }
-    else {
+        if ((screenIsSaved == SCREEN_SAVER_ON) &&
+            (HasSaverWindow(pWin->drawable.pScreen))) {
+            /* `pChildBefore` is the screen saver if set; see if next child
+             * is the overlay */
+            pChildBefore = pChildBefore? pChildBefore->nextSib: pWin->firstChild;
+            pChild = pChildBefore->nextSib;
+        }
+    } else {
         pChildBefore = NullWindow;
         pChild = pWin->firstChild;
     }
