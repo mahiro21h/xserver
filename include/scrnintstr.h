@@ -533,6 +533,7 @@ typedef struct _Screen {
     VisualPtr visuals;
     WindowPtr root;
     ScreenSaverStuffRec screensaver;
+    Bool screenlocker;
 
     DevPrivateSetRec    screenSpecificPrivates[PRIVATE_LAST];
 

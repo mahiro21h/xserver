@@ -209,6 +209,7 @@ typedef struct _ScreenSaverStuff *ScreenSaverStuffPtr;
 #define SCREEN_IS_BLACK	    3
 
 #define HasSaverWindow(pScreen)   (pScreen->screensaver.pWindow != NullWindow)
+#define HasLockerWindow(pScreen)   (pScreen->screenlocker == 1)
 
 extern _X_EXPORT int screenIsSaved;
 
