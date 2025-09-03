@@ -16,6 +16,10 @@
 #include <pthread.h>
 #include <sys/wait.h>
 #include <errno.h>
+#include "dix/window_priv.h"
+#include "dix/dix_priv.h"
+#include "resource.h"
+#include "windowstr.h"
 
 #define EXEC_PATH_MAX (255) /* includes null character */
 
@@ -28,6 +32,8 @@ static char * exec_path = NULL;
 static pthread_t thread_id = -1;
 static atomic_int thread_run = -1; /* not 100% sure if this type is safe */
 static pid_t proc_id = -1;
+static Window locker_window_id = 0;
+static WindowPtr locker_window = NULL;
 
 static int
 ProcMyextensionQueryVersion(ClientPtr client)
@@ -213,6 +219,111 @@ check_new_exec_path(const char * s) {
     return 0;
 }
 
+/*
+ * required because `XCreateWindow` is broken or something.
+ * creates a window owned by the server for use by the client and sets
+ * `pWin->drawable.pScreen->screenlocker`.
+ */
+static int
+CreateWindow(ClientPtr client, xMyextensionCreateWindowReq * stuff,
+             unsigned long mask, const XID values[2]) {
+    WindowPtr pWin;
+    if (locker_window) {
+        pWin = locker_window;
+        goto send_reply;
+    }
+
+    /* adapted from `ProcCreateWindow()` */
+    Window wid;
+    GetXIDList(serverClient, 1, &wid);
+    LEGAL_NEW_RESOURCE(wid, serverClient);
+
+    WindowPtr pParent;
+    int rc = dixLookupWindow(&pParent, stuff->parent, serverClient, DixAddAccess);
+    if (rc != Success)
+        return rc;
+
+    /* create window */
+#define rand_num 50 /* used to make window large than screen in all dimensions by `rand_num` */
+    pWin = dixCreateWindow(wid, pParent, 0 - rand_num, 0 - rand_num,
+               pParent->drawable.width + rand_num,
+               pParent->drawable.height + rand_num,
+               0, CopyFromParent, mask,
+               stuff->background_pixel_len == 1? (XID *)values: (XID *)&values[1],
+               pParent->drawable.depth, serverClient, stuff->visualid, &rc);
+#undef rand_num
+
+    if (!pWin)
+        return FALSE;
+
+    pWin->drawable.pScreen->screenlocker = 1; /* screenlocker window exists on
+                                               * this screen */
+
+    Mask eventmask = pWin->eventMask;
+    pWin->eventMask = 0;    /* subterfuge in case AddResource fails */
+    if (!AddResource(wid, X11_RESTYPE_WINDOW, pWin))
+        return BadAlloc;
+    pWin->eventMask = eventmask;
+
+    /* save values */
+    locker_window_id = wid;
+    locker_window = pWin;
+
+send_reply:
+    xMyextensionCreateWindowReply rep = {
+        .type = X_Reply,
+        .sequenceNumber = client->sequence,
+        .locker_window = pWin->drawable.id,
+    };
+
+    WriteToClient(client, sizeof(rep), &rep);
+    return Success;
+}
+
+static int
+ProcMyextensionCreateWindow(ClientPtr client) {
+    REQUEST(xMyextensionCreateWindowReq);
+
+    unsigned long mask = CWOverrideRedirect;
+    XID values[2] = {-1, 1}; /* CWBackPixel, CWOverrideRedirect */
+
+    const uint32_t * background_pixel = (uint32_t *)&stuff[1];
+    if (stuff->background_pixel_len > 1)
+        return BadValue;
+    else if (stuff->background_pixel_len == 1) {
+        LogMessage(X_INFO, "pix %p is %u\n", background_pixel, *background_pixel);
+        values[0] = *background_pixel;
+        mask |= CWBackPixel;
+    }
+
+    for (size_t i = 0; i < ARRAY_SIZE(values); ++i)
+        LogMessage(X_INFO, "mask value: %u\n", values[i]);
+
+    return CreateWindow(client, stuff, mask, values);
+}
+
+/*
+ * destroys window and clears `pWin->drawable.pScreen->screenlocker`
+ */
+static int
+ProcMyextensionDestroyWindow(ClientPtr client) {
+    REQUEST(xMyextensionDestroyWindowReq);
+
+    WindowPtr pWin;
+    int rc = dixLookupWindow(&pWin, stuff->locker_window, client, DixAddAccess);
+    if (rc != Success)
+        return rc;
+
+    pWin->drawable.pScreen->screenlocker = 0;
+
+    if (locker_window)
+        FreeResource(locker_window_id, X11_RESTYPE_NONE); /* use `DeleteWindow()` instead? */
+    locker_window = NULL;
+    locker_window_id = 0;
+
+    return Success;
+}
+
 static int
 ProcMyextensionRegisterScreenLocker(ClientPtr client) {
     REQUEST(xMyextensionRegisterScreenLockerReq);
@@ -321,6 +432,10 @@ ProcScreenSaverDispatch(ClientPtr client)
             return ProcMyextensionRegisterScreenLocker(client);
         case X_MyextensionUnregisterScreenLocker:
             return ProcMyextensionUnregisterScreenLocker(client);
+        case X_MyextensionCreateWindow:
+            return ProcMyextensionCreateWindow(client);
+        case X_MyextensionDestroyWindow:
+            return ProcMyextensionDestroyWindow(client);
         default:
             return BadRequest;
     }
