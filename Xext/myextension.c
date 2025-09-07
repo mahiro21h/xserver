@@ -67,7 +67,7 @@ enum ddxattr {
 
 #include "dix/dispatch.h"
 
-static int _X_COLD
+static int
 lockscreen(ClientPtr client) {
     if (!get_ddxInfo_wrap(dontVTSwitch))
         set_ddxInfo_wrap(dontVTSwitch, TRUE);
@@ -79,7 +79,7 @@ lockscreen(ClientPtr client) {
     return Success;
 }
 
-static int _X_COLD
+static int
 unlockscreen(ClientPtr client) {
     if (get_ddxInfo_wrap(dontVTSwitch))
         set_ddxInfo_wrap(dontVTSwitch, FALSE);
