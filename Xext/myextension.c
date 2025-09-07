@@ -22,6 +22,10 @@
 #include "windowstr.h"
 
 #define EXEC_PATH_MAX (255) /* includes null character */
+#define debug_message(type, fmt, ...) \
+    LogMessage(type, "%s:%d: " fmt, __func__, __LINE__ \
+               __VA_OPT__(, ) __VA_ARGS__); /* relies on a c23 feature */
+
 
 Bool noMyextensionExtension = FALSE;
 
@@ -96,7 +100,7 @@ static int
 wait_process(pid_t pid) {
     char filepath[255];
     sprintf(filepath, "/proc/%d/stat", pid);
-    LogMessage(X_INFO, "file: '%s'\n", filepath);
+    debug_message(X_INFO, "file: '%s'\n", filepath);
 
     char * procname = NULL;
 
@@ -104,7 +108,7 @@ wait_process(pid_t pid) {
         .tv_sec = 0, .tv_nsec = (300 * 1000 * 1000) /* 300ms */
     };
     while(1) {
-        LogMessage(X_INFO, "checking...\n");
+        debug_message(X_INFO, "checking...\n");
         FILE * stat = fopen(filepath, "r");
         if (!stat && procname) { /* we'll assume file no longer exists.
                                   * process died */
@@ -150,8 +154,8 @@ restart_client(_X_UNUSED void * vargp) {
         switch(fork()) {
         case -1:
             /* TODO: try again */
-            LogMessage(X_ERROR, "fork failed\n");
             goto leave;
+            debug_message(X_ERROR, "fork failed\n");
 
             break;
         case 0:
@@ -177,14 +181,14 @@ check_client_str(size_t n, const char * s) {
     const char * s_null;
 
     if (!(s_null = memchr(s, '\0', EXEC_PATH_MAX))) { /* not null terminated */
-        LogMessage(X_ERROR, "not null terminated\n");
+        debug_message(X_ERROR, "not null terminated\n");
         return -1;
     }
 
-    LogMessage(X_INFO, "null: '%02x', at: %zu\n", *s_null, s_null - s);
+    debug_message(X_INFO, "null: '%02x', at: %zu\n", *s_null, s_null - s);
 
     if (s_null - s != n || s_null - s == 0) { /* client-provided length is wrong */
-        LogMessage(X_ERROR, "invalid length. calculated: %zu, provided: %zu\n",
+        debug_message(X_ERROR, "invalid length. calculated: %zu, provided: %zu\n",
                    s_null - s, n);
         return -1;
     }
@@ -204,14 +208,14 @@ check_new_exec_path(const char * s) {
     saved_errno = errno;
 
     if (!real) {
-        LogMessage(X_ERROR, "failed to get real path: '%s'\n", strerror(saved_errno));
+        debug_message(X_ERROR, "failed to get real path: '%s'\n", strerror(saved_errno));
         return -1;
     }
 
-    LogMessage(X_INFO, "real path: '%s'\n", real);
+    debug_message(X_INFO, "real path: '%s'\n", real);
 
     if(strcmp(s, real) != 0) {
-        LogMessage(X_ERROR, "'%s' is a symlink or is not an absolute path\n", s);
+        debug_message(X_ERROR, "'%s' is a symlink or is not an absolute path\n", s);
         return -1;
     }
 
@@ -291,13 +295,13 @@ ProcMyextensionCreateWindow(ClientPtr client) {
     if (stuff->background_pixel_len > 1)
         return BadValue;
     else if (stuff->background_pixel_len == 1) {
-        LogMessage(X_INFO, "pix %p is %u\n", background_pixel, *background_pixel);
+        debug_message(X_INFO, "pix %p is %u\n", background_pixel, *background_pixel);
         values[0] = *background_pixel;
         mask |= CWBackPixel;
     }
 
     for (size_t i = 0; i < ARRAY_SIZE(values); ++i)
-        LogMessage(X_INFO, "mask value: %u\n", values[i]);
+        debug_message(X_INFO, "mask value: %u\n", values[i]);
 
     return CreateWindow(client, stuff, mask, values);
 }
@@ -328,7 +332,7 @@ static int
 ProcMyextensionRegisterScreenLocker(ClientPtr client) {
     REQUEST(xMyextensionRegisterScreenLockerReq);
 
-    LogMessage(X_INFO, "expected: %zu, got: %u\n",
+    debug_message(X_INFO, "expected: %zu, got: %u\n",
                sizeof(xMyextensionRegisterScreenLockerReq) >> 2, client->req_len);
 
     /*
@@ -340,7 +344,7 @@ ProcMyextensionRegisterScreenLocker(ClientPtr client) {
 
     if (stuff->exec_path_len > EXEC_PATH_MAX - 1
             || stuff->exec_path_len == 0) { /* invalid length */
-        LogMessage(X_ERROR, "exec_path_len: %u\n", stuff->exec_path_len);
+        debug_message(X_ERROR, "exec_path_len: %u\n", stuff->exec_path_len);
         return BadValue;
     }
 
@@ -371,7 +375,7 @@ ProcMyextensionRegisterScreenLocker(ClientPtr client) {
         return BadAlloc;
     }
 
-    LogMessage(X_INFO, "registered screenlocker: '%s'\n", exec_path);
+    debug_message(X_INFO, "registered screenlocker: '%s'\n", exec_path);
 reply:
     xMyextensionRegisterScreenLockerReply rep = {
         .type = X_Reply,
@@ -380,7 +384,7 @@ reply:
         .exec_path_len = exec_path? strlen(exec_path) + 1: 0,
     };
 
-    LogMessage(X_INFO, "exec len: %u\n", rep.exec_path_len);
+    debug_message(X_INFO, "exec len: %u\n", rep.exec_path_len);
 
     if (client->swapped) {
         FatalError("fixme?");
@@ -396,7 +400,7 @@ reply:
 
 static int
 ProcMyextensionUnregisterScreenLocker(ClientPtr client) {
-    LogMessage(X_INFO, "expected: %zu, got: %d\n",
+    debug_message(X_INFO, "expected: %zu, got: %d\n",
                (sizeof(xMyextensionUnregisterScreenLockerReq) >> 2), client->req_len);
     REQUEST_SIZE_MATCH(xMyextensionUnregisterScreenLockerReq);
 
