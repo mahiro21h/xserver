@@ -9,12 +9,14 @@
 #include <X11/Xproto.h>
 #include <X11/extensions/myextensionproto.h>
 
+#include "dix.h"
 #include "miext/extinit_priv.h"
 
 #include "misc.h"
 #include "os.h"
 #include "protocol-versions.h"
 #include <pthread.h>
+#include <string.h>
 #include <unistd.h>
 #include <sys/wait.h>
 #include <errno.h>
