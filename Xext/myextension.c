@@ -1,5 +1,6 @@
 #include <X11/Xfuncproto.h>
 #include <X11/Xmd.h>
+#include <asm-generic/errno-base.h>
 #include <dix-config.h>
 
 #include <stdatomic.h>
@@ -14,14 +15,17 @@
 #include "os.h"
 #include "protocol-versions.h"
 #include <pthread.h>
+#include <unistd.h>
 #include <sys/wait.h>
 #include <errno.h>
+#include <fcntl.h>
 #include "dix/window_priv.h"
 #include "dix/dix_priv.h"
 #include "resource.h"
 #include "windowstr.h"
 
 #define EXEC_PATH_MAX (255) /* includes null character */
+#define EXEC_FAILED_ATTEMPT_MAX (10) /* limit of attempts to re-launch locker */
 #define debug_message(type, fmt, ...) \
     LogMessage(type, "%s:%d: " fmt, __func__, __LINE__ \
                __VA_OPT__(, ) __VA_ARGS__); /* relies on a c23 feature */
@@ -150,25 +154,64 @@ restart_client(_X_UNUSED void * vargp) {
     /* if (proc_id != -1) */
     /*     wait_process(proc_id); /\* wait for original process *\/ */
 
-    while (thread_run == 1) {
+    int failed_attempts = 0;
+    while (thread_run == 1 && failed_attempts < EXEC_FAILED_ATTEMPT_MAX) {
+        int fds[2] = {-1, -1};
+        if (pipe(fds)) {
+            debug_message(X_ERROR, "pipe()\n");
+            goto try_again;
+        }
+
+        if (fcntl(fds[1], F_SETFD, fcntl(fds[1], F_GETFD) | FD_CLOEXEC)) {
+            debug_message(X_ERROR, "fcntl()\n");
+            goto try_again;
+        }
+
         switch(fork()) {
         case -1:
-            /* TODO: try again */
-            goto leave;
-            debug_message(X_ERROR, "fork failed\n");
-
-            break;
+            debug_message(X_ERROR, "fork() failed\n");
+            goto try_again;
         case 0:
             /* child */
-            execvp(exec_path, (char *[]){exec_path, NULL});
-            LogMessage(X_ERROR, "execvp failed\n");
-            exit(0);
+            close(fds[0]);
+            fds[0] = -1;
+
+            int e = execv(exec_path, (char *[]){exec_path, NULL});
+            write(fds[1], &errno, sizeof(errno));
+
+            exit(e);
         default:
-            wait(NULL);
+            break;
         }
+        /* fork succeeded */
+        close(fds[1]);
+        fds[1] = -1;
+
+        int err, count;
+        while((count = read(fds[0], &err, sizeof(errno))) == -1)
+            if(errno != EAGAIN && errno != EINTR)
+                break;
+
+        if (count) { /* execvp() failed */
+            debug_message(X_ERROR, "execvp() failed: %s\n", strerror(err));
+            ++failed_attempts;
+            goto try_again;
+        }
+
+        /* re-launching succeeded, wait for client */
+        failed_attempts = 0; /* reset failed attempts */
+        debug_message(X_INFO, "client started\n");
+        wait(NULL);
+
+    try_again:
+        if (fds[0] != -1)
+            close(fds[0]);
+        if (fds[1] != -1)
+            close(fds[1]);
+
+        nanosleep(&(struct timespec){.tv_sec = 0, .tv_nsec = 300 * 100 * 100}, NULL); /* 300 ms */
     }
 
-leave:
     return NULL;
 }
 
