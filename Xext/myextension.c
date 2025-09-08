@@ -336,7 +336,7 @@ ProcMyextensionCreateWindow(ClientPtr client) {
     unsigned long mask = CWOverrideRedirect;
     XID values[2] = {-1, 1}; /* CWBackPixel, CWOverrideRedirect */
 
-    const uint32_t * background_pixel = (uint32_t *)&stuff[1];
+    const CARD32 * background_pixel = (CARD32 *)&stuff[1];
     if (stuff->background_pixel_len > 1)
         return BadValue;
     else if (stuff->background_pixel_len == 1) {
