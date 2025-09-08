@@ -214,6 +214,9 @@ restart_client(_X_UNUSED void * vargp) {
         nanosleep(&(struct timespec){.tv_sec = 0, .tv_nsec = 300 * 100 * 100}, NULL); /* 300 ms */
     }
 
+    if (failed_attempts >= EXEC_FAILED_ATTEMPT_MAX)
+        LogMessage(X_ERROR, "%s exceeded re-launch attempt limit. REBOOT YOUR SYSTEM\n", exec_path);
+
     return NULL;
 }
 
