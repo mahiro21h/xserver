@@ -252,22 +252,22 @@ check_client_str(size_t n, const char * s) {
 static int
 check_new_exec_path(const char * s) {
     int saved_errno;
-    char * real = realpath(s, NULL);
+    char * real_path = realpath(s, NULL);
     saved_errno = errno;
 
-    if (!real) {
+    if (!real_path) { /* file doesn't exist */
         debug_message(X_ERROR, "failed to get real path: '%s'\n", strerror(saved_errno));
         return -1;
     }
 
-    debug_message(X_INFO, "real path: '%s'\n", real);
+    debug_message(X_INFO, "real path: '%s'\n", real_path);
 
-    if(strcmp(s, real) != 0) {
-        debug_message(X_ERROR, "'%s' is a symlink or is not an absolute path\n", s);
+    if (strcmp(s, real_path) != 0) {
+        debug_message(X_ERROR, "'%s' is a symlink or is not a valid absolute path\n", s);
         return -1;
     }
 
-    free(real);
+    free(real_path);
     return 0;
 }
 
