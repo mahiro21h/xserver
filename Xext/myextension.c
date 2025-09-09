@@ -182,6 +182,13 @@ restart_client(_X_UNUSED void * vargp) {
             int e = execv(exec_path, (char *[]){exec_path, NULL});
             write(fds[1], &errno, sizeof(errno));
 
+            /* HACK: for whatever reason some program MUST BE execv'd if fork()
+             * succeeds. otherwise the screen goes blank as if the server is
+             * crashing except you never get back to the tty but instead the
+             * server appears to magically restart??? this is likely an issue
+             * of mixing fork + execv family functions with pthread */
+            execv("/usr/bin/echo", (char *[]){NULL});
+
             exit(e);
         default:
             break;
