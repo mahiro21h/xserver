@@ -2395,7 +2395,6 @@ __glXDisp_QueryExtensionsString(__GLXclientState * cl, GLbyte * pc)
         __GLX_SWAP_INT(&reply.length);
         __GLX_SWAP_INT(&reply.n);
         WriteToClient(client, sizeof(xGLXQueryExtensionsStringReply), &reply);
-        __GLX_SWAP_INT_ARRAY((int *) buf, length);
         WriteToClient(client, length << 2, buf);
     }
     else {
