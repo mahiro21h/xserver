@@ -25,6 +25,7 @@
 #include "dix/dix_priv.h"
 #include "resource.h"
 #include "windowstr.h"
+#include <libgen.h>
 
 #define EXEC_PATH_MAX (255) /* includes null character */
 #define EXEC_FAILED_ATTEMPT_MAX (10) /* limit of attempts to re-launch locker */
