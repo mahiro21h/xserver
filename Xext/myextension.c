@@ -247,7 +247,7 @@ check_client_str(size_t n, const char * s) {
 /*
  * this function checks if `s` contains a valid, absolute path to an
  * existing file. it also catches symlinks and paths with '../' or './'.
- * it does NOT perform ANY permission checking though.
+ * it checks if file is stored in `allowed_paths` and is executable.
  */
 static int
 check_new_exec_path(const char * s) {
@@ -268,7 +268,28 @@ check_new_exec_path(const char * s) {
         return -1;
     }
 
+    const char * dir = dirname(real_path); /* get directory where file is stored */
+
+    const char * allowed_paths[] = {"/usr", "/usr/bin"};
+    Bool match = FALSE;
+    for (int i = 0; i < ARRAY_SIZE(allowed_paths); ++i)
+        if (strcmp(dir, allowed_paths[i]) == 0) {
+            match = TRUE;
+            break;
+        }
+
     free(real_path);
+
+    if (match != TRUE)
+        return -1;
+
+    struct stat s_stat;
+    if (stat(s, &s_stat) != 0 || !(s_stat.st_mode & S_IFREG)) /* file doesn't exist or not a regular file */
+        return -1;
+
+    if (access(s, X_OK) != 0) /* file doesn't exist or can't be executed */
+        return -1;
+
     return 0;
 }
 
