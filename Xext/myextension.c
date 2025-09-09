@@ -264,6 +264,7 @@ check_new_exec_path(const char * s) {
 
     if (strcmp(s, real_path) != 0) {
         debug_message(X_ERROR, "'%s' is a symlink or is not a valid absolute path\n", s);
+        free(real_path);
         return -1;
     }
 
